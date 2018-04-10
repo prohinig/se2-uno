@@ -15,9 +15,15 @@ public class Stack {
         this.cards = new ArrayList<Card>();
     }
 
-    public void layCard(Card card){
-        this.cards.add(card);
-        this.topCard = card;
+    // returns true if successfully playd
+    public boolean playCard(Card card) {
+        if (this.canPlayCard(card)){
+            this.cards.add(card);
+            this.topCard = card;
+            return true;
+        }else {
+            return false;
+        }
     }
 
     public Card getTopCard(){
@@ -35,8 +41,15 @@ public class Stack {
         stackCards.addAll(this.cards);
 
         this.cards.clear();
-        this.layCard(topCard);
+        this.cards.add(topCard);
 
         return stackCards;
+    }
+
+    // maybe put this functionality somewhere else
+    // but it can always be moved easily afterwards
+    public boolean canPlayCard(Card card) {
+        // TODO implement rules by comparing top card with card to be layed
+        return true;
     }
 }
