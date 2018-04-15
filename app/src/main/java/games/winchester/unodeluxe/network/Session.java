@@ -1,6 +1,6 @@
 package games.winchester.unodeluxe.network;
 
-import at.laubi.proofofconcept.messages.Message;
+import games.winchester.unodeluxe.messages.Message;
 
 import java.io.IOException;
 

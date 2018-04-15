@@ -1,6 +1,7 @@
 package games.winchester.unodeluxe.network;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.SocketException;
 
@@ -11,7 +12,12 @@ public class Server {
     public Server(int port) throws IOException {
         this.socket = new ServerSocket(port);
 
-        this.thread = new Thread(this::serve);
+        this.thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                serve();
+            }
+        });
         this.thread.setDaemon(false);
         this.thread.setName(getClass().getName());
         this.thread.start();
@@ -34,5 +40,9 @@ public class Server {
 
     private void close() throws IOException {
         this.socket.close();
+    }
+
+    public InetAddress getInetAddress(){
+        return this.socket.getInetAddress();
     }
 }

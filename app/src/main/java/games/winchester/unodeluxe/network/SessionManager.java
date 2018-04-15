@@ -1,6 +1,6 @@
 package games.winchester.unodeluxe.network;
 
-import at.laubi.proofofconcept.messages.Message;
+import games.winchester.unodeluxe.messages.Message;
 
 import java.util.*;
 
@@ -19,15 +19,15 @@ public class SessionManager {
     }
 
     private void emitConnected(Session session){
-        listeners.forEach(l -> l.connected(session));
+        for(SessionEvents e : listeners) e.connected(session);
     }
 
     void emitNewMessage(Session session, Message message){
-        listeners.forEach(l -> l.newMessage(session, message));
+        for(SessionEvents e : listeners) e.newMessage(session, message);
     }
 
     void emitClosed(Session session){
-        listeners.forEach(l -> l.closed(session));
+        for(SessionEvents e : listeners) e.closed(session);
     }
 
     public void addListener(SessionEvents listener) {

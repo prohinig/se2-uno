@@ -1,8 +1,5 @@
 package games.winchester.unodeluxe.network;
 
-import at.laubi.proofofconcept.messages.Message;
-import at.laubi.proofofconcept.messages.ConnectionEndMessage;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -10,8 +7,11 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
-import static at.laubi.proofofconcept.network.Session.SocketState.Closed;
-import static at.laubi.proofofconcept.network.Session.SocketState.Open;
+import games.winchester.unodeluxe.messages.ConnectionEndMessage;
+import games.winchester.unodeluxe.messages.Message;
+
+import static games.winchester.unodeluxe.network.Session.SocketState.Closed;
+import static games.winchester.unodeluxe.network.Session.SocketState.Open;
 
 public class SessionImpl implements Session {
 
@@ -44,7 +44,12 @@ public class SessionImpl implements Session {
 
         this.state = Open;
 
-        this.thread = new Thread(this::readStream);
+        this.thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                readStream();
+            }
+        });
         this.thread.setName(getClass().getName() + " - " + this.sessionId);
         this.thread.start();
 
