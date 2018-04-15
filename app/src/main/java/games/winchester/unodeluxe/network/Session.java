@@ -1,4 +1,4 @@
-package at.laubi.proofofconcept.network;
+package games.winchester.unodeluxe.network;
 
 import at.laubi.proofofconcept.messages.Message;
 

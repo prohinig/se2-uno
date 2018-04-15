@@ -1,4 +1,4 @@
-package at.laubi.proofofconcept.messages;
+package games.winchester.unodeluxe.messages;
 
 import java.io.*;
 

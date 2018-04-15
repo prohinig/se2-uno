@@ -1,4 +1,4 @@
-package at.laubi.proofofconcept.messages;
+package games.winchester.unodeluxe.messages;
 
 public class SimpleStringMessage implements Message {
     private String message;

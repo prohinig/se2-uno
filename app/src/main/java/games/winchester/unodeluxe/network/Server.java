@@ -1,4 +1,4 @@
-package at.laubi.proofofconcept.network;
+package games.winchester.unodeluxe.network;
 
 import java.io.IOException;
 import java.net.ServerSocket;
