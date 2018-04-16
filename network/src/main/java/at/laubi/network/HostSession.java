@@ -1,7 +1,5 @@
 package at.laubi.network;
 
-import android.util.Log;
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,8 +7,8 @@ import java.net.SocketException;
 import java.util.LinkedList;
 import java.util.List;
 
-import games.winchester.unodeluxe.messages.ConnectionEndMessage;
-import games.winchester.unodeluxe.messages.Message;
+import at.laubi.network.messages.ConnectionEndMessage;
+import at.laubi.network.messages.Message;
 
 public class HostSession implements Session {
     private final List<ClientSession> connectedClients = new LinkedList<>();
@@ -84,7 +82,6 @@ public class HostSession implements Session {
             }catch(SocketException exception) {
                 // Socket closed
                 acceptThread.interrupt();
-                Log.d("Host", "Socket closed (exception)");
             }catch(Exception e){
                 network.callFallbackException(e, this);
             }

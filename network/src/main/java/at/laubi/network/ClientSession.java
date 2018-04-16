@@ -1,7 +1,5 @@
 package at.laubi.network;
 
-import android.util.Log;
-
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -9,8 +7,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
-import games.winchester.unodeluxe.messages.ConnectionEndMessage;
-import games.winchester.unodeluxe.messages.Message;
+import at.laubi.network.messages.ConnectionEndMessage;
+import at.laubi.network.messages.Message;
 
 public class ClientSession implements Session {
 
@@ -87,8 +85,6 @@ public class ClientSession implements Session {
 
             }catch (SocketException|EOFException e) {
                 this.close();
-
-                Log.d("Client", e.getMessage());
 
             }catch(Exception e) {
                 this.network.callFallbackException(e, this);
