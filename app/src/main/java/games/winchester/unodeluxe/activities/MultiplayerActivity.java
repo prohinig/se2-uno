@@ -8,19 +8,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import at.laubi.network.MessageSendListener;
+import at.laubi.network.Network.FallbackCallbacks;
+import at.laubi.network.messages.Message;
 import games.winchester.unodeluxe.R;
-import games.winchester.unodeluxe.messages.Message;
 import games.winchester.unodeluxe.messages.SimpleStringMessage;
-import games.winchester.unodeluxe.network.ClientSession;
-import games.winchester.unodeluxe.network.HostSession;
-import games.winchester.unodeluxe.network.Network;
-import games.winchester.unodeluxe.network.Session;
-import games.winchester.unodeluxe.network.tasks.MessageSendTask;
+import at.laubi.network.ClientSession;
+import at.laubi.network.HostSession;
+import at.laubi.network.Network;
+import at.laubi.network.Session;
 import games.winchester.unodeluxe.utils.NetworkUtils;
 
 public class MultiplayerActivity extends AppCompatActivity {
-    private static int PORT = 10001;
-
     TextView ip;
     Button btnConnect, btnHost, btnSend;
     EditText etIp, etMessage;
@@ -63,7 +62,7 @@ public class MultiplayerActivity extends AppCompatActivity {
         this.btnSend.setEnabled(false);
 
         Network.Options options = new Network.Options();
-        options.callbacks = new Network.FallbackCallbacks() {
+        options.callbacks = new FallbackCallbacks() {
             @Override
             public void onException(Exception e, Session s) {
                 toastUiThread(e.getMessage());
@@ -134,7 +133,7 @@ public class MultiplayerActivity extends AppCompatActivity {
     }
 
     private void onBtnSend(){
-        session.send(new SimpleStringMessage(this.etMessage.getText().toString()), new MessageSendTask.MessageSendListener() {
+        session.send(new SimpleStringMessage(this.etMessage.getText().toString()), new MessageSendListener() {
             @Override
             public void onException(Exception e) {
 

@@ -1,4 +1,4 @@
-package games.winchester.unodeluxe.messages;
+package at.laubi.network.messages;
 
 public class ConnectionEndMessage implements Message {
 }

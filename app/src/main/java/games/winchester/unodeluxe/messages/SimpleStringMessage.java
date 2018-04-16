@@ -1,5 +1,7 @@
 package games.winchester.unodeluxe.messages;
 
+import at.laubi.network.messages.Message;
+
 public class SimpleStringMessage implements Message {
     private String message;
 

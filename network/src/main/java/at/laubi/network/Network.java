@@ -1,11 +1,9 @@
-package games.winchester.unodeluxe.network;
-
-import android.util.Log;
+package at.laubi.network;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import games.winchester.unodeluxe.messages.Message;
+import at.laubi.network.messages.Message;
 
 public class Network {
 
@@ -77,7 +75,6 @@ public class Network {
     }
 
     public void callFallbackException(Exception e, Session s){
-        Log.d("Network", e.getMessage());
         if(options.callbacks != null) options.callbacks.onException(e, s);
 
     }

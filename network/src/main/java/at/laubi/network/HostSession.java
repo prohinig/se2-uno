@@ -1,4 +1,4 @@
-package games.winchester.unodeluxe.network;
+package at.laubi.network;
 
 import android.util.Log;
 
@@ -11,7 +11,6 @@ import java.util.List;
 
 import games.winchester.unodeluxe.messages.ConnectionEndMessage;
 import games.winchester.unodeluxe.messages.Message;
-import games.winchester.unodeluxe.network.tasks.MessageSendTask;
 
 public class HostSession implements Session {
     private final List<ClientSession> connectedClients = new LinkedList<>();
@@ -40,7 +39,7 @@ public class HostSession implements Session {
     }
 
     @Override
-    public void send(Message message, MessageSendTask.MessageSendListener listener) {
+    public void send(Message message, MessageSendListener listener) {
         for(ClientSession cur : this.connectedClients) {
             cur.send(message, listener);
         }
