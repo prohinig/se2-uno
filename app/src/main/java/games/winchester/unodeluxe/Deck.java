@@ -37,6 +37,9 @@ public class Deck {
                             case PLUSFOUR:
                             case WISH:
                                 break;
+                            case ZERO:
+                                this.addCard(color, symbol, 1);
+                                break;
                             default:
                                 // there are 2 of each coloured ones
                                 this.addCard(color, symbol, 2);
@@ -87,5 +90,9 @@ public class Deck {
         }
 
         return dealtCards;
+    }
+
+    public int getSize() {
+        return this.cards.size();
     }
 }

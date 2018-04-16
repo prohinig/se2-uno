@@ -30,6 +30,10 @@ public class Stack {
         return this.topCard;
     }
 
+    public int getSize(){
+        return this.cards.size();
+    }
+
     // to be called when shuffling stack back into deck
     // removes all but the top card from stack
     public ArrayList<Card> getCards() {
