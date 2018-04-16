@@ -106,16 +106,18 @@ public class ClientSession implements Session {
     }
 
     static ClientSession open(String host, Network network) throws IOException {
-        Socket socket = new Socket(host, network.options.port);
-        socket.setSoTimeout(network.options.timeout);
-        socket.setReuseAddress(network.options.reuseAddress);
+        Network.Options options = network.getOptions();
+        Socket socket = new Socket(host, options.port);
+        socket.setSoTimeout(options.timeout);
+        socket.setReuseAddress(options.reuseAddress);
 
         return new ClientSession(socket, network);
     }
 
     static ClientSession from(Socket socket, Network network) throws IOException{
-        socket.setSoTimeout(network.options.timeout);
-        socket.setReuseAddress(network.options.reuseAddress);
+        Network.Options options = network.getOptions();
+        socket.setSoTimeout(options.timeout);
+        socket.setReuseAddress(options.reuseAddress);
 
         return new ClientSession(socket, network);
     }

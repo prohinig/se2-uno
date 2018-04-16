@@ -24,7 +24,7 @@ public class Network {
         public boolean reuseAddress = true;
     }
 
-    Options options;
+    private Options options;
     private final ExecutorService executor = Executors.newFixedThreadPool(1);
     private HostSession hostSession;
 

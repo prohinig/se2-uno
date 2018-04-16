@@ -65,9 +65,10 @@ public class HostSession implements Session {
     }
 
     static HostSession open(Network network) throws IOException {
-        ServerSocket socket = new ServerSocket(network.options.port);
-        socket.setSoTimeout(network.options.timeout);
-        socket.setReuseAddress(network.options.reuseAddress);
+        Network.Options options = network.getOptions();
+        ServerSocket socket = new ServerSocket(options.port);
+        socket.setSoTimeout(options.timeout);
+        socket.setReuseAddress(options.reuseAddress);
 
         return new HostSession(socket, network);
     }
