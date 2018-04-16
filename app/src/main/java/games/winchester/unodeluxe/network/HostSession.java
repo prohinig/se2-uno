@@ -1,0 +1,94 @@
+package games.winchester.unodeluxe.network;
+
+import android.util.Log;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.SocketException;
+import java.util.LinkedList;
+import java.util.List;
+
+import games.winchester.unodeluxe.messages.ConnectionEndMessage;
+import games.winchester.unodeluxe.messages.Message;
+import games.winchester.unodeluxe.network.tasks.MessageSendTask;
+
+public class HostSession implements Session {
+    private final List<ClientSession> connectedClients = new LinkedList<>();
+
+    private final ServerSocket serverSocket;
+    private final Network network;
+
+    private Thread acceptThread = new Thread(new Runnable() {
+        @Override
+        public void run() {
+            acceptLoop();
+        }
+    });
+
+
+    private HostSession(ServerSocket socket, Network network) {
+        this.serverSocket = socket;
+        this.network = network;
+
+        this.acceptThread.start();
+    }
+
+    @Override
+    public void send(Message message) {
+        this.send(message, null);
+    }
+
+    @Override
+    public void send(Message message, MessageSendTask.MessageSendListener listener) {
+        for(ClientSession cur : this.connectedClients) {
+            cur.send(message, listener);
+        }
+    }
+
+    @Override
+    public void close() {
+        send(new ConnectionEndMessage());
+
+        network.addTask(new Runnable() {
+            @Override
+            public void run() {
+            try {
+                serverSocket.close();
+            }catch(Exception e){
+                network.callFallbackException(e, HostSession.this);
+            }
+            }
+        });
+    }
+
+    @Override
+    public boolean isClosed() {
+        return this.serverSocket.isClosed();
+    }
+
+    static HostSession open(Network network) throws IOException {
+        ServerSocket socket = new ServerSocket(network.options.port);
+        socket.setSoTimeout(network.options.timeout);
+        socket.setReuseAddress(network.options.reuseAddress);
+
+        return new HostSession(socket, network);
+    }
+
+    private void acceptLoop(){
+        while(!Thread.interrupted()) {
+            try {
+                Socket client = serverSocket.accept();
+
+                this.connectedClients.add(ClientSession.from(client, network));
+
+            }catch(SocketException exception) {
+                // Socket closed
+                acceptThread.interrupt();
+                Log.d("Host", "Socket closed (exception)");
+            }catch(Exception e){
+                network.callFallbackException(e, this);
+            }
+        }
+    }
+}

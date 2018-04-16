@@ -14,19 +14,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" >
 
-            <TextView
-                android:id="@+id/tvIp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                tools:layout_editor_absoluteX="25dp"
-                tools:layout_editor_absoluteY="34dp" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
-
             <Button
                 android:id="@+id/btnCreateServer"
                 android:layout_width="wrap_content"
@@ -35,6 +22,16 @@
                 android:text="Create Server"
                 tools:layout_editor_absoluteX="34dp"
                 tools:layout_editor_absoluteY="34dp" />
+
+            <TextView
+                android:id="@+id/tvIp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                tools:layout_editor_absoluteX="25dp"
+                tools:layout_editor_absoluteY="34dp"
+                tools:text="Create a server" />
+
         </TableRow>
 
         <TableRow
@@ -49,11 +46,6 @@
                 android:text="Connect"
                 tools:layout_editor_absoluteX="248dp"
                 tools:layout_editor_absoluteY="34dp" />
-        </TableRow>
-
-        <TableRow
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" >
 
             <EditText
                 android:id="@+id/inputIp"
@@ -61,10 +53,38 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
+                android:hint="Host"
                 android:inputType="textPersonName"
-                android:text="Name"
                 tools:layout_editor_absoluteX="25dp"
                 tools:layout_editor_absoluteY="90dp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
+            <EditText
+                android:id="@+id/editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ems="10"
+                android:hint="Message"
+                android:inputType="textPersonName" />
+
+            <Button
+                android:id="@+id/btnSendMessage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Send" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" >
+
         </TableRow>
     </TableLayout>
 
