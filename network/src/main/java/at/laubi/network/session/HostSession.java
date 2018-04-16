@@ -9,6 +9,7 @@ import java.util.List;
 
 import at.laubi.network.MessageSendListener;
 import at.laubi.network.Network;
+import at.laubi.network.NetworkOptions;
 import at.laubi.network.messages.ConnectionEndMessage;
 import at.laubi.network.messages.Message;
 
@@ -67,7 +68,7 @@ public class HostSession implements Session {
     }
 
     public static HostSession open(Network network) throws IOException {
-        Network.Options options = network.getOptions();
+        NetworkOptions options = network.getOptions();
         ServerSocket socket = new ServerSocket(options.port);
         socket.setSoTimeout(options.timeout);
         socket.setReuseAddress(options.reuseAddress);

@@ -9,6 +9,7 @@ import java.net.SocketException;
 
 import at.laubi.network.MessageSendListener;
 import at.laubi.network.Network;
+import at.laubi.network.NetworkOptions;
 import at.laubi.network.messages.ConnectionEndMessage;
 import at.laubi.network.messages.Message;
 
@@ -95,7 +96,7 @@ public class ClientSession implements Session {
     }
 
     public static ClientSession open(String host, Network network) throws IOException {
-        Network.Options options = network.getOptions();
+        NetworkOptions options = network.getOptions();
         Socket socket = new Socket(host, options.port);
         socket.setSoTimeout(options.timeout);
         socket.setReuseAddress(options.reuseAddress);
@@ -104,7 +105,7 @@ public class ClientSession implements Session {
     }
 
     public static ClientSession from(Socket socket, Network network) throws IOException{
-        Network.Options options = network.getOptions();
+        NetworkOptions options = network.getOptions();
         socket.setSoTimeout(options.timeout);
         socket.setReuseAddress(options.reuseAddress);
 

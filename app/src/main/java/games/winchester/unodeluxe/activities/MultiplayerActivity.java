@@ -1,22 +1,24 @@
 package games.winchester.unodeluxe.activities;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import at.laubi.network.CreationListener;
 import at.laubi.network.MessageSendListener;
-import at.laubi.network.Network.FallbackCallbacks;
+import at.laubi.network.Network;
+import at.laubi.network.NetworkOptions.FallbackCallbacks;
+import at.laubi.network.NetworkOptions;
 import at.laubi.network.messages.Message;
-import games.winchester.unodeluxe.R;
-import games.winchester.unodeluxe.messages.SimpleStringMessage;
 import at.laubi.network.session.ClientSession;
 import at.laubi.network.session.HostSession;
-import at.laubi.network.Network;
 import at.laubi.network.session.Session;
+import games.winchester.unodeluxe.R;
+import games.winchester.unodeluxe.messages.SimpleStringMessage;
 import games.winchester.unodeluxe.utils.NetworkUtils;
 
 public class MultiplayerActivity extends AppCompatActivity {
@@ -61,7 +63,7 @@ public class MultiplayerActivity extends AppCompatActivity {
 
         this.btnSend.setEnabled(false);
 
-        Network.Options options = new Network.Options();
+        NetworkOptions options = new NetworkOptions();
         options.callbacks = new FallbackCallbacks() {
             @Override
             public void onException(Exception e, Session s) {
@@ -79,7 +81,7 @@ public class MultiplayerActivity extends AppCompatActivity {
     }
 
     private void onHostClick(){
-        network.createHost(new Network.SessionCreationListener<HostSession>() {
+        network.createHost(new CreationListener<HostSession>() {
             @Override
             public void onSuccess(HostSession session) {
                 final MultiplayerActivity that = MultiplayerActivity.this;
@@ -107,7 +109,7 @@ public class MultiplayerActivity extends AppCompatActivity {
     private void onBtnConnect(){
         String text = etIp.getText().toString();
 
-        network.createClient(text, new Network.SessionCreationListener<ClientSession>() {
+        network.createClient(text, new CreationListener<ClientSession>() {
             @Override
             public void onSuccess(ClientSession session) {
                 final MultiplayerActivity that = MultiplayerActivity.this;
