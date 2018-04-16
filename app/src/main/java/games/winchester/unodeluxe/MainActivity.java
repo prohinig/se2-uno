@@ -21,7 +21,6 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout handLayout;
     static ArrayList<Card> hand;
 
-
     // The following are used for the shake detection
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -48,11 +47,7 @@ public class MainActivity extends AppCompatActivity {
         deck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity.this,
-                        "Deck size: " + cardDeck.getSize(),
-                        Toast.LENGTH_SHORT).show();
-
-                if(1 > cardStack.getSize()) {
+                if (1 > cardStack.getSize()) {
                     stack.setVisibility(View.VISIBLE);
                     ArrayList<Card> cards = cardDeck.deal(1);
                     Card card = cards.get(0);
@@ -63,7 +58,6 @@ public class MainActivity extends AppCompatActivity {
 
                 ArrayList<Card> drawn = cardDeck.deal(3);
                 hand.addAll(drawn);
-
                 for (Card c : drawn) {
                     ImageView cardView = new ImageView(MainActivity.this);
                     cardView.setPadding(0, 0, 0, 0);
@@ -74,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                     cardView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            if(null != v.getTag()){
+                            if (null != v.getTag()) {
                                 handLayout.removeView(v);
                                 Card c = (Card) v.getTag();
                                 hand.remove(c);
@@ -85,9 +79,11 @@ public class MainActivity extends AppCompatActivity {
                     });
 
                     LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(125, 195);
-                    layoutParams.setMargins(0, 0, -25, 0);
-                    cardView.setLayoutParams(layoutParams);
 
+                    int marginLeft = handLayout.getChildCount() == 0 ? 0 : -30;
+                    layoutParams.setMargins(marginLeft, 0, 0, 0);
+
+                    cardView.setLayoutParams(layoutParams);
                     handLayout.addView(cardView);
                 }
             }
