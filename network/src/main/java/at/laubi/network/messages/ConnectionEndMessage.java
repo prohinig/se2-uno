@@ -1,4 +1,3 @@
 package at.laubi.network.messages;
 
-public class ConnectionEndMessage implements Message {
-}
+public class ConnectionEndMessage implements Message { }

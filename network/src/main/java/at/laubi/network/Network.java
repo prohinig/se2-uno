@@ -29,7 +29,6 @@ public class Network {
 
     private Options options;
     private final ExecutorService executor = Executors.newFixedThreadPool(1);
-    private HostSession hostSession;
 
     public Network(Options options){
         this.options = options;
@@ -43,7 +42,6 @@ public class Network {
             public void run() {
                 try {
                     HostSession session = HostSession.open(Network.this);
-                    hostSession = session;
                     listener.onSuccess(session);
                 }catch (Exception e){
                     listener.onException(e);
@@ -84,13 +82,5 @@ public class Network {
 
     public void broadcastMessageReceived(Message m, Session s){
         if(this.options.callbacks != null) options.callbacks.onMessageReceived(m);
-    }
-
-    public HostSession getHostSession() {
-        return hostSession;
-    }
-
-    public void setHostSession(HostSession hostSession) {
-        this.hostSession = hostSession;
     }
 }

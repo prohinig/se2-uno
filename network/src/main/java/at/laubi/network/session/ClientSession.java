@@ -94,19 +94,6 @@ public class ClientSession implements Session {
         }
     }
 
-
-    public ObjectOutputStream getOut() {
-        return out;
-    }
-
-    public ObjectInputStream getIn() {
-        return in;
-    }
-
-    public Network getNetwork() {
-        return network;
-    }
-
     public static ClientSession open(String host, Network network) throws IOException {
         Network.Options options = network.getOptions();
         Socket socket = new Socket(host, options.port);
