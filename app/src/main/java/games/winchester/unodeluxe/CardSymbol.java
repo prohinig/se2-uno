@@ -5,6 +5,7 @@ package games.winchester.unodeluxe;
  */
 
 public enum CardSymbol {
+    ZERO,
     ONE,
     TWO,
     THREE,

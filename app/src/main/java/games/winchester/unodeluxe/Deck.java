@@ -63,6 +63,10 @@ public class Deck {
         }
     }
 
+    public void addCards(ArrayList<Card> cs) {
+        this.cards.addAll(cs);
+    }
+
     // shuffle the cards
     public void shuffle() {
         Collections.shuffle(this.cards);

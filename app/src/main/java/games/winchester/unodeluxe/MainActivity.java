@@ -1,5 +1,8 @@
 package games.winchester.unodeluxe;
 
+import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -32,19 +35,17 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 stack.setVisibility(View.VISIBLE);
-
                 ArrayList<Card> cards = cardDeck.deal(1);
                 Card card = cards.get(0);
 
                 cardStack.playCard(card);
-
-                Toast.makeText(MainActivity.this,
-                        "Drawn card \n" +
-                        "color: " + card.getColor() +
-                        "\nsymbol: " + card.getSymbol(),
-                        Toast.LENGTH_LONG).show();
+                stack.setImageDrawable(getImageDrawable(UnoDeluxe.getContext(), card.getGraphic()));
             }
         });
 
+    }
+
+    public static Drawable getImageDrawable(Context c, String ImageName) {
+        return c.getResources().getDrawable(c.getResources().getIdentifier(ImageName, "drawable", c.getPackageName()));
     }
 }
