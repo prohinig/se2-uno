@@ -1,4 +1,4 @@
-package at.laubi.network;
+package at.laubi.network.session;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -7,6 +7,8 @@ import java.net.SocketException;
 import java.util.LinkedList;
 import java.util.List;
 
+import at.laubi.network.MessageSendListener;
+import at.laubi.network.Network;
 import at.laubi.network.messages.ConnectionEndMessage;
 import at.laubi.network.messages.Message;
 
@@ -64,7 +66,7 @@ public class HostSession implements Session {
         return this.serverSocket.isClosed();
     }
 
-    static HostSession open(Network network) throws IOException {
+    public static HostSession open(Network network) throws IOException {
         Network.Options options = network.getOptions();
         ServerSocket socket = new ServerSocket(options.port);
         socket.setSoTimeout(options.timeout);

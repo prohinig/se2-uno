@@ -1,4 +1,4 @@
-package at.laubi.network;
+package at.laubi.network.session;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -7,6 +7,8 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
 
+import at.laubi.network.MessageSendListener;
+import at.laubi.network.Network;
 import at.laubi.network.messages.ConnectionEndMessage;
 import at.laubi.network.messages.Message;
 
@@ -105,7 +107,7 @@ public class ClientSession implements Session {
         return network;
     }
 
-    static ClientSession open(String host, Network network) throws IOException {
+    public static ClientSession open(String host, Network network) throws IOException {
         Network.Options options = network.getOptions();
         Socket socket = new Socket(host, options.port);
         socket.setSoTimeout(options.timeout);
@@ -114,7 +116,7 @@ public class ClientSession implements Session {
         return new ClientSession(socket, network);
     }
 
-    static ClientSession from(Socket socket, Network network) throws IOException{
+    public static ClientSession from(Socket socket, Network network) throws IOException{
         Network.Options options = network.getOptions();
         socket.setSoTimeout(options.timeout);
         socket.setReuseAddress(options.reuseAddress);

@@ -1,5 +1,6 @@
-package at.laubi.network;
+package at.laubi.network.session;
 
+import at.laubi.network.MessageSendListener;
 import at.laubi.network.messages.Message;
 
 public interface Session {

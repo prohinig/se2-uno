@@ -4,6 +4,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import at.laubi.network.messages.Message;
+import at.laubi.network.session.ClientSession;
+import at.laubi.network.session.HostSession;
+import at.laubi.network.session.Session;
 
 public class Network {
 
@@ -66,7 +69,7 @@ public class Network {
         });
     }
 
-    void addTask(Runnable runnable){
+    public void addTask(Runnable runnable){
         this.executor.submit(runnable);
     }
 

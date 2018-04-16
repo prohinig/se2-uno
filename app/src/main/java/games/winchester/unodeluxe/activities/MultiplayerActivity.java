@@ -13,10 +13,10 @@ import at.laubi.network.Network.FallbackCallbacks;
 import at.laubi.network.messages.Message;
 import games.winchester.unodeluxe.R;
 import games.winchester.unodeluxe.messages.SimpleStringMessage;
-import at.laubi.network.ClientSession;
-import at.laubi.network.HostSession;
+import at.laubi.network.session.ClientSession;
+import at.laubi.network.session.HostSession;
 import at.laubi.network.Network;
-import at.laubi.network.Session;
+import at.laubi.network.session.Session;
 import games.winchester.unodeluxe.utils.NetworkUtils;
 
 public class MultiplayerActivity extends AppCompatActivity {
