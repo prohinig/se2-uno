@@ -41,8 +41,4 @@ public class Server {
     private void close() throws IOException {
         this.socket.close();
     }
-
-    public InetAddress getInetAddress(){
-        return this.socket.getInetAddress();
-    }
 }
