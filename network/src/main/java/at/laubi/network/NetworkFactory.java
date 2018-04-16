@@ -8,15 +8,12 @@ class NetworkFactory {
     public static void createHost(final Network network, final CreationListener<HostSession> listener) {
         if(listener == null) throw new IllegalArgumentException("listener must not be null");
 
-        network.addTask(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    HostSession session = HostSession.open(network);
-                    listener.onSuccess(session);
-                }catch (Exception e){
-                    listener.onException(e);
-                }
+        network.addTask(() -> {
+            try {
+                HostSession session = HostSession.open(network);
+                listener.onSuccess(session);
+            }catch (Exception e){
+                listener.onException(e);
             }
         });
     }
@@ -25,15 +22,12 @@ class NetworkFactory {
         if(host == null) throw new IllegalArgumentException("Host must not be null");
         if(listener == null) throw new IllegalArgumentException("Listener must not be null");
 
-        network.addTask(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    ClientSession session = ClientSession.open(host, network);
-                    listener.onSuccess(session);
-                }catch (Exception e) {
-                    listener.onException(e);
-                }
+        network.addTask(() -> {
+            try{
+                ClientSession session = ClientSession.open(host, network);
+                listener.onSuccess(session);
+            }catch (Exception e) {
+                listener.onException(e);
             }
         });
     }

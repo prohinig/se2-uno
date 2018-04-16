@@ -10,7 +10,7 @@ public class NetworkOptions {
     public boolean reuseAddress = true;
 
     public interface FallbackCallbacks {
-        void onException(Exception e, Session s);
-        void onMessageReceived(Message message);
+        default void onException(Exception e, Session s) {}
+        default void onMessageReceived(Message message) {}
     }
 }

@@ -19,13 +19,7 @@ public class HostSession implements Session {
     private final ServerSocket serverSocket;
     private final Network network;
 
-    private Thread acceptThread = new Thread(new Runnable() {
-        @Override
-        public void run() {
-            acceptLoop();
-        }
-    });
-
+    private Thread acceptThread = new Thread(this::acceptLoop);
 
     private HostSession(ServerSocket socket, Network network) {
         this.serverSocket = socket;
@@ -50,14 +44,11 @@ public class HostSession implements Session {
     public void close() {
         send(new ConnectionEndMessage());
 
-        network.addTask(new Runnable() {
-            @Override
-            public void run() {
+        network.addTask(() -> {
             try {
                 serverSocket.close();
             }catch(Exception e){
                 network.callFallbackException(e, HostSession.this);
-            }
             }
         });
     }

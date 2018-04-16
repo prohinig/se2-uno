@@ -21,10 +21,7 @@ public class ClientSession implements Session {
     private final ObjectOutputStream out;
     private final ObjectInputStream in;
 
-    private final Thread retrieveThread = new Thread(new Runnable() {
-        @Override
-        public void run() { retrieveLoop(); }
-    });
+    private final Thread retrieveThread = new Thread(this::retrieveLoop);
 
     private ClientSession(Socket socket, Network network) throws IOException {
         this.network = network;
@@ -43,29 +40,23 @@ public class ClientSession implements Session {
 
     @Override
     public void send(final Message message, final MessageSendListener listener) {
-        this.network.addTask(new Runnable() {
-            @Override
-            public void run() {
-                try{
-                    out.writeObject(message);
-                }catch(Exception e){
-                    if(listener != null) listener.onException(e);
-                    else network.callFallbackException(e, ClientSession.this);
-                }
+        this.network.addTask(() -> {
+            try{
+                out.writeObject(message);
+            }catch(Exception e){
+                if(listener != null) listener.onException(e);
+                else network.callFallbackException(e, ClientSession.this);
             }
         });
     }
 
     @Override
     public void close() {
-        this.network.addTask(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    socket.close();
-                }catch (Exception e) {
-                    network.callFallbackException(e, ClientSession.this);
-                }
+        this.network.addTask(() -> {
+            try {
+                socket.close();
+            }catch (Exception e) {
+                network.callFallbackException(e, ClientSession.this);
             }
         });
     }
