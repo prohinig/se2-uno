@@ -23,7 +23,7 @@ public class ClientSession implements Session {
         public void run() { retrieveLoop(); }
     });
 
-    public ClientSession(Socket socket, Network network) throws IOException {
+    private ClientSession(Socket socket, Network network) throws IOException {
         this.network = network;
         this.socket = socket;
 
