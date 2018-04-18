@@ -7,9 +7,9 @@ import java.net.SocketException;
 import java.util.LinkedList;
 import java.util.List;
 
-import at.laubi.network.MessageSendListener;
 import at.laubi.network.Network;
 import at.laubi.network.NetworkOptions;
+import at.laubi.network.callbacks.ExceptionListener;
 import at.laubi.network.messages.ConnectionEndMessage;
 import at.laubi.network.messages.Message;
 
@@ -34,7 +34,7 @@ public class HostSession implements Session {
     }
 
     @Override
-    public void send(Message message, MessageSendListener listener) {
+    public void send(Message message, ExceptionListener listener) {
         for(ClientSession cur : this.connectedClients) {
             cur.send(message, listener);
         }
@@ -48,7 +48,7 @@ public class HostSession implements Session {
             try {
                 serverSocket.close();
             }catch(Exception e){
-                network.callFallbackException(e, HostSession.this);
+                network.callException(null, e, HostSession.this);
             }
         });
     }
@@ -78,7 +78,7 @@ public class HostSession implements Session {
                 // Socket closed
                 acceptThread.interrupt();
             }catch(Exception e){
-                network.callFallbackException(e, this);
+                network.callException(null, e, this);
             }
         }
     }
