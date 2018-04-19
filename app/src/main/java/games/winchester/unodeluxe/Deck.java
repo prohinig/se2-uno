@@ -7,8 +7,7 @@ import java.util.Collections;
  * Created by christianprohinig on 10.04.18.
  */
 
-public class Deck {
-    private ArrayList<Card> cards;
+public class Deck extends CardCollection {
 
     public Deck() {
         this.initialize();
@@ -92,7 +91,4 @@ public class Deck {
         return dealtCards;
     }
 
-    public int getSize() {
-        return this.cards.size();
-    }
 }

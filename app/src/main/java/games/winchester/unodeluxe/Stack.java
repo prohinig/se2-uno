@@ -6,9 +6,8 @@ import java.util.ArrayList;
  * Created by christianprohinig on 10.04.18.
  */
 
-public class Stack {
+public class Stack extends CardCollection {
 
-    private ArrayList<Card> cards;
     private Card topCard;
 
     public Stack() {
@@ -17,21 +16,13 @@ public class Stack {
 
     // returns true if successfully playd
     public boolean playCard(Card card) {
-        if (this.canPlayCard(card)){
-            this.cards.add(card);
-            this.topCard = card;
-            return true;
-        }else {
-            return false;
-        }
+        this.cards.add(card);
+        this.topCard = card;
+        return true;
     }
 
-    public Card getTopCard(){
+    public Card getTopCard() {
         return this.topCard;
-    }
-
-    public int getSize(){
-        return this.cards.size();
     }
 
     // to be called when shuffling stack back into deck
@@ -48,12 +39,5 @@ public class Stack {
         this.cards.add(topCard);
 
         return stackCards;
-    }
-
-    // maybe put this functionality somewhere else
-    // but it can always be moved easily afterwards
-    public boolean canPlayCard(Card card) {
-        // TODO implement rules by comparing top card with card to be layed
-        return true;
     }
 }
