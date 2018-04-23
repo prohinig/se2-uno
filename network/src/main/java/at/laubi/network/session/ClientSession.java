@@ -6,15 +6,21 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
-import at.laubi.network.MessageSendListener;
 import at.laubi.network.Network;
 import at.laubi.network.NetworkOptions;
+import at.laubi.network.callbacks.ExceptionListener;
 import at.laubi.network.messages.ConnectionEndMessage;
 import at.laubi.network.messages.Message;
 
-public class ClientSession implements Session {
+import static at.laubi.network.session.ConnectionState.Closed;
+import static at.laubi.network.session.ConnectionState.Open;
 
+public class ClientSession implements Session {
+    private final ExecutorService sendService = Executors.newSingleThreadExecutor();
     private final Socket socket;
     private final Network network;
 
@@ -22,6 +28,9 @@ public class ClientSession implements Session {
     private final ObjectInputStream in;
 
     private final Thread retrieveThread = new Thread(this::retrieveLoop);
+
+    private ConnectionState state = Open;
+    private final Object stateLock = new Object();
 
     private ClientSession(Socket socket, Network network) throws IOException {
         this.network = network;
@@ -39,26 +48,49 @@ public class ClientSession implements Session {
     }
 
     @Override
-    public void send(final Message message, final MessageSendListener listener) {
-        this.network.addTask(() -> {
-            try{
-                out.writeObject(message);
-            }catch(Exception e){
-                if(listener != null) listener.onException(e);
-                else network.callFallbackException(e, ClientSession.this);
+    public void send(Message message, ExceptionListener listener) {
+        synchronized (stateLock) {
+            if(state == Open) {
+                this.sendService.submit(() -> {
+                    try {
+                        out.writeObject(message);
+                    } catch (Exception e) {
+                        network.callException(listener, e, this);
+                    }
+                });
+            }else{
+                network.callException(listener, new Exception("Client is closed"), this);
             }
-        });
+        }
     }
 
     @Override
     public void close() {
-        this.network.addTask(() -> {
-            try {
-                socket.close();
-            }catch (Exception e) {
-                network.callFallbackException(e, ClientSession.this);
+        synchronized (stateLock) {
+            if(state != Closed) {
+
+                this.send(new ConnectionEndMessage());
+                state = Closed;
+                this.retrieveThread.interrupt();
+
+                new Thread(() -> {
+
+                    try {
+                        out.close();
+
+                        List<Runnable> pendingTasks = sendService.shutdownNow();
+                        for (Runnable task : pendingTasks) {
+                            task.run();
+                        }
+
+                        socket.close();
+
+                    } catch (Exception e) {
+                        network.callException(null, e, this);
+                    }
+                }).start();
             }
-        });
+        }
     }
 
     @Override
@@ -68,21 +100,48 @@ public class ClientSession implements Session {
 
     private void retrieveLoop(){
         while(!Thread.interrupted()) {
-            try {
-                Message msg = (Message) in.readObject();
+            this.receiveMessage();
+        }
+    }
 
-                if(msg instanceof ConnectionEndMessage) {
-                    retrieveThread.interrupt();
-                }else{
-                    network.broadcastMessageReceived(msg, this);
-                }
+    private void receiveMessage(){
+        try {
+            Message msg = (Message) in.readObject();
 
-            }catch (SocketException|EOFException e) {
-                this.close();
-
-            }catch(Exception e) {
-                this.network.callFallbackException(e, this);
+            if(msg instanceof ConnectionEndMessage) {
+                handleConnectionShutdown();
+            }else{
+                network.broadcastMessageReceived(msg, this);
             }
+        }catch (SocketException|EOFException e) {
+            handleConnectionShutdown();
+
+        }catch(Exception e) {
+            this.network.callException(null, e, this);
+        }
+    }
+
+    /**
+     * Handle connection shutdown on client side, if the server shuts down.
+     **/
+    private void handleConnectionShutdown() {
+        synchronized (stateLock) {
+
+            // Mark socket as closed, so no new data can be appended
+            state = Closed;
+
+            // Interrupt thread, so no new data is read
+            this.retrieveThread.interrupt();
+
+            // Close socket
+            try {
+                this.socket.close();
+            }catch(IOException e){
+                network.callException(null, e, this);
+            }
+
+            // Emit event, that connection has been closed
+            this.network.emitConnectionClosed(this);
         }
     }
 

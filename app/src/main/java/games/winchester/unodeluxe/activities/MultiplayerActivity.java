@@ -2,21 +2,14 @@ package games.winchester.unodeluxe.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import at.laubi.network.CreationListener;
-import at.laubi.network.MessageSendListener;
+import java.util.Objects;
+
 import at.laubi.network.Network;
-import at.laubi.network.NetworkCallbacks;
-import at.laubi.network.NetworkOptions;
-import at.laubi.network.exceptions.NetworkException;
-import at.laubi.network.messages.Message;
-import at.laubi.network.session.ClientSession;
-import at.laubi.network.session.HostSession;
 import at.laubi.network.session.Session;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -55,72 +48,50 @@ public class MultiplayerActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        this.btnSend.setEnabled(false);
+        network = new Network();
+        network.setFallbackExceptionListener((e, s) -> {
+            toastUiThread("Exception thrown: " + e.getMessage());
+            e.printStackTrace();
+        });
+        network.setMessageListener((m, s) -> toastUiThread(m.toString()));
 
-        NetworkCallbacks callbacks = new NetworkCallbacks() {
-            @Override
-            public void onExceptionFallback(Exception e, Session s) {
-                toastUiThread(e.getMessage());
-                e.printStackTrace();
-            }
+        network.setNewSessionListener(s -> toastUiThread("New client connected"));
 
-            @Override
-            public void onReceivedMessage(Message message, Session session) {
-                toastUiThread(message.toString());
-            }
-        };
-
-        network = new Network(null, callbacks);
+        network.setConnectionEndListener(s -> toastUiThread("Client disconnected"));
     }
 
     @OnClick(R.id.btnCreateServer)
     void onHostClick(){
-        network.createHost(new CreationListener<HostSession>() {
-            @Override
-            public void onSuccess(HostSession session) {
-                final MultiplayerActivity that = MultiplayerActivity.this;
+        network.createHost(hostSession -> {
+            final MultiplayerActivity that = MultiplayerActivity.this;
 
-                that.session = session;
+            that.session = hostSession;
 
-                that.runOnUiThread(() -> {
-                    that.btnConnect.setEnabled(false);
-                    that.ip.setText( NetworkUtils.getLocalIpAddress());
-                    that.btnSend.setEnabled(true);
-                    that.etIp.setEnabled(false);
-                });
-            }
-
-            @Override
-            public void onException(Exception e) {
-                toastUiThread(e.getMessage());
-            }
-        });
+            that.runOnUiThread(() -> {
+                that.btnConnect.setEnabled(false);
+                that.ip.setText( Objects.requireNonNull(NetworkUtils.getLocalIpAddresses().get(0)));
+                that.btnSend.setEnabled(true);
+                that.etIp.setEnabled(false);
+            });
+        }, null);
     }
 
     @OnClick(R.id.btnConnect)
     void onBtnConnect() {
-        String text = etIp.getText().toString();
+        String ip = etIp.getText().toString();
 
-        network.createClient(text, new CreationListener<ClientSession>() {
-            @Override
-            public void onSuccess(ClientSession session) {
-                final MultiplayerActivity that = MultiplayerActivity.this;
+        network.createClient(ip, clientSession -> {
+            final MultiplayerActivity that = MultiplayerActivity.this;
 
-                that.session = session;
+            that.session = clientSession;
 
-                that.runOnUiThread(() -> {
-                    that.btnConnect.setEnabled(false);
-                    that.btnSend.setEnabled(true);
-                    that.etIp.setEnabled(false);
-                    that.btnHost.setEnabled(false);
-                });
-            }
-
-            @Override
-            public void onException(Exception e) {
-                toastUiThread(e.getMessage());
-            }
-        });
+            that.runOnUiThread(() -> {
+                that.btnConnect.setEnabled(false);
+                that.btnSend.setEnabled(true);
+                that.etIp.setEnabled(false);
+                that.btnHost.setEnabled(false);
+            });
+        }, null);
     }
 
     @OnClick(R.id.btnSendMessage)
