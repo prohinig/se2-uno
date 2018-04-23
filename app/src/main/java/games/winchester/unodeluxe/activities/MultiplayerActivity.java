@@ -50,10 +50,10 @@ public class MultiplayerActivity extends AppCompatActivity {
 
         network = new Network();
         network.setFallbackExceptionListener((e, s) -> {
-            toastUiThread(e.getMessage());
+            toastUiThread("Exception thrown: " + e.getMessage());
             e.printStackTrace();
         });
-        network.setMessageListener((m, s) -> toastUiThread("Exception thrown: " + m.toString()));
+        network.setMessageListener((m, s) -> toastUiThread(m.toString()));
 
         network.setNewSessionListener(s -> toastUiThread("New client connected"));
 

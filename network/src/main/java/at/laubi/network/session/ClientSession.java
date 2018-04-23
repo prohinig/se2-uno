@@ -30,6 +30,7 @@ public class ClientSession implements Session {
     private final Thread retrieveThread = new Thread(this::retrieveLoop);
 
     private ConnectionState state = Open;
+    private final Object stateLock = new Object();
 
     private ClientSession(Socket socket, Network network) throws IOException {
         this.network = network;
@@ -48,41 +49,48 @@ public class ClientSession implements Session {
 
     @Override
     public void send(Message message, ExceptionListener listener) {
-        if(state == Open) {
-            this.sendService.submit(() -> {
-                try {
-                    out.writeObject(message);
-                } catch (Exception e) {
-                    network.callException(listener, e, this);
-                }
-            });
-        }else{
-            network.callException(listener, new Exception("Client is closed"), this);
+        synchronized (stateLock) {
+            if(state == Open) {
+                this.sendService.submit(() -> {
+                    try {
+                        out.writeObject(message);
+                    } catch (Exception e) {
+                        network.callException(listener, e, this);
+                    }
+                });
+            }else{
+                network.callException(listener, new Exception("Client is closed"), this);
+            }
         }
     }
 
     @Override
     public void close() {
-        this.send(new ConnectionEndMessage());
-        state = Closed;
-        this.retrieveThread.interrupt();
+        synchronized (stateLock) {
+            if(state != Closed) {
 
-        new Thread(() -> {
+                this.send(new ConnectionEndMessage());
+                state = Closed;
+                this.retrieveThread.interrupt();
 
-            try{
-                out.close();
+                new Thread(() -> {
 
-                List<Runnable> pendingTasks = sendService.shutdownNow();
-                for (Runnable task : pendingTasks) {
-                    task.run();
-                }
+                    try {
+                        out.close();
 
-                socket.close();
+                        List<Runnable> pendingTasks = sendService.shutdownNow();
+                        for (Runnable task : pendingTasks) {
+                            task.run();
+                        }
 
-            }catch(Exception e) {
-                network.callException(null, e, this);
+                        socket.close();
+
+                    } catch (Exception e) {
+                        network.callException(null, e, this);
+                    }
+                }).start();
             }
-        }).start();
+        }
     }
 
     @Override
@@ -101,12 +109,12 @@ public class ClientSession implements Session {
             Message msg = (Message) in.readObject();
 
             if(msg instanceof ConnectionEndMessage) {
-                handleConnectionShutdown(true);
+                handleConnectionShutdown();
             }else{
                 network.broadcastMessageReceived(msg, this);
             }
         }catch (SocketException|EOFException e) {
-            handleConnectionShutdown(false);
+            handleConnectionShutdown();
 
         }catch(Exception e) {
             this.network.callException(null, e, this);
@@ -115,38 +123,26 @@ public class ClientSession implements Session {
 
     /**
      * Handle connection shutdown on client side, if the server shuts down.
-     *
-     * @param gracefully If true, an answer is send to the server socket
-     */
-    private void handleConnectionShutdown(boolean gracefully) {
-        //First, append a ConnectionEndMessage to send queue, while still open
-        if(gracefully) {
-            this.send(new ConnectionEndMessage());
-        }
+     **/
+    private void handleConnectionShutdown() {
+        synchronized (stateLock) {
 
-        // Mark socket as closed, so no new data can be appended
-        state = Closed;
+            // Mark socket as closed, so no new data can be appended
+            state = Closed;
 
-        // Interrupt thread, so no new data is read
-        this.retrieveThread.interrupt();
+            // Interrupt thread, so no new data is read
+            this.retrieveThread.interrupt();
 
-        // Execute all pending send tasks (The current task still executes)
-        if(gracefully) {
-            List<Runnable> pendingTasks = sendService.shutdownNow();
-            for (Runnable pendingTask : pendingTasks) {
-                pendingTask.run();
+            // Close socket
+            try {
+                this.socket.close();
+            }catch(IOException e){
+                network.callException(null, e, this);
             }
-        }
 
-        // Close socket
-        try {
-            this.socket.close();
-        }catch(IOException e){
-            network.callException(null, e, this);
+            // Emit event, that connection has been closed
+            this.network.emitConnectionClosed(this);
         }
-
-        // Emit event, that connection has been closed
-        this.network.emitConnectionClosed(this);
     }
 
     public static ClientSession open(String host, Network network) throws IOException {
