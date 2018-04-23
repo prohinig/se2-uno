@@ -14,12 +14,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        findViewById(R.id.btnServer).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startMultiplayerActivity();
-            }
-        });
+        findViewById(R.id.btnServer).setOnClickListener(view -> startMultiplayerActivity());
 
     }
     private void startMultiplayerActivity(){

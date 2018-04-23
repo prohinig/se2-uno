@@ -7,6 +7,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Objects;
+
 import at.laubi.network.Network;
 import at.laubi.network.session.Session;
 import butterknife.BindView;
@@ -51,9 +53,11 @@ public class MultiplayerActivity extends AppCompatActivity {
             toastUiThread(e.getMessage());
             e.printStackTrace();
         });
-        network.setMessageListener((m, s) -> {
-            toastUiThread(m.toString());
-        });
+        network.setMessageListener((m, s) -> toastUiThread("Exception thrown: " + m.toString()));
+
+        network.setNewSessionListener(s -> toastUiThread("New client connected"));
+
+        network.setConnectionEndListener(s -> toastUiThread("Client disconnected"));
     }
 
     @OnClick(R.id.btnCreateServer)
@@ -65,7 +69,7 @@ public class MultiplayerActivity extends AppCompatActivity {
 
             that.runOnUiThread(() -> {
                 that.btnConnect.setEnabled(false);
-                that.ip.setText( NetworkUtils.getLocalIpAddress());
+                that.ip.setText( Objects.requireNonNull(NetworkUtils.getLocalIpAddresses().get(0)));
                 that.btnSend.setEnabled(true);
                 that.etIp.setEnabled(false);
             });

@@ -6,6 +6,8 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import at.laubi.network.Network;
 import at.laubi.network.NetworkOptions;
@@ -14,6 +16,7 @@ import at.laubi.network.messages.ConnectionEndMessage;
 import at.laubi.network.messages.Message;
 
 public class HostSession implements Session {
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final List<ClientSession> connectedClients = new LinkedList<>();
 
     private final ServerSocket serverSocket;
@@ -44,7 +47,7 @@ public class HostSession implements Session {
     public void close() {
         send(new ConnectionEndMessage());
 
-        network.addTask(() -> {
+        executorService.submit(() -> {
             try {
                 serverSocket.close();
             }catch(Exception e){
@@ -72,7 +75,10 @@ public class HostSession implements Session {
             try {
                 Socket client = serverSocket.accept();
 
-                this.connectedClients.add(ClientSession.from(client, network));
+                ClientSession session = ClientSession.from(client, network);
+
+                this.connectedClients.add(session);
+                network.emitNewSessionConnected(session);
 
             }catch(SocketException exception) {
                 // Socket closed
@@ -81,5 +87,9 @@ public class HostSession implements Session {
                 network.callException(null, e, this);
             }
         }
+    }
+
+    public void removeClient(ClientSession session){
+        this.connectedClients.remove(session);
     }
 }
