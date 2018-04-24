@@ -1,8 +1,12 @@
-package games.winchester.unodeluxe;
-
-import android.support.v7.app.AppCompatActivity;
+package games.winchester.unodeluxe.models;
 
 import java.util.ArrayList;
+
+import games.winchester.unodeluxe.utils.GameLogic;
+import games.winchester.unodeluxe.activities.GameActivity;
+import games.winchester.unodeluxe.enums.Action;
+import games.winchester.unodeluxe.enums.CardColor;
+import games.winchester.unodeluxe.enums.Direction;
 
 public class Game {
     public static int MAXPLAYERS = 5;
@@ -43,13 +47,39 @@ public class Game {
 
     // check if card can be played and return result
     public boolean playCard(Card c, Player p) {
-        if (GameLogic.canPlayCard(c, this.stack.getTopCard(), this.activeColor)) {
+        if (GameLogic.canPlayCard(c, p.getHand(), this.stack.getTopCard(), this.activeColor)) {
             p.getHand().removeCard(c);
             this.layCard(c);
+            activeColor = c.getColor();
             return true;
         }
 
+
         return false;
+    }
+
+    //handles a whole turn
+    public boolean handleTurn(Card c, Player p) {
+        if (actionRequired() != Action.NONE) {
+            switch (actionRequired()) {
+                case SKIP:
+                    return true;
+                case DRAWTWO:
+                    handCards(p, 2);
+                    return true;
+                case DRAWFOUR:
+                    handCards(p, 4);
+                    return true;
+                default:
+                    break;
+            }
+        }
+
+        if(!playCard(c, p)) {
+            handCards(p, 1);
+        }
+
+        return true;
     }
 
     private void layCard(Card c) {
@@ -84,6 +114,7 @@ public class Game {
             // player next to dealer (=gamestarter) starts
             Card cardTopped = this.deck.deal(1).remove(0);
             this.layCard(cardTopped);
+            activeColor = cardTopped.getColor();
             this.activity.updateTopCard(cardTopped.getGraphic());
 
             // deal 3 * 3 for each player

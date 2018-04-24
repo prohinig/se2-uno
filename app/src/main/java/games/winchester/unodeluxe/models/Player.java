@@ -1,6 +1,9 @@
-package games.winchester.unodeluxe;
+package games.winchester.unodeluxe.models;
 
 import java.util.ArrayList;
+
+import games.winchester.unodeluxe.models.Card;
+import games.winchester.unodeluxe.models.Hand;
 
 public class Player {
     public static String TYPE_ADMIN = "admin";

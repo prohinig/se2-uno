@@ -1,6 +1,8 @@
-package games.winchester.unodeluxe;
+package games.winchester.unodeluxe.models;
 
 import java.util.ArrayList;
+
+import games.winchester.unodeluxe.models.Card;
 
 public abstract class CardCollection {
 

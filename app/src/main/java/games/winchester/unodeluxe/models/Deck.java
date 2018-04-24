@@ -1,7 +1,12 @@
-package games.winchester.unodeluxe;
+package games.winchester.unodeluxe.models;
 
 import java.util.ArrayList;
 import java.util.Collections;
+
+import games.winchester.unodeluxe.enums.CardColor;
+import games.winchester.unodeluxe.enums.CardSymbol;
+import games.winchester.unodeluxe.models.Card;
+import games.winchester.unodeluxe.models.CardCollection;
 
 /**
  * Created by christianprohinig on 10.04.18.

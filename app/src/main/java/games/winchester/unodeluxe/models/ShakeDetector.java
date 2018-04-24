@@ -1,4 +1,4 @@
-package games.winchester.unodeluxe;
+package games.winchester.unodeluxe.models;
 
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
