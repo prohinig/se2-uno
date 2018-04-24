@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="games.winchester.unodeluxe.activities.GameActivity">
+    tools:context="games.winchester.unodeluxe.GameActivity">
 
     <ImageView
         android:id="@+id/deckView"
