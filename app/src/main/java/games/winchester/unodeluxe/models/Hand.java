@@ -1,7 +1,9 @@
-package games.winchester.unodeluxe;
+package games.winchester.unodeluxe.models;
 
 import java.util.ArrayList;
-import java.util.Observable;
+
+import games.winchester.unodeluxe.models.Card;
+import games.winchester.unodeluxe.models.CardCollection;
 
 public class Hand extends CardCollection {
 

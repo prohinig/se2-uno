@@ -1,4 +1,4 @@
-package games.winchester.unodeluxe;
+package games.winchester.unodeluxe.activities;
 
 import android.content.Context;
 import android.graphics.drawable.Drawable;
@@ -12,6 +12,13 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+
+import games.winchester.unodeluxe.models.Card;
+import games.winchester.unodeluxe.models.Game;
+import games.winchester.unodeluxe.models.Player;
+import games.winchester.unodeluxe.R;
+import games.winchester.unodeluxe.models.ShakeDetector;
+import games.winchester.unodeluxe.app.UnoDeluxe;
 
 public class GameActivity extends AppCompatActivity {
 

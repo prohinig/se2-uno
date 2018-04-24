@@ -1,4 +1,4 @@
-package games.winchester.unodeluxe;
+package games.winchester.unodeluxe.app;
 
 import android.app.Application;
 import android.content.Context;

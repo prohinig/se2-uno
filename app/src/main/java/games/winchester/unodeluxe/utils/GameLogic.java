@@ -1,6 +1,10 @@
-package games.winchester.unodeluxe;
+package games.winchester.unodeluxe.utils;
 
-import java.util.ArrayList;
+import games.winchester.unodeluxe.models.Hand;
+import games.winchester.unodeluxe.enums.Action;
+import games.winchester.unodeluxe.enums.CardColor;
+import games.winchester.unodeluxe.enums.CardSymbol;
+import games.winchester.unodeluxe.models.Card;
 
 public class GameLogic {
 

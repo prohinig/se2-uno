@@ -1,4 +1,7 @@
-package games.winchester.unodeluxe;
+package games.winchester.unodeluxe.models;
+
+import games.winchester.unodeluxe.enums.CardColor;
+import games.winchester.unodeluxe.enums.CardSymbol;
 
 /**
  * Created by christianprohinig on 10.04.18.

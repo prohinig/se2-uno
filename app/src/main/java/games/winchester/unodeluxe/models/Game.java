@@ -1,8 +1,12 @@
-package games.winchester.unodeluxe;
-
-import android.support.v7.app.AppCompatActivity;
+package games.winchester.unodeluxe.models;
 
 import java.util.ArrayList;
+
+import games.winchester.unodeluxe.utils.GameLogic;
+import games.winchester.unodeluxe.activities.GameActivity;
+import games.winchester.unodeluxe.enums.Action;
+import games.winchester.unodeluxe.enums.CardColor;
+import games.winchester.unodeluxe.enums.Direction;
 
 public class Game {
     public static int MAXPLAYERS = 5;
