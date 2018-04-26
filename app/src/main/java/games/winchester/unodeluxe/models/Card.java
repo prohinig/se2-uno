@@ -1,5 +1,9 @@
 package games.winchester.unodeluxe.models;
 
+import android.support.annotation.NonNull;
+
+import java.util.Comparator;
+
 import games.winchester.unodeluxe.enums.CardColor;
 import games.winchester.unodeluxe.enums.CardSymbol;
 
@@ -33,7 +37,7 @@ public class Card {
     }
 
 
-    private void initGraphic (CardColor color, CardSymbol symbol){
+    private void initGraphic(CardColor color, CardSymbol symbol) {
         String graphic = "";
         switch (color) {
             case RED:
@@ -97,7 +101,7 @@ public class Card {
                 graphic += "wild";
         }
 
-        if(1 > graphic.length()){
+        if (1 > graphic.length()) {
             graphic += "back";
         }
 

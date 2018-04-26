@@ -155,6 +155,7 @@ public class GameActivity extends AppCompatActivity {
 
     public void wishAColor(Game game) {
         ColorWishDialog cwd = new ColorWishDialog();
+        cwd.setCancelable(false);
         cwd.show(getSupportFragmentManager(), "WishColor", game);
     }
 

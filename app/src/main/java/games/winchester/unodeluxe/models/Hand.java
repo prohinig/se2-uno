@@ -2,9 +2,6 @@ package games.winchester.unodeluxe.models;
 
 import java.util.ArrayList;
 
-import games.winchester.unodeluxe.models.Card;
-import games.winchester.unodeluxe.models.CardCollection;
-
 public class Hand extends CardCollection {
 
     private ArrayList<Card> cards;
@@ -24,5 +21,4 @@ public class Hand extends CardCollection {
     public void removeCard(Card card){
         this.cards.remove(card);
     }
-
 }
