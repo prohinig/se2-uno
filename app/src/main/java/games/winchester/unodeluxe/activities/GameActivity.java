@@ -14,11 +14,13 @@ import android.widget.Toast;
 import java.util.ArrayList;
 
 import games.winchester.unodeluxe.models.Card;
+import games.winchester.unodeluxe.models.ColorWishDialog;
 import games.winchester.unodeluxe.models.Game;
 import games.winchester.unodeluxe.models.Player;
 import games.winchester.unodeluxe.R;
 import games.winchester.unodeluxe.models.ShakeDetector;
 import games.winchester.unodeluxe.app.UnoDeluxe;
+import games.winchester.unodeluxe.utils.GameLogic;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -54,8 +56,34 @@ public class GameActivity extends AppCompatActivity {
         deckView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                game.startGame();
-                stackView.setVisibility(View.VISIBLE);
+                if (!game.isGameStarted()) {
+                    game.startGame(self);
+                    stackView.setVisibility(View.VISIBLE);
+                } else {
+                    if (game.getNumberOfCardsToDraw() != 0) {
+                        game.handCards(game.getActivePlayer(), 1);
+                        game.decrementNumberOfCardsToDraw();
+                    } else {
+                        if (!GameLogic.hasPlayableCard(game.getActivePlayer().getHand(), game.getActiveColor(), game.getTopOfStackCard())) {
+                            ArrayList<Card> tmp = game.handCards(game.getActivePlayer(), 1);
+
+                            if (GameLogic.isPlayableCard(tmp.get(0), game.getActivePlayer().getHand(), game.getTopOfStackCard(), game.getActiveColor())) {
+                                //TODO: player is allowed to play drawn card if its playable
+                            }
+
+                        } else {
+                            notificationHasPlayableCard();
+                        }
+                    }
+                }
+            }
+        });
+
+        handCard.setClickable(true);
+        handCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                addToHand(game.getActivePlayer().getHand().getCards());
             }
         });
 
@@ -84,12 +112,12 @@ public class GameActivity extends AppCompatActivity {
     }
 
     // used to keep the stack UI up to date with the backend model
-    public void updateTopCard (String graphic) {
+    public void updateTopCard(String graphic) {
         this.stackView.setImageDrawable(getImageDrawable(UnoDeluxe.getContext(), graphic));
     }
 
     // used to keep the hand UI up to date with the backend model
-    public void addToHand (ArrayList<Card> cards) {
+    public void addToHand(ArrayList<Card> cards) {
         for (Card c : cards) {
             ImageView cardView = new ImageView(GameActivity.this);
             cardView.setPadding(0, 0, 0, 0);
@@ -102,8 +130,8 @@ public class GameActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     if (null != v.getTag()) {
                         Card c = (Card) v.getTag();
-                        boolean result = game.playCard(c, self);
-                        if(true == result) {
+                        boolean result = game.handleTurn(c, self);
+                        if (true == result) {
                             handLayout.removeView(v);
                         }
                     }
@@ -125,10 +153,54 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    public void wishAColor(Game game) {
+        ColorWishDialog cwd = new ColorWishDialog();
+        cwd.show(getSupportFragmentManager(), "WishColor", game);
+    }
+
+    public void notificationNumberOfCardsToDraw(int i) {
+        Context context = getApplicationContext();
+        CharSequence text = "Du musst noch " + i + " Karten ziehen.";
+        if (i == 1) {
+            text = "Du musst noch eine Karte ziehen.";
+        }
+        int duration = Toast.LENGTH_SHORT;
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+    }
+
+    public void notificationCardNotPlayable() {
+        Context context = getApplicationContext();
+        CharSequence text = "Du darfst diese Karte jetzt nicht spielen.";
+        int duration = Toast.LENGTH_SHORT;
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+    }
+
+    public void notificationGameWon() {
+        Context context = getApplicationContext();
+        CharSequence text = "Glückwunsch! Du hast diese Runde gewonnen!";
+        int duration = Toast.LENGTH_LONG;
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+    }
+
+    public void notificationHasPlayableCard() {
+        Context context = getApplicationContext();
+        CharSequence text = "Du hast noch spielbare Karten.";
+        int duration = Toast.LENGTH_SHORT;
+
+        Toast toast = Toast.makeText(context, text, duration);
+        toast.show();
+    }
+
     public void handleShakeEvent(int count) {
         this.game.stackToDeck();
         Context context = getApplicationContext();
-        CharSequence text = "Karten wurden gemischt.";
+        CharSequence text = "Deck wurde gemischt.";
         int duration = Toast.LENGTH_SHORT;
 
         Toast toast = Toast.makeText(context, text, duration);
@@ -147,5 +219,9 @@ public class GameActivity extends AppCompatActivity {
         // Add the following line to unregister the Sensor Manager onPause
         mSensorManager.unregisterListener(mShakeDetector);
         super.onPause();
+    }
+
+    public ImageView getHandCardView() {
+        return handCard;
     }
 }
