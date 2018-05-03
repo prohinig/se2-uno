@@ -44,18 +44,44 @@ public class Game {
         this.players.add(admin);
     }
 
+    public Game(String name, GameActivity activity) {
+        // in this case the game is uninitialized and waits for message of master
+    }
+
+    public void messageReceived() {
+        boolean playersTurn = false;
+        this.activity.setClicksEnabled(playersTurn);
+
+        if(playersTurn){
+            // handleTurn
+        }
+    }
+
+    public void notifiyPlayers() {
+        for(Player p : players) {
+            if(Player.TYPE_PLAYER.equals(p.getType())) {
+
+            }
+        }
+    }
 
     // check if card can be played and return result
     public boolean playCard(Card c, Player p) {
-        if (GameLogic.canPlayCard(c, p.getHand(), this.stack.getTopCard(), this.activeColor)) {
-            p.getHand().removeCard(c);
-            this.layCard(c);
-            activeColor = c.getColor();
-            return true;
+        // is it active player
+        if (this.activePlayer == this.players.indexOf(p)) {
+            if (GameLogic.canPlayCard(c, p.getHand(), this.stack.getTopCard(), this.activeColor)) {
+                p.getHand().removeCard(c);
+                this.layCard(c);
+                activeColor = c.getColor();
+                return true;
+            }
         }
 
-
         return false;
+    }
+
+    public void deckClicked() {
+
     }
 
     //handles a whole turn
@@ -75,7 +101,7 @@ public class Game {
             }
         }
 
-        if(!playCard(c, p)) {
+        if (!playCard(c, p)) {
             handCards(p, 1);
         }
 
@@ -125,7 +151,7 @@ public class Game {
             }
 
             this.state = Game.STATE_RUNNING;
-            this.activePlayer = 1;
+            this.activePlayer = 0;
         }
     }
 

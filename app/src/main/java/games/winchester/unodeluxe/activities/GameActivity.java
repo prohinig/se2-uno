@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import at.laubi.network.session.ClientSession;
+import butterknife.OnClick;
 import games.winchester.unodeluxe.models.Card;
 import games.winchester.unodeluxe.models.Game;
 import games.winchester.unodeluxe.models.Player;
@@ -27,6 +29,8 @@ public class GameActivity extends AppCompatActivity {
     Player self;
     Game game;
 
+    private boolean clicksEnabled = true;
+
     // The following are used for the shake detection
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
@@ -37,46 +41,70 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // this is what happens when a player creates a game
-        // it will be different for joining a game
-        self = new Player("admin", Player.TYPE_ADMIN);
-        game = new Game(self, this);
+        Bundle b = getIntent().getExtras();
+        String host = null; // or other values
+        // or other values
+        if(null != b) {
+            host = b.getString("host");
+        }
 
-        deckView = (ImageView) findViewById(R.id.deckView);
-        stackView = (ImageView) findViewById(R.id.stackView);
-        handCard = (ImageView) findViewById(R.id.handCard);
-        handLayout = (LinearLayout) findViewById(R.id.handLayout);
+        String text = "Host: " + host;
+        int duration = Toast.LENGTH_SHORT;
+        Toast toast = Toast.makeText(UnoDeluxe.getContext(), text, duration);
+        toast.show();
 
-        stackView.setVisibility(View.INVISIBLE);
-        handLayout.removeView(handCard);
+        if(null == host){
+            // this is what happens when a player creates a game
+            // it will be different for joining a game
+            self = new Player("admin", Player.TYPE_ADMIN);
+            game = new Game(self, this);
 
-        deckView.setClickable(true);
-        deckView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                game.startGame();
-                stackView.setVisibility(View.VISIBLE);
-            }
-        });
+            deckView = (ImageView) findViewById(R.id.deckView);
+            stackView = (ImageView) findViewById(R.id.stackView);
+            handCard = (ImageView) findViewById(R.id.handCard);
+            handLayout = (LinearLayout) findViewById(R.id.handLayout);
 
-        // ShakeDetector initialization
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mAccelerometer = mSensorManager
-                .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mShakeDetector = new ShakeDetector();
-        mShakeDetector.setOnShakeListener(new ShakeDetector.OnShakeListener() {
+            stackView.setVisibility(View.INVISIBLE);
+            handLayout.removeView(handCard);
 
-            @Override
-            public void onShake(int count) {
-                /*
-                 * The following method, "handleShakeEvent(count):" is a stub //
-                 * method you would use to setup whatever you want done once the
-                 * device has been shook.
-                 */
-                handleShakeEvent(count);
-            }
-        });
+            deckView.setClickable(true);
+            deckView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    deckViewClick();
+                }
+            });
 
+            // ShakeDetector initialization
+            mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+            mAccelerometer = mSensorManager
+                    .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            mShakeDetector = new ShakeDetector();
+            mShakeDetector.setOnShakeListener(new ShakeDetector.OnShakeListener() {
+
+                @Override
+                public void onShake(int count) {
+                    /*
+                     * The following method, "handleShakeEvent(count):" is a stub //
+                     * method you would use to setup whatever you want done once the
+                     * device has been shook.
+                     */
+                    handleShakeEvent(count);
+                    System.out.println("It was shaked");
+                }
+            });
+        }else {
+            // try to connect to host and if succesful create game with connection
+        }
+
+    }
+
+    void deckViewClick() {
+        if(clicksEnabled) {
+            game.deckClicked();
+            game.startGame();
+            stackView.setVisibility(View.VISIBLE);
+        }
     }
 
     public static Drawable getImageDrawable(Context c, String ImageName) {
@@ -100,13 +128,16 @@ public class GameActivity extends AppCompatActivity {
             cardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (null != v.getTag()) {
-                        Card c = (Card) v.getTag();
-                        boolean result = game.playCard(c, self);
-                        if(true == result) {
-                            handLayout.removeView(v);
+                    if(clicksEnabled) {
+                        if (null != v.getTag()) {
+                            Card c = (Card) v.getTag();
+                            boolean result = game.playCard(c, self);
+                            if(true == result) {
+                                handLayout.removeView(v);
+                            }
                         }
                     }
+
                 }
             });
 
@@ -134,6 +165,11 @@ public class GameActivity extends AppCompatActivity {
         Toast toast = Toast.makeText(context, text, duration);
         toast.show();
     }
+
+    public void setClicksEnabled(boolean clicksEnabled) {
+        this.clicksEnabled = clicksEnabled;
+    }
+
 
     @Override
     public void onResume() {

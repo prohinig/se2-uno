@@ -69,7 +69,7 @@ public class MultiplayerActivity extends AppCompatActivity {
 
             that.runOnUiThread(() -> {
                 that.btnConnect.setEnabled(false);
-                that.ip.setText( Objects.requireNonNull(NetworkUtils.getLocalIpAddresses().get(0)));
+                that.ip.setText( Objects.requireNonNull(NetworkUtils.getLocalIpAddresses().get(1)));
                 that.btnSend.setEnabled(true);
                 that.etIp.setEnabled(false);
             });

@@ -26,6 +26,7 @@ public class NetworkUtils {
                     // get IPV4 address
                     if (!address.isLoopbackAddress() && address instanceof Inet4Address) {
                         addresses.add(address.getHostAddress());
+                        System.out.println(address.getHostAddress());
                     }
                 }
             }

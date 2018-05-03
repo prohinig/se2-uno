@@ -24,6 +24,10 @@ public class Player {
         return this.hand;
     }
 
+    public String getType (){
+        return this.type;
+    }
+
     public void addCards(ArrayList<Card> cards){
         this.hand.addCards(cards);
     }
