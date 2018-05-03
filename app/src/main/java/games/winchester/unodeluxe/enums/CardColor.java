@@ -6,8 +6,8 @@ package games.winchester.unodeluxe.enums;
 
 public enum CardColor {
     BLUE,
-    RED,
     YELLOW,
     GREEN,
+    RED,
     BLACK
 }

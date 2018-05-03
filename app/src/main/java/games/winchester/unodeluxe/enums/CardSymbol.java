@@ -18,6 +18,6 @@ public enum CardSymbol {
     REVERSE,
     SKIP,
     PLUSTWO,
-    PLUSFOUR,
-    WISH
+    WISH,
+    PLUSFOUR
 }

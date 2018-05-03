@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">UnoDeluxe</string>
+    <string name="dialog_title">Wünsch dir eine Farbe:</string>
+
+    <string-array name="colors_array">
+        <item>Blau</item>
+        <item>Gelb</item>
+        <item>Grün</item>
+        <item>Rot</item>
+    </string-array>
 </resources>
