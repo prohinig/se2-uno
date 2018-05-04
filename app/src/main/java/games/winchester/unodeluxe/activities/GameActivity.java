@@ -8,6 +8,7 @@ import android.hardware.SensorManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -22,6 +23,7 @@ import at.laubi.network.session.ClientSession;
 import at.laubi.network.session.Session;
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import games.winchester.unodeluxe.models.Card;
 import games.winchester.unodeluxe.models.ColorWishDialog;
 import games.winchester.unodeluxe.models.Game;
@@ -45,6 +47,9 @@ public class GameActivity extends AppCompatActivity {
 
     @BindView(R.id.ipText)
     TextView ip;
+
+    @BindView(R.id.btnStartGame)
+    Button btnStartGame;
 
     private Player self;
     private Game game;
@@ -124,6 +129,7 @@ public class GameActivity extends AppCompatActivity {
 
             runOnUiThread(() -> {
                 ip.setText(String.format(format, hostIp));
+                btnStartGame.setVisibility(View.VISIBLE);
             });
         }, null);
 
@@ -132,28 +138,30 @@ public class GameActivity extends AppCompatActivity {
         game = new Game(self, this);
 
         deckView.setClickable(true);
-        deckView.setOnClickListener(v -> {
-            if (!game.isGameStarted()) {
-                game.startGame();
-                stackView.setVisibility(View.VISIBLE);
+    }
+
+    @OnClick(R.id.deckView)
+    void onDeckViewClick() {
+        if (!game.isGameStarted()) {
+            game.startGame();
+            stackView.setVisibility(View.VISIBLE);
+        } else {
+            if (game.getNumberOfCardsToDraw() != 0) {
+                game.handCards(1);
+                game.decrementNumberOfCardsToDraw();
             } else {
-                if (game.getNumberOfCardsToDraw() != 0) {
-                    game.handCards(1);
-                    game.decrementNumberOfCardsToDraw();
-                } else {
-                    if (!GameLogic.hasPlayableCard(self.getHand(), game.getActiveColor(), game.getTopOfStackCard())) {
-                        ArrayList<Card> tmp = game.handCards(1);
+                if (!GameLogic.hasPlayableCard(self.getHand(), game.getActiveColor(), game.getTopOfStackCard())) {
+                    ArrayList<Card> tmp = game.handCards(1);
 
-                        if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), game.getTopOfStackCard(), game.getActiveColor())) {
-                            //TODO: player is allowed to play drawn card if its playable
-                        }
-
-                    } else {
-                        notificationHasPlayableCard();
+                    if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), game.getTopOfStackCard(), game.getActiveColor())) {
+                        //TODO: player is allowed to play drawn card if its playable
                     }
+
+                } else {
+                    notificationHasPlayableCard();
                 }
             }
-        });
+        }
     }
 
     private void setupMultiplayerClient(String host) {
@@ -186,17 +194,13 @@ public class GameActivity extends AppCompatActivity {
             cardView.setClickable(true);
             cardView.setTag(c);
 
-            cardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (null != v.getTag()) {
-                        Card c = (Card) v.getTag();
-                        boolean result = game.handleTurn(c, self);
-                        if (result) {
-                            handLayout.removeView(v);
-                        }
-                    }
+            cardView.setOnClickListener(v -> {
+                if(v.getTag() == null) return;
 
+                Card c1 = (Card) v.getTag();
+                boolean result = game.handleTurn(c1, self);
+                if (result) {
+                    handLayout.removeView(v);
                 }
             });
 
@@ -222,52 +226,27 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void notificationNumberOfCardsToDraw(int i) {
-        Context context = getApplicationContext();
-        CharSequence text = "Du musst noch " + i + " Karten ziehen.";
-        if (i == 1) {
-            text = "Du musst noch eine Karte ziehen.";
-        }
-        int duration = Toast.LENGTH_SHORT;
+        String text = i == 1 ? "Du musst noch eine Karte ziehen." : "Du musst noch " + i + " Karten ziehen.";
 
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
+        this.toastUiThread(text, Toast.LENGTH_SHORT);
     }
 
     public void notificationCardNotPlayable() {
-        Context context = getApplicationContext();
-        CharSequence text = "Du darfst diese Karte jetzt nicht spielen.";
-        int duration = Toast.LENGTH_SHORT;
-
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
+        this.toastUiThread("Du darfst diese Karte jetzt nicht spielen.", Toast.LENGTH_SHORT);
     }
 
     public void notificationGameWon() {
-        Context context = getApplicationContext();
-        CharSequence text = "Glückwunsch! Du hast diese Runde gewonnen!";
-        int duration = Toast.LENGTH_LONG;
-
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
+        this.toastUiThread("Glückwunsch! Du hast diese Runde gewonnen!", Toast.LENGTH_SHORT);
     }
 
     public void notificationHasPlayableCard() {
-        Context context = getApplicationContext();
-        CharSequence text = "Du hast noch spielbare Karten.";
-        int duration = Toast.LENGTH_SHORT;
-
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
+        this.toastUiThread("Du hast noch spielbare Karten.", Toast.LENGTH_SHORT);
     }
 
     public void handleShakeEvent(int count) {
         this.game.stackToDeck();
-        Context context = getApplicationContext();
-        CharSequence text = "Deck wurde gemischt.";
-        int duration = Toast.LENGTH_SHORT;
 
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
+        this.toastUiThread("Deck wurde gemischt", Toast.LENGTH_SHORT);
     }
 
     public void setClicksEnabled(boolean clicksEnabled) {
@@ -295,7 +274,18 @@ public class GameActivity extends AppCompatActivity {
         super.onPause();
     }
 
+
     private void toastUiThread(final String message) {
-        this.runOnUiThread(() -> Toast.makeText(GameActivity.this, message, Toast.LENGTH_LONG).show());
+        toastUiThread(message, Toast.LENGTH_LONG);
+    }
+
+    private void toastUiThread(final String message, final int length) {
+        this.runOnUiThread(() -> Toast.makeText(GameActivity.this, message, length).show());
+    }
+
+    @OnClick(R.id.btnStartGame)
+    void onStartGameButtonClick() {
+        // game.startGame(); ?
+        btnStartGame.setVisibility(View.INVISIBLE); // ?
     }
 }
