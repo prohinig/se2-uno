@@ -4,7 +4,14 @@ import android.support.v4.app.FragmentManager;
 
 import java.util.ArrayList;
 
+import at.laubi.network.messages.Message;
+import at.laubi.network.session.ClientSession;
+import at.laubi.network.session.HostSession;
+import at.laubi.network.session.Session;
 import games.winchester.unodeluxe.enums.CardSymbol;
+import games.winchester.unodeluxe.messages.CardsDealt;
+import games.winchester.unodeluxe.messages.Setup;
+import games.winchester.unodeluxe.messages.Turn;
 import games.winchester.unodeluxe.utils.GameLogic;
 import games.winchester.unodeluxe.activities.GameActivity;
 import games.winchester.unodeluxe.enums.Action;
@@ -29,12 +36,14 @@ public class Game {
     private CardColor activeColor;
     // players in the game, each player is one device
     private ArrayList<Player> players;
+    private Player self;
     private GameActivity activity;
     // player that has the turn
-    private Player activePlayer;
+    private int activePlayer;
     private int state;
     // keeps track of how many cards need to be drawn
     private int numberOfCardsToDraw;
+    private Session session;
 
     // something like a connection to join the game and receive requests or send messages
     // private Connection conn
@@ -44,6 +53,7 @@ public class Game {
         this.stack = new Stack();
         this.reverse = false;
         this.players = new ArrayList<Player>();
+        this.self = admin;
         this.activity = activity;
         this.state = Game.STATE_PENDING;
         this.gameStarted = false;
@@ -63,23 +73,6 @@ public class Game {
             return false;
         }
 
-    public void messageReceived() {
-        boolean playersTurn = false;
-        this.activity.setClicksEnabled(playersTurn);
-
-        if(playersTurn){
-            // handleTurn
-        }
-    }
-
-    public void notifiyPlayers() {
-        for(Player p : players) {
-            if(Player.TYPE_PLAYER.equals(p.getType())) {
-
-            }
-        }
-    }
-
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
             return playCard(c, p);
         } else {
@@ -87,6 +80,40 @@ public class Game {
             return false;
         }
 
+    }
+
+    public void messageReceived(Message m) {
+        if(m instanceof Turn){
+            // we received a turn a player made
+            Turn turn = (Turn) m;
+            if(session instanceof HostSession){
+                // we are host so notify the others
+                notifyPlayers((Turn) m);
+            }
+
+            // if its my turn enable clicks
+            boolean playersTurn = turn.player == players.indexOf(self);
+            this.activity.setClicksEnabled(playersTurn);
+
+        }else if(m instanceof Setup){
+
+        }else if(m instanceof CardsDealt) {
+
+        }
+    }
+
+    public void clientConnected(Message m) {
+        //TODO
+
+    }
+
+    public void clientDisconnected(Message m) {
+        //TODO
+    }
+
+    public void notifyPlayers(Turn turn) {
+//      we receive a turn from one player and send it to all
+        session.send(turn);
     }
 
     // check if card can be played and return result
@@ -128,14 +155,13 @@ public class Game {
     }
 
     private void layCard(Card c) {
-
         this.stack.playCard(c);
         this.activity.updateTopCard(c.getGraphic());
     }
 
-    public ArrayList<Card> handCards(Player p, int amount) {
+    public ArrayList<Card> handCards(int amount) {
         ArrayList<Card> cards = this.deck.deal(amount);
-        p.getHand().addCards(cards);
+        self.getHand().addCards(cards);
         this.activity.addToHand(cards);
         return cards;
     }
@@ -150,7 +176,7 @@ public class Game {
         return null;
     }
 
-    public void startGame(Player startingPlayer) {
+    public void startGame() {
         // for testing purposes its 0 but should be 1
         if (0 < this.players.size() && Game.STATE_PENDING == this.state) {
             // player next to dealer (=gamestarter) starts
@@ -171,12 +197,12 @@ public class Game {
             // deal 3 * 3 for each player
             for (int i = 0; i < 7; i++) {
                 for (Player p : this.players) {
-                    this.handCards(p, 1);
+                    this.handCards(1);
                 }
             }
 
             this.state = Game.STATE_RUNNING;
-            this.activePlayer = startingPlayer; //TODO: change to player to the left of game initiator
+            this.activePlayer = 0; //TODO: change to player to the left of game initiator
             this.gameStarted = true;
             handleAction(cardTopped);
         }
@@ -203,12 +229,12 @@ public class Game {
         numberOfCardsToDraw--;
     }
 
-    public Player getActivePlayer() {
+    public int getActivePlayer() {
         return activePlayer;
     }
 
-    public void setActivePlayer(Player p) {
-        this.activePlayer = p;
+    public void setActivePlayer(int indexOfPlayer) {
+        this.activePlayer = indexOfPlayer;
     }
 
     public CardColor getActiveColor() {

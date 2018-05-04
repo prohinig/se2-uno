@@ -1,6 +1,7 @@
 package games.winchester.unodeluxe.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -13,7 +14,9 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-import at.laubi.network.session.ClientSession;
+import at.laubi.network.Network;
+import at.laubi.network.session.Session;
+import butterknife.ButterKnife;
 import butterknife.OnClick;
 import games.winchester.unodeluxe.models.Card;
 import games.winchester.unodeluxe.models.ColorWishDialog;
@@ -23,13 +26,17 @@ import games.winchester.unodeluxe.R;
 import games.winchester.unodeluxe.models.ShakeDetector;
 import games.winchester.unodeluxe.app.UnoDeluxe;
 import games.winchester.unodeluxe.utils.GameLogic;
+import games.winchester.unodeluxe.utils.NetworkUtils;
 
 public class GameActivity extends AppCompatActivity {
 
-    ImageView deckView, stackView, handCard;
-    LinearLayout handLayout;
-    Player self;
-    Game game;
+    private ImageView deckView, stackView, handCard;
+    private LinearLayout handLayout;
+    private Player self;
+    private Game game;
+    private Network network;
+    private Session session;
+
 
     private boolean clicksEnabled = true;
 
@@ -43,6 +50,21 @@ public class GameActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ButterKnife.bind(this);
+
+        network = new Network();
+        network.setFallbackExceptionListener((e, s) -> {
+            toastUiThread("Exception thrown: " + e.getMessage());
+            e.printStackTrace();
+        });
+
+        // TODO call game.messageReceived
+        network.setMessageListener((m, s) -> toastUiThread(m.toString()));
+        // TODO call game.clientConnected
+        network.setNewSessionListener(s -> toastUiThread("New client connected"));
+        // TODO call game.clientDisconnected
+        network.setConnectionEndListener(s -> toastUiThread("Client disconnected"));
+
         Bundle b = getIntent().getExtras();
         String host = null; // or other values
         // or other values
@@ -50,90 +72,123 @@ public class GameActivity extends AppCompatActivity {
             host = b.getString("host");
         }
 
-        String text = "Host: " + host;
-        int duration = Toast.LENGTH_SHORT;
-        Toast toast = Toast.makeText(UnoDeluxe.getContext(), text, duration);
-        toast.show();
+        //String text = "Host: " + host;
+        //int duration = Toast.LENGTH_SHORT;
+        //Toast toast = Toast.makeText(UnoDeluxe.getContext(), text, duration);
+        //toast.show();
+
+        deckView = (ImageView) findViewById(R.id.deckView);
+        stackView = (ImageView) findViewById(R.id.stackView);
+        handCard = (ImageView) findViewById(R.id.handCard);
+        handLayout = (LinearLayout) findViewById(R.id.handLayout);
+
+        stackView.setVisibility(View.INVISIBLE);
+        handLayout.removeView(handCard);
+
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mAccelerometer = mSensorManager
+                .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mShakeDetector = new ShakeDetector();
+        mShakeDetector.setOnShakeListener(new ShakeDetector.OnShakeListener() {
+
+            @Override
+            public void onShake(int count) {
+                /*
+                 * The following method, "handleShakeEvent(count):" is a stub //
+                 * method you would use to setup whatever you want done once the
+                 * device has been shook.
+                 */
+                handleShakeEvent(count);
+            }
+        });
 
         if(null == host){
+            network.createHost(hostSession -> {
+                final GameActivity that = GameActivity.this;
+
+                that.session = hostSession;
+
+                that.runOnUiThread(() -> {
+//                    that.btnConnect.setEnabled(false);
+//                    that.ip.setText( Objects.requireNonNull(NetworkUtils.getLocalIpAddresses().get(1)));
+//                    that.btnSend.setEnabled(true);
+//                    that.etIp.setEnabled(false);
+                });
+            }, null);
+
             // this is what happens when a player creates a game
             // it will be different for joining a game
             self = new Player("admin", Player.TYPE_ADMIN);
             game = new Game(self, this);
 
-            deckView = (ImageView) findViewById(R.id.deckView);
-            stackView = (ImageView) findViewById(R.id.stackView);
-            handCard = (ImageView) findViewById(R.id.handCard);
-            handLayout = (LinearLayout) findViewById(R.id.handLayout);
-        deckView.setClickable(true);
-        deckView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!game.isGameStarted()) {
-                    game.startGame(self);
-                    stackView.setVisibility(View.VISIBLE);
-                } else {
-                    if (game.getNumberOfCardsToDraw() != 0) {
-                        game.handCards(game.getActivePlayer(), 1);
-                        game.decrementNumberOfCardsToDraw();
-                    } else {
-                        if (!GameLogic.hasPlayableCard(game.getActivePlayer().getHand(), game.getActiveColor(), game.getTopOfStackCard())) {
-                            ArrayList<Card> tmp = game.handCards(game.getActivePlayer(), 1);
-
-                            if (GameLogic.isPlayableCard(tmp.get(0), game.getActivePlayer().getHand(), game.getTopOfStackCard(), game.getActiveColor())) {
-                                //TODO: player is allowed to play drawn card if its playable
-                            }
-
-                        } else {
-                            notificationHasPlayableCard();
-                        }
-                    }
-                }
-            }
-        });
-
-            stackView.setVisibility(View.INVISIBLE);
-            handLayout.removeView(handCard);
-
             deckView.setClickable(true);
             deckView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    deckViewClick();
+                    if (!game.isGameStarted()) {
+                        game.startGame();
+                        stackView.setVisibility(View.VISIBLE);
+                    } else {
+                        if (game.getNumberOfCardsToDraw() != 0) {
+                            game.handCards(1);
+                            game.decrementNumberOfCardsToDraw();
+                        } else {
+                            if (!GameLogic.hasPlayableCard(self.getHand(), game.getActiveColor(), game.getTopOfStackCard())) {
+                                ArrayList<Card> tmp = game.handCards(1);
+
+                                if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), game.getTopOfStackCard(), game.getActiveColor())) {
+                                    //TODO: player is allowed to play drawn card if its playable
+                                }
+
+                            } else {
+                                notificationHasPlayableCard();
+                            }
+                        }
+                    }
                 }
             });
+
+//            deckView.setClickable(true);
+//            deckView.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    deckViewClick();
+//                }
+//            });
 
             // ShakeDetector initialization
-            mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-            mAccelerometer = mSensorManager
-                    .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            mShakeDetector = new ShakeDetector();
-            mShakeDetector.setOnShakeListener(new ShakeDetector.OnShakeListener() {
+        }
+        else {
+            network.createClient(host, clientSession -> {
+                final GameActivity that = GameActivity.this;
 
-                @Override
-                public void onShake(int count) {
-                    /*
-                     * The following method, "handleShakeEvent(count):" is a stub //
-                     * method you would use to setup whatever you want done once the
-                     * device has been shook.
-                     */
-                    handleShakeEvent(count);
-                    System.out.println("It was shaked");
-                }
+                that.session = clientSession;
+
+                that.runOnUiThread(() -> {
+//                    that.btnConnect.setEnabled(false);
+//                    that.btnSend.setEnabled(true);
+//                    that.etIp.setEnabled(false);
+//                    that.btnHost.setEnabled(false);
+                });
+            }, (e, s) -> {
+                toastUiThread("Verbindung zum Spiel fehlgeschlagen.");
+                e.printStackTrace();
+                Intent intent = new Intent(GameActivity.this, MenuActivity.class);
+                startActivity(intent);
             });
-        }else {
-            // try to connect to host and if succesful create game with connection
+
+//             try to connect to host and if succesful create game with connection
         }
 
     }
 
-    void deckViewClick() {
-        if(clicksEnabled) {
-            game.deckClicked();
-            game.startGame();
-            stackView.setVisibility(View.VISIBLE);
-        }
-    }
+//    void deckViewClick() {
+//        if(clicksEnabled) {
+//            game.deckClicked();
+//            game.startGame();
+//            stackView.setVisibility(View.VISIBLE);
+//        }
+//    }
 
     public static Drawable getImageDrawable(Context c, String ImageName) {
         return c.getResources().getDrawable(c.getResources().getIdentifier(ImageName, "drawable", c.getPackageName()));
@@ -241,6 +296,12 @@ public class GameActivity extends AppCompatActivity {
         this.clicksEnabled = clicksEnabled;
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if(session != null) session.close();
+    }
 
     @Override
     public void onResume() {
@@ -258,5 +319,9 @@ public class GameActivity extends AppCompatActivity {
 
     public ImageView getHandCardView() {
         return handCard;
+    }
+
+    private void toastUiThread(final String message){
+        this.runOnUiThread(() -> Toast.makeText(GameActivity.this, message, Toast.LENGTH_LONG).show());
     }
 }
