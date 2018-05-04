@@ -167,7 +167,9 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public static Drawable getImageDrawable(Context c, String ImageName) {
-        return c.getResources().getDrawable(c.getResources().getIdentifier(ImageName, "drawable", c.getPackageName()));
+        final int resourceIdentifier = c.getResources().getIdentifier(ImageName, "drawable", c.getPackageName());
+
+        return c.getResources().getDrawable(resourceIdentifier);
     }
 
     // used to keep the stack UI up to date with the backend model
