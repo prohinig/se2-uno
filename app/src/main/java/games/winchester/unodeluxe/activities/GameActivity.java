@@ -14,13 +14,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.List;
 
 import at.laubi.network.Network;
+import at.laubi.network.messages.Message;
+import at.laubi.network.session.ClientSession;
 import at.laubi.network.session.Session;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import games.winchester.unodeluxe.models.Card;
 import games.winchester.unodeluxe.models.ColorWishDialog;
 import games.winchester.unodeluxe.models.Game;
@@ -33,16 +34,22 @@ import games.winchester.unodeluxe.utils.NetworkUtils;
 
 public class GameActivity extends AppCompatActivity {
 
-    private ImageView deckView, stackView, handCard;
-    private LinearLayout handLayout;
+    @BindView(R.id.deckView)
+    ImageView deckView;
+
+    @BindView(R.id.stackView)
+    ImageView stackView;
+
+    @BindView(R.id.handLayout)
+    LinearLayout handLayout;
+
+    @BindView(R.id.ipText)
+    TextView ip;
+
     private Player self;
     private Game game;
     private Network network;
     private Session session;
-
-
-    @BindView(R.id.ipText)
-    TextView ip;
 
     private boolean clicksEnabled = true;
 
@@ -51,6 +58,7 @@ public class GameActivity extends AppCompatActivity {
     private Sensor mAccelerometer;
     private ShakeDetector mShakeDetector;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,143 +66,105 @@ public class GameActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        network = new Network();
-        network.setFallbackExceptionListener((e, s) -> {
-            toastUiThread("Exception thrown: " + e.getMessage());
-            e.printStackTrace();
-        });
+        this.setupNetwork();
+        this.setupSensors();
 
-        // TODO call game.messageReceived
-        network.setMessageListener((m, s) -> toastUiThread(m.toString()));
-        // TODO call game.clientConnected
-        network.setNewSessionListener(s -> toastUiThread("New client connected"));
-        // TODO call game.clientDisconnected
-        network.setConnectionEndListener(s -> toastUiThread("Client disconnected"));
+        String host = getIntent().getStringExtra("host");
 
-        Bundle b = getIntent().getExtras();
-        String host = null; // or other values
-        // or other values
-        if(null != b) {
-            host = b.getString("host");
+        if (host == null) {
+            this.setupMultiplayerHost();
+        } else {
+            this.setupMultiplayerClient(host);
         }
-
-        //String text = "Host: " + host;
-        //int duration = Toast.LENGTH_SHORT;
-        //Toast toast = Toast.makeText(UnoDeluxe.getContext(), text, duration);
-        //toast.show();
-
-        deckView = (ImageView) findViewById(R.id.deckView);
-        stackView = (ImageView) findViewById(R.id.stackView);
-        handCard = (ImageView) findViewById(R.id.handCard);
-        handLayout = (LinearLayout) findViewById(R.id.handLayout);
-
-        stackView.setVisibility(View.INVISIBLE);
-        handLayout.removeView(handCard);
-
-        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mAccelerometer = mSensorManager
-                .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mShakeDetector = new ShakeDetector();
-        mShakeDetector.setOnShakeListener(new ShakeDetector.OnShakeListener() {
-
-            @Override
-            public void onShake(int count) {
-                /*
-                 * The following method, "handleShakeEvent(count):" is a stub //
-                 * method you would use to setup whatever you want done once the
-                 * device has been shook.
-                 */
-                handleShakeEvent(count);
-            }
-        });
-
-        if(null == host){
-            network.createHost(hostSession -> {
-                final GameActivity that = GameActivity.this;
-
-                that.session = hostSession;
-
-                that.runOnUiThread(() -> {
-//                    that.btnConnect.setEnabled(false);
-                    that.ip.setText( "I am: " + Objects.requireNonNull(NetworkUtils.getLocalIpAddresses().get(0)));
-//                    that.btnSend.setEnabled(true);
-//                    that.etIp.setEnabled(false);
-                });
-            }, null);
-
-            // this is what happens when a player creates a game
-            // it will be different for joining a game
-            self = new Player("admin", Player.TYPE_ADMIN);
-            game = new Game(self, this);
-
-            deckView.setClickable(true);
-            deckView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!game.isGameStarted()) {
-                        game.startGame();
-                        stackView.setVisibility(View.VISIBLE);
-                    } else {
-                        if (game.getNumberOfCardsToDraw() != 0) {
-                            game.handCards(1);
-                            game.decrementNumberOfCardsToDraw();
-                        } else {
-                            if (!GameLogic.hasPlayableCard(self.getHand(), game.getActiveColor(), game.getTopOfStackCard())) {
-                                ArrayList<Card> tmp = game.handCards(1);
-
-                                if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), game.getTopOfStackCard(), game.getActiveColor())) {
-                                    //TODO: player is allowed to play drawn card if its playable
-                                }
-
-                            } else {
-                                notificationHasPlayableCard();
-                            }
-                        }
-                    }
-                }
-            });
-
-//            deckView.setClickable(true);
-//            deckView.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    deckViewClick();
-//                }
-//            });
-
-            // ShakeDetector initialization
-        }
-        else {
-            network.createClient(host, clientSession -> {
-                final GameActivity that = GameActivity.this;
-
-                that.session = clientSession;
-
-                that.runOnUiThread(() -> {
-//                    that.btnConnect.setEnabled(false);
-//                    that.btnSend.setEnabled(true);
-//                    that.etIp.setEnabled(false);
-//                    that.btnHost.setEnabled(false);
-                });
-            }, (e, s) -> {
-                toastUiThread("Verbindung zum Spiel fehlgeschlagen.");
-                e.printStackTrace();
-                Intent intent = new Intent(GameActivity.this, MenuActivity.class);
-                startActivity(intent);
-            });
-
-//             try to connect to host and if succesful create game with connection
-        }
-
     }
 
-//    void deckViewClick() {
-//        if(clicksEnabled) {
-//            game.deckClicked();
-//            game.startGame();
-//            stackView.setVisibility(View.VISIBLE);
-//        }
-//    }
+    private void setupNetwork() {
+        network = new Network();
+
+        network.setFallbackExceptionListener(this::onFallbackException);
+        network.setMessageListener(this::onMessageReceived);
+        network.setNewSessionListener(this::onNewSession);
+        network.setConnectionEndListener(this::onSessionEnd);
+    }
+
+    private void onFallbackException(Exception e, Session s) {
+        toastUiThread("Exception thrown: " + e.getMessage());
+        e.printStackTrace();
+    }
+
+    private void onMessageReceived(Message message, Session session) {
+        // TODO call game.messageReceived
+    }
+
+    private void onNewSession(ClientSession session) {
+        // TODO call game.clientConnected
+    }
+
+    private void onSessionEnd(Session session) {
+        // TODO call game.clientDisconnected
+    }
+
+    private void setupSensors() {
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mShakeDetector = new ShakeDetector();
+        mShakeDetector.setOnShakeListener(this::handleShakeEvent);
+    }
+
+    private void setupMultiplayerHost() {
+        final String format = "I am: %s";
+        final List<String> networks = NetworkUtils.getLocalIpAddresses();
+
+        if(networks.isEmpty()) return;
+
+        final String hostIp = networks.get(0);
+
+        network.createHost(hostSession -> {
+            session = hostSession;
+
+            runOnUiThread(() -> {
+                ip.setText(String.format(format, hostIp));
+            });
+        }, null);
+
+
+        self = new Player("admin", Player.TYPE_ADMIN);
+        game = new Game(self, this);
+
+        deckView.setClickable(true);
+        deckView.setOnClickListener(v -> {
+            if (!game.isGameStarted()) {
+                game.startGame();
+                stackView.setVisibility(View.VISIBLE);
+            } else {
+                if (game.getNumberOfCardsToDraw() != 0) {
+                    game.handCards(1);
+                    game.decrementNumberOfCardsToDraw();
+                } else {
+                    if (!GameLogic.hasPlayableCard(self.getHand(), game.getActiveColor(), game.getTopOfStackCard())) {
+                        ArrayList<Card> tmp = game.handCards(1);
+
+                        if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), game.getTopOfStackCard(), game.getActiveColor())) {
+                            //TODO: player is allowed to play drawn card if its playable
+                        }
+
+                    } else {
+                        notificationHasPlayableCard();
+                    }
+                }
+            }
+        });
+    }
+
+    private void setupMultiplayerClient(String host) {
+        network.createClient(host, clientSession -> {
+            session = clientSession;
+        }, (e, s) -> {
+            toastUiThread("Verbindung zum Spiel fehlgeschlagen.");
+            e.printStackTrace();
+            startActivity(new Intent(this, MenuActivity.class));
+        });
+    }
 
     public static Drawable getImageDrawable(Context c, String ImageName) {
         return c.getResources().getDrawable(c.getResources().getIdentifier(ImageName, "drawable", c.getPackageName()));
@@ -220,7 +190,7 @@ public class GameActivity extends AppCompatActivity {
                     if (null != v.getTag()) {
                         Card c = (Card) v.getTag();
                         boolean result = game.handleTurn(c, self);
-                        if (true == result) {
+                        if (result) {
                             handLayout.removeView(v);
                         }
                     }
@@ -306,7 +276,7 @@ public class GameActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
 
-        if(session != null) session.close();
+        if (session != null) session.close();
     }
 
     @Override
@@ -323,11 +293,7 @@ public class GameActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    public ImageView getHandCardView() {
-        return handCard;
-    }
-
-    private void toastUiThread(final String message){
+    private void toastUiThread(final String message) {
         this.runOnUiThread(() -> Toast.makeText(GameActivity.this, message, Toast.LENGTH_LONG).show());
     }
 }
