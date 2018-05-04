@@ -10,12 +10,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import at.laubi.network.Network;
 import at.laubi.network.session.Session;
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import games.winchester.unodeluxe.models.Card;
@@ -37,6 +40,9 @@ public class GameActivity extends AppCompatActivity {
     private Network network;
     private Session session;
 
+
+    @BindView(R.id.ipText)
+    TextView ip;
 
     private boolean clicksEnabled = true;
 
@@ -110,7 +116,7 @@ public class GameActivity extends AppCompatActivity {
 
                 that.runOnUiThread(() -> {
 //                    that.btnConnect.setEnabled(false);
-//                    that.ip.setText( Objects.requireNonNull(NetworkUtils.getLocalIpAddresses().get(1)));
+                    that.ip.setText( "I am: " + Objects.requireNonNull(NetworkUtils.getLocalIpAddresses().get(0)));
 //                    that.btnSend.setEnabled(true);
 //                    that.etIp.setEnabled(false);
                 });
