@@ -29,31 +29,23 @@ public class MenuActivity extends AppCompatActivity {
 
     @OnClick(R.id.btnStartGame)
     void onBtnStartGameClick() {
-        Intent intent = new Intent(MenuActivity.this, GameActivity.class);
-        Bundle b = new Bundle();
-        // we put a the client session to game if game is joined.
-        // in case of creating a game nothing is put to intent
-        b.putString("host", null); //Your id
-        intent.putExtras(b); //Put your id to your next Intent
-
-        startActivity(intent);
-        finish();
-
+        startGameActivity(null);
     }
 
     @OnClick(R.id.btnJoinGame)
     void onBtnJoinGameClick() {
-        Intent intent = new Intent(MenuActivity.this, GameActivity.class);
-        Bundle b = new Bundle();
-        String host = ip.getText().toString();
-        if(0 < host.length()){
-            // we put a the client session to game if game is joined.
-            // in case of creating a game nothing is put to intent
-            b.putString("host", host); //Your id
-            intent.putExtras(b); //Put your id to your next Intent
+        final String host = ip.getText().toString();
 
-            startActivity(intent);
-            finish();
+        if(!host.isEmpty()){
+            startGameActivity(host);
         }
+    }
+
+    private void startGameActivity(String host) {
+        Intent intent = new Intent(this, GameActivity.class);
+        intent.putExtra("host", host);
+        startActivity(intent);
+
+        finish();
     }
 }
