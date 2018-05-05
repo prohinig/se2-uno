@@ -1,18 +1,14 @@
 package games.winchester.unodeluxe.activities;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.TextView;
 
-import at.laubi.network.session.ClientSession;
-import at.laubi.network.session.Session;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import games.winchester.unodeluxe.R;
-import games.winchester.unodeluxe.activities.GameActivity;
-import games.winchester.unodeluxe.activities.MultiplayerActivity;
 
 public class MenuActivity extends AppCompatActivity {
 
