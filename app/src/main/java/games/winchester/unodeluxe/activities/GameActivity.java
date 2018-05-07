@@ -1,33 +1,53 @@
 package games.winchester.unodeluxe.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
+import at.laubi.network.Network;
+import at.laubi.network.messages.Message;
 import at.laubi.network.session.ClientSession;
-import butterknife.OnClick;
+import at.laubi.network.session.Session;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import games.winchester.unodeluxe.R;
+import games.winchester.unodeluxe.app.UnoDeluxe;
 import games.winchester.unodeluxe.models.Card;
+import games.winchester.unodeluxe.models.ColorWishDialog;
 import games.winchester.unodeluxe.models.Game;
 import games.winchester.unodeluxe.models.Player;
-import games.winchester.unodeluxe.R;
 import games.winchester.unodeluxe.models.ShakeDetector;
-import games.winchester.unodeluxe.app.UnoDeluxe;
+import games.winchester.unodeluxe.utils.NetworkUtils;
 
 public class GameActivity extends AppCompatActivity {
 
-    ImageView deckView, stackView, handCard;
+    @BindView(R.id.deckView)
+    ImageView deckView;
+
+    @BindView(R.id.stackView)
+    ImageView stackView;
+
+    @BindView(R.id.handLayout)
     LinearLayout handLayout;
-    Player self;
-    Game game;
+
+    @BindView(R.id.ipText)
+    TextView ip;
+
+    private Player self;
+    private Game game;
+    private Network network;
+    private Session session;
 
     private boolean clicksEnabled = true;
 
@@ -36,88 +56,118 @@ public class GameActivity extends AppCompatActivity {
     private Sensor mAccelerometer;
     private ShakeDetector mShakeDetector;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_game);
 
-        Bundle b = getIntent().getExtras();
-        String host = null; // or other values
-        // or other values
-        if(null != b) {
-            host = b.getString("host");
-        }
+        ButterKnife.bind(this);
 
-        String text = "Host: " + host;
-        int duration = Toast.LENGTH_SHORT;
-        Toast toast = Toast.makeText(UnoDeluxe.getContext(), text, duration);
-        toast.show();
-
-        if(null == host){
-            // this is what happens when a player creates a game
-            // it will be different for joining a game
-            self = new Player("admin", Player.TYPE_ADMIN);
-            game = new Game(self, this);
-
-            deckView = (ImageView) findViewById(R.id.deckView);
-            stackView = (ImageView) findViewById(R.id.stackView);
-            handCard = (ImageView) findViewById(R.id.handCard);
-            handLayout = (LinearLayout) findViewById(R.id.handLayout);
-
-            stackView.setVisibility(View.INVISIBLE);
-            handLayout.removeView(handCard);
-
-            deckView.setClickable(true);
-            deckView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    deckViewClick();
-                }
-            });
-
-            // ShakeDetector initialization
-            mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-            mAccelerometer = mSensorManager
-                    .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-            mShakeDetector = new ShakeDetector();
-            mShakeDetector.setOnShakeListener(new ShakeDetector.OnShakeListener() {
-
-                @Override
-                public void onShake(int count) {
-                    /*
-                     * The following method, "handleShakeEvent(count):" is a stub //
-                     * method you would use to setup whatever you want done once the
-                     * device has been shook.
-                     */
-                    handleShakeEvent(count);
-                    System.out.println("It was shaked");
-                }
-            });
-        }else {
-            // try to connect to host and if succesful create game with connection
-        }
-
+        this.setupNetwork();
+        this.setupSensors();
+        this.setupGame();
     }
 
-    void deckViewClick() {
-        if(clicksEnabled) {
-            game.deckClicked();
-            game.startGame();
-            stackView.setVisibility(View.VISIBLE);
+    private void setupGame() {
+        game = new Game(this);
+
+        String host = getIntent().getStringExtra("host");
+
+        if (host == null) {
+            this.setupMultiplayerHost();
+        } else {
+            this.setupMultiplayerClient(host);
         }
+    }
+
+    private void setupNetwork() {
+        network = new Network();
+
+        network.setFallbackExceptionListener(this::onFallbackException);
+        network.setMessageListener(this::onMessageReceived);
+        network.setNewSessionListener(this::onNewSession);
+        network.setConnectionEndListener(this::onSessionEnd);
+    }
+
+    private void onFallbackException(Exception e, Session s) {
+        toastUiThread("Exception thrown: " + e.getMessage());
+        e.printStackTrace();
+    }
+
+    private void onMessageReceived(Message message, Session session) {
+        runOnUiThread(() -> game.messageReceived(message));
+    }
+
+    private void onNewSession(ClientSession session) {
+        runOnUiThread(() -> game.clientConnected());
+    }
+
+    private void onSessionEnd(Session session) {
+        runOnUiThread(() -> game.clientDisconnected());
+    }
+
+    private void setupSensors() {
+        mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        mShakeDetector = new ShakeDetector();
+        mShakeDetector.setOnShakeListener(this::handleShakeEvent);
+    }
+
+    private void setupMultiplayerHost() {
+        final String format = "I am: %s";
+        final List<String> networks = NetworkUtils.getLocalIpAddresses();
+
+        if(networks.isEmpty()) return;
+
+        final String hostIp = networks.get(0);
+
+        network.createHost(hostSession -> {
+            session = hostSession;
+            game.setSession(hostSession);
+            self = game.getSelf();
+
+            deckView.setClickable(true);
+            deckView.setOnClickListener(l -> game.deckClicked());
+
+            runOnUiThread(() -> {
+                ip.setText(String.format(format, hostIp));
+            });
+        }, null);
+
+        deckView.setClickable(true);
+    }
+
+    private void setupMultiplayerClient(String host) {
+        network.createClient(host, clientSession -> {
+            session = clientSession;
+
+            game.setSession(clientSession);
+            self = game.getSelf();
+
+            deckView.setClickable(true);
+            deckView.setOnClickListener(l -> game.deckClicked());
+
+        }, (e, s) -> {
+            toastUiThread("Verbindung zum Spiel fehlgeschlagen.");
+            e.printStackTrace();
+            startActivity(new Intent(this, MenuActivity.class));
+        });
     }
 
     public static Drawable getImageDrawable(Context c, String ImageName) {
-        return c.getResources().getDrawable(c.getResources().getIdentifier(ImageName, "drawable", c.getPackageName()));
+        final int resourceIdentifier = c.getResources().getIdentifier(ImageName, "drawable", c.getPackageName());
+
+        return c.getResources().getDrawable(resourceIdentifier);
     }
 
     // used to keep the stack UI up to date with the backend model
-    public void updateTopCard (String graphic) {
+    public void updateTopCard(String graphic) {
         this.stackView.setImageDrawable(getImageDrawable(UnoDeluxe.getContext(), graphic));
     }
 
     // used to keep the hand UI up to date with the backend model
-    public void addToHand (ArrayList<Card> cards) {
+    public void addToHand(ArrayList<Card> cards) {
         for (Card c : cards) {
             ImageView cardView = new ImageView(GameActivity.this);
             cardView.setPadding(0, 0, 0, 0);
@@ -125,19 +175,10 @@ public class GameActivity extends AppCompatActivity {
             cardView.setClickable(true);
             cardView.setTag(c);
 
-            cardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if(clicksEnabled) {
-                        if (null != v.getTag()) {
-                            Card c = (Card) v.getTag();
-                            boolean result = game.playCard(c, self);
-                            if(true == result) {
-                                handLayout.removeView(v);
-                            }
-                        }
-                    }
-
+            cardView.setOnClickListener(v -> {
+                if(v.getTag() == null) return;
+                if(game.cardClicked((Card) v.getTag())) {
+                    handLayout.removeView(v);
                 }
             });
 
@@ -156,20 +197,46 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
+    public void wishAColor(Game game) {
+        ColorWishDialog cwd = new ColorWishDialog();
+        cwd.setCancelable(false);
+        cwd.show(getSupportFragmentManager(), "WishColor", game);
+    }
+
+    public void notificationNumberOfCardsToDraw(int i) {
+        String text = i == 1 ? "Du musst noch eine Karte ziehen." : "Du musst noch " + i + " Karten ziehen.";
+
+        this.toastUiThread(text, Toast.LENGTH_SHORT);
+    }
+
+    public void notificationCardNotPlayable() {
+        this.toastUiThread("Du darfst diese Karte jetzt nicht spielen.", Toast.LENGTH_SHORT);
+    }
+
+    public void notificationGameWon() {
+        this.toastUiThread("Glückwunsch! Du hast diese Runde gewonnen!", Toast.LENGTH_SHORT);
+    }
+
+    public void notificationHasPlayableCard() {
+        this.toastUiThread("Du hast noch spielbare Karten.", Toast.LENGTH_SHORT);
+    }
+
     public void handleShakeEvent(int count) {
         this.game.stackToDeck();
-        Context context = getApplicationContext();
-        CharSequence text = "Karten wurden gemischt.";
-        int duration = Toast.LENGTH_SHORT;
 
-        Toast toast = Toast.makeText(context, text, duration);
-        toast.show();
+        this.toastUiThread("Deck wurde gemischt", Toast.LENGTH_SHORT);
     }
 
     public void setClicksEnabled(boolean clicksEnabled) {
         this.clicksEnabled = clicksEnabled;
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        if (session != null) session.close();
+    }
 
     @Override
     public void onResume() {
@@ -183,5 +250,14 @@ public class GameActivity extends AppCompatActivity {
         // Add the following line to unregister the Sensor Manager onPause
         mSensorManager.unregisterListener(mShakeDetector);
         super.onPause();
+    }
+
+
+    private void toastUiThread(final String message) {
+        toastUiThread(message, Toast.LENGTH_LONG);
+    }
+
+    private void toastUiThread(final String message, final int length) {
+        this.runOnUiThread(() -> Toast.makeText(GameActivity.this, message, length).show());
     }
 }

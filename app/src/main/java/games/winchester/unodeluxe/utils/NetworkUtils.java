@@ -19,14 +19,13 @@ public class NetworkUtils {
     public static List<String> getLocalIpAddresses() {
 
         try {
-            List<String> addresses = new ArrayList<>(5);
+            final List<String> addresses = new ArrayList<>(5);
 
             for (NetworkInterface currentInterface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
                 for(InetAddress address : Collections.list(currentInterface.getInetAddresses())){
                     // get IPV4 address
                     if (!address.isLoopbackAddress() && address instanceof Inet4Address) {
                         addresses.add(address.getHostAddress());
-                        System.out.println(address.getHostAddress());
                     }
                 }
             }
@@ -34,7 +33,7 @@ public class NetworkUtils {
             return addresses;
 
         } catch(Exception ignored){
-            return null;
+            return new ArrayList<>();
         }
     }
 }

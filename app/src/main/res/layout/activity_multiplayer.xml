@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activities.MultiplayerActivity">
+    tools:context=".activities.MultiplayerActivity"
+    android:background="@drawable/background">
 
     <TableLayout
         android:layout_width="match_parent"
