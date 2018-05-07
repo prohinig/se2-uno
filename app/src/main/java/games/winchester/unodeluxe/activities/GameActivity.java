@@ -152,6 +152,10 @@ public class GameActivity extends AppCompatActivity {
                 that.game.setSession(clientSession);
                 that.self = that.game.getSelf();
 
+                that.deckView.setClickable(true);
+                that.deckView.setOnClickListener(v -> {
+                    game.deckClicked();
+                });
 
                 that.runOnUiThread(() -> {
 //                    that.btnConnect.setEnabled(false);

@@ -117,8 +117,9 @@ public class Game {
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
             boolean result = playCard(c, p);
             if (result) {
-                turn = new Turn();
+                turn.activePlayer = (++activePlayer) % players.size();
                 turn.cardPlayed = c;
+                turn.activeColor = c.getColor();
 
                 if (null != session) {
                     session.send(turn);
@@ -137,24 +138,25 @@ public class Game {
     }
 
     public void messageReceived(Message m) {
+        Card cardPlayed = null;
         if (m instanceof Turn) {
             // we received a turn a player made
-            Turn turn = (Turn) m;
             if (session instanceof HostSession) {
                 // we are host so notify the others
                 notifyPlayers((Turn) m);
             }
 
+            Turn turn = (Turn) m;
+            activePlayer = turn.activePlayer;
+            activeColor = turn.activeColor;
+
+            if(0 < turn.cardsDrawn) {
+                deck.deal(turn.cardsDrawn);
+            }
+            cardPlayed = turn.cardPlayed;
             if (null != turn.cardPlayed) {
                 this.layCard(turn.cardPlayed);
             }
-
-            // if its my turn enable clicks
-            boolean playersTurn = turn.player == players.indexOf(self);
-            if (playersTurn) {
-                handleAction(turn.cardPlayed);
-            }
-            this.activity.setClicksEnabled(playersTurn);
 
 
         } else if (m instanceof Setup) {
@@ -165,14 +167,23 @@ public class Game {
             activeColor = setup.activeColor;
             stack = setup.stack;
             activePlayer = setup.activePlayer;
+            gameStarted = true;
 
-            activity.updateTopCard(stack.getTopCard().getGraphic());
+            cardPlayed = stack.getTopCard();
+
+            activity.updateTopCard(cardPlayed.getGraphic());
 
             self = players.get(1);
             this.activity.addToHand(self.getHand().getCards());
 
-        } else if (m instanceof CardsDealt) {
+        }
 
+        // if its my turn enable clicks
+        if (activePlayer == players.indexOf(self)) {
+            turn = new Turn();
+            if(null != cardPlayed){
+                handleAction(cardPlayed);
+            }
         }
     }
 
@@ -303,6 +314,7 @@ public class Game {
 
     public void setActiveColor(CardColor color) {
         this.activeColor = color;
+        this.turn.activeColor = color;
     }
 
     public boolean isGameStarted() {
