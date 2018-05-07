@@ -66,6 +66,11 @@ public class GameActivity extends AppCompatActivity {
 
         this.setupNetwork();
         this.setupSensors();
+        this.setupGame();
+    }
+
+    private void setupGame() {
+        game = new Game(this);
 
         String host = getIntent().getStringExtra("host");
 
@@ -130,8 +135,6 @@ public class GameActivity extends AppCompatActivity {
             });
         }, null);
 
-        game = new Game(this);
-
         deckView.setClickable(true);
     }
 
@@ -174,10 +177,7 @@ public class GameActivity extends AppCompatActivity {
 
             cardView.setOnClickListener(v -> {
                 if(v.getTag() == null) return;
-
-                Card c1 = (Card) v.getTag();
-                boolean result = game.handleTurn(c1, self);
-                if (result) {
+                if(game.cardClicked((Card) v.getTag())) {
                     handLayout.removeView(v);
                 }
             });
