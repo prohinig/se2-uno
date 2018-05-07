@@ -10,6 +10,8 @@ import android.app.Activity;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import games.winchester.unodeluxe.R;
+
 public class Rules extends AppCompatActivity {
    // String[] mobileArray = {
            // "1. Every player starts with seven cards, and they are dealt face down.",

@@ -1,9 +1,14 @@
 package games.winchester.unodeluxe.activities;
 
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
 import android.widget.TextView;
+
+import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -55,22 +60,21 @@ public class MenuActivity extends AppCompatActivity {
        if (ok==1) {
           player.stop();
           this.ok=0;
-      }else{
-           try
-           {
+      }else {
+           try {
                AssetFileDescriptor afd = getAssets().openFd("The Sims 2 - Complete Soundtrack.mp3");
-           player = new MediaPlayer();
-           player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(),afd.getLength());
-           // Set the looping and play the music.
-           player.setLooping(true);
-           player.prepare();
-           player.setLooping(true);
-           player.start();
-           this.ok=1;
+               player = new MediaPlayer();
+               player.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+               // Set the looping and play the music.
+               player.setLooping(true);
+               player.prepare();
+               player.setLooping(true);
+               player.start();
+               this.ok = 1;
            } catch (IOException e) {
                e.printStackTrace();
            }
-
+       }
    }
     
     @OnClick(R.id.btnStartGame)
