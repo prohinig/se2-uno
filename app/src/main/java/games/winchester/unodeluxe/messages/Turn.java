@@ -16,6 +16,7 @@ public class Turn implements Message {
 
     public Turn(){
         this.cardsDrawn = 0;
+        this.player = 0;
         this.cardPlayed = null;
         this.cardDisappeared = null;
         this.accusedCheating = null;

@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import at.laubi.network.Network;
+import at.laubi.network.messages.Message;
 import at.laubi.network.session.Session;
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -58,19 +59,6 @@ public class GameActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
-        network = new Network();
-        network.setFallbackExceptionListener((e, s) -> {
-            toastUiThread("Exception thrown: " + e.getMessage());
-            e.printStackTrace();
-        });
-
-        // TODO call game.messageReceived
-        network.setMessageListener((m, s) -> toastUiThread(m.toString()));
-        // TODO call game.clientConnected
-        network.setNewSessionListener(s -> toastUiThread("New client connected"));
-        // TODO call game.clientDisconnected
-        network.setConnectionEndListener(s -> toastUiThread("Client disconnected"));
-
         Bundle b = getIntent().getExtras();
         String host = null; // or other values
         // or other values
@@ -88,9 +76,7 @@ public class GameActivity extends AppCompatActivity {
         handCard = (ImageView) findViewById(R.id.handCard);
         handLayout = (LinearLayout) findViewById(R.id.handLayout);
 
-        stackView.setVisibility(View.INVISIBLE);
         handLayout.removeView(handCard);
-
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         mAccelerometer = mSensorManager
                 .getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -108,12 +94,55 @@ public class GameActivity extends AppCompatActivity {
             }
         });
 
+        game =  new Game(this);
+        network = new Network();
+        network.setFallbackExceptionListener((e, s) -> {
+            toastUiThread("Exception thrown: " + e.getMessage());
+            e.printStackTrace();
+        });
+
+        network.setMessageListener((m, s) -> gameMessageReceived(m));
+        network.setNewSessionListener((s) -> gameClientConnected());
+        network.setConnectionEndListener((s) -> gameClientDisconnected());
+
+
         if(null == host){
             network.createHost(hostSession -> {
                 final GameActivity that = GameActivity.this;
 
                 that.session = hostSession;
 
+                // this is what happens when a player creates a game
+                // it will be different for joining a game
+                that.game.setSession(hostSession);
+                that.self = that.game.getSelf();
+
+                that.deckView.setClickable(true);
+                that.deckView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!game.isGameStarted()) {
+                            game.startGame();
+                            stackView.setVisibility(View.VISIBLE);
+                        } else {
+                            if (game.getNumberOfCardsToDraw() != 0) {
+                                game.handCards(1);
+                                game.decrementNumberOfCardsToDraw();
+                            } else {
+                                if (!GameLogic.hasPlayableCard(self.getHand(), game.getActiveColor(), game.getTopOfStackCard())) {
+                                    ArrayList<Card> tmp = game.handCards(1);
+
+                                    if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), game.getTopOfStackCard(), game.getActiveColor())) {
+                                        //TODO: player is allowed to play drawn card if its playable
+                                    }
+
+                                } else {
+                                    notificationHasPlayableCard();
+                                }
+                            }
+                        }
+                    }
+                });
                 that.runOnUiThread(() -> {
 //                    that.btnConnect.setEnabled(false);
                     that.ip.setText( "I am: " + Objects.requireNonNull(NetworkUtils.getLocalIpAddresses().get(0)));
@@ -122,37 +151,7 @@ public class GameActivity extends AppCompatActivity {
                 });
             }, null);
 
-            // this is what happens when a player creates a game
-            // it will be different for joining a game
-            self = new Player("admin", Player.TYPE_ADMIN);
-            game = new Game(self, this);
 
-            deckView.setClickable(true);
-            deckView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (!game.isGameStarted()) {
-                        game.startGame();
-                        stackView.setVisibility(View.VISIBLE);
-                    } else {
-                        if (game.getNumberOfCardsToDraw() != 0) {
-                            game.handCards(1);
-                            game.decrementNumberOfCardsToDraw();
-                        } else {
-                            if (!GameLogic.hasPlayableCard(self.getHand(), game.getActiveColor(), game.getTopOfStackCard())) {
-                                ArrayList<Card> tmp = game.handCards(1);
-
-                                if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), game.getTopOfStackCard(), game.getActiveColor())) {
-                                    //TODO: player is allowed to play drawn card if its playable
-                                }
-
-                            } else {
-                                notificationHasPlayableCard();
-                            }
-                        }
-                    }
-                }
-            });
 
 //            deckView.setClickable(true);
 //            deckView.setOnClickListener(new View.OnClickListener() {
@@ -170,6 +169,12 @@ public class GameActivity extends AppCompatActivity {
 
                 that.session = clientSession;
 
+                // this is what happens when a player creates a game
+                // it will be different for joining a game
+                that.game.setSession(clientSession);
+                that.self = that.game.getSelf();
+
+
                 that.runOnUiThread(() -> {
 //                    that.btnConnect.setEnabled(false);
 //                    that.btnSend.setEnabled(true);
@@ -182,6 +187,8 @@ public class GameActivity extends AppCompatActivity {
                 Intent intent = new Intent(GameActivity.this, MenuActivity.class);
                 startActivity(intent);
             });
+
+            // this is what happens when a player creates a game
 
 //             try to connect to host and if succesful create game with connection
         }
@@ -329,5 +336,17 @@ public class GameActivity extends AppCompatActivity {
 
     private void toastUiThread(final String message){
         this.runOnUiThread(() -> Toast.makeText(GameActivity.this, message, Toast.LENGTH_LONG).show());
+    }
+
+    private void gameMessageReceived(Message m){
+        this.runOnUiThread(() -> this.game.messageReceived(m));
+    }
+
+    private void gameClientConnected(){
+        this.runOnUiThread(() -> this.game.clientConnected());
+    }
+
+    private void gameClientDisconnected(){
+        this.runOnUiThread(() -> this.game.clientDisconnected());
     }
 }

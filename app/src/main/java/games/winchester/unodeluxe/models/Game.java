@@ -44,23 +44,29 @@ public class Game {
     // keeps track of how many cards need to be drawn
     private int numberOfCardsToDraw;
     private Session session;
+    private Turn turn;
+
 
     // something like a connection to join the game and receive requests or send messages
     // private Connection conn
 
-    public Game(Player admin, GameActivity activity) {
+    public Game(GameActivity activity) {
         this.deck = new Deck();
         this.stack = new Stack();
         this.reverse = false;
         this.players = new ArrayList<Player>();
-        this.self = admin;
+        this.self = new Player("player1");
         this.activity = activity;
         this.state = Game.STATE_PENDING;
         this.gameStarted = false;
         this.numberOfCardsToDraw = 0;
-
+        this.turn = new Turn();
         // read player name from configuration
-        this.players.add(admin);
+        this.players.add(self);
+    }
+
+    public Player getSelf() {
+        return this.self;
     }
 
     public Game(String name, GameActivity activity) {
@@ -73,13 +79,26 @@ public class Game {
             return false;
         }
 
+//        session.send(turn);
+
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
-            return playCard(c, p);
+            boolean result = playCard(c, p);
+            if(result){
+                turn.cardPlayed = c;
+                if(null != session){
+                    session.send(turn);
+                }
+            }
+            return result;
         } else {
             activity.notificationCardNotPlayable();
             return false;
         }
 
+    }
+
+    public void setSession(Session s){
+        this.session = s;
     }
 
     public void messageReceived(Message m) {
@@ -89,6 +108,10 @@ public class Game {
             if(session instanceof HostSession){
                 // we are host so notify the others
                 notifyPlayers((Turn) m);
+            }
+
+            if(null != turn.cardPlayed){
+                this.layCard(turn.cardPlayed);
             }
 
             // if its my turn enable clicks
@@ -102,12 +125,12 @@ public class Game {
         }
     }
 
-    public void clientConnected(Message m) {
+    public void clientConnected() {
         //TODO
 
     }
 
-    public void clientDisconnected(Message m) {
+    public void clientDisconnected() {
         //TODO
     }
 
@@ -168,7 +191,7 @@ public class Game {
 
     public Player join(String playerName) {
         if (this.players.size() + 1 <= Game.MAXPLAYERS) {
-            Player player = new Player(playerName, Player.TYPE_PLAYER);
+            Player player = new Player(playerName);
             this.players.add(player);
             return player;
         }
