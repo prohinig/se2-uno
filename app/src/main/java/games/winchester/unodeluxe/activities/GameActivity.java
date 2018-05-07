@@ -119,26 +119,7 @@ public class GameActivity extends AppCompatActivity {
 
                 that.deckView.setClickable(true);
                 that.deckView.setOnClickListener(v -> {
-                    if (!game.isGameStarted()) {
-                        game.startGame();
-                        stackView.setVisibility(View.VISIBLE);
-                    } else {
-                        if (game.getNumberOfCardsToDraw() != 0) {
-                            game.handCards(1, null);
-                            game.decrementNumberOfCardsToDraw();
-                        } else {
-                            if (!GameLogic.hasPlayableCard(self.getHand(), game.getActiveColor(), game.getTopOfStackCard())) {
-                                ArrayList<Card> tmp = game.handCards(1, null);
-
-                                if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), game.getTopOfStackCard(), game.getActiveColor())) {
-                                    //TODO: player is allowed to play drawn card if its playable
-                                }
-
-                            } else {
-                                notificationHasPlayableCard();
-                            }
-                        }
-                    }
+                    game.deckClicked();
                 });
                 that.runOnUiThread(() -> {
 //                    that.btnConnect.setEnabled(false);
@@ -223,8 +204,7 @@ public class GameActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     if (null != v.getTag()) {
                         Card c = (Card) v.getTag();
-                        boolean result = game.handleTurn(c, self);
-                        if (true == result) {
+                        if(game.cardClicked(c)) {
                             handLayout.removeView(v);
                         }
                     }

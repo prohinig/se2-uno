@@ -1,6 +1,7 @@
 package games.winchester.unodeluxe.models;
 
 import android.support.v4.app.FragmentManager;
+import android.view.View;
 
 import java.util.ArrayList;
 
@@ -72,6 +73,40 @@ public class Game {
     public Game(String name, GameActivity activity) {
         // in this case the game is uninitialized and waits for message of master
     }
+
+    public boolean cardClicked(Card c) {
+        if (activePlayer == players.indexOf(self)) {
+            return handleTurn(c, self);
+        }
+        return false;
+    }
+
+    public void deckClicked() {
+        if (activePlayer == players.indexOf(self)) {
+
+            if (!isGameStarted()) {
+                startGame();
+            } else {
+                if (getNumberOfCardsToDraw() != 0) {
+                    handCards(1, null);
+                    decrementNumberOfCardsToDraw();
+                } else {
+                    if (!GameLogic.hasPlayableCard(self.getHand(), getActiveColor(), getTopOfStackCard())) {
+                        ArrayList<Card> tmp = handCards(1, null);
+
+                        if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), getTopOfStackCard(), getActiveColor())) {
+                            //TODO: player is allowed to play drawn card if its playable
+                        }
+
+                    } else {
+                        activity.notificationHasPlayableCard();
+                    }
+                }
+            }
+        }
+
+    }
+
     //handles a whole turn
     public boolean handleTurn(Card c, Player p) {
         if (numberOfCardsToDraw != 0) {
@@ -79,15 +114,13 @@ public class Game {
             return false;
         }
 
-//        session.send(turn);
-
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
             boolean result = playCard(c, p);
-            if(result){
+            if (result) {
                 turn = new Turn();
                 turn.cardPlayed = c;
 
-                if(null != session){
+                if (null != session) {
                     session.send(turn);
                 }
             }
@@ -99,28 +132,32 @@ public class Game {
 
     }
 
-    public void setSession(Session s){
+    public void setSession(Session s) {
         this.session = s;
     }
 
     public void messageReceived(Message m) {
-        if(m instanceof Turn){
+        if (m instanceof Turn) {
             // we received a turn a player made
             Turn turn = (Turn) m;
-            if(session instanceof HostSession){
+            if (session instanceof HostSession) {
                 // we are host so notify the others
                 notifyPlayers((Turn) m);
             }
 
-            if(null != turn.cardPlayed){
+            if (null != turn.cardPlayed) {
                 this.layCard(turn.cardPlayed);
             }
 
             // if its my turn enable clicks
             boolean playersTurn = turn.player == players.indexOf(self);
+            if (playersTurn) {
+                handleAction(turn.cardPlayed);
+            }
             this.activity.setClicksEnabled(playersTurn);
 
-        }else if(m instanceof Setup){
+
+        } else if (m instanceof Setup) {
             Setup setup = (Setup) m;
 
             deck = setup.deck;
@@ -134,13 +171,13 @@ public class Game {
             self = players.get(1);
             this.activity.addToHand(self.getHand().getCards());
 
-        }else if(m instanceof CardsDealt) {
+        } else if (m instanceof CardsDealt) {
 
         }
     }
 
     public void clientConnected() {
-        players.add(new Player("Player" + ( players.size() + 1)));
+        players.add(new Player("Player" + (players.size() + 1)));
     }
 
     public void clientDisconnected() {
@@ -159,7 +196,7 @@ public class Game {
         this.layCard(c);
         activeColor = c.getColor();
 
-        handleAction(c);
+        handleActionPlayed(c);
 
         if (p.getHand().getCards().size() == 0) {
             activity.notificationGameWon();
@@ -176,6 +213,13 @@ public class Game {
                 break;
             case DRAWFOUR:
                 numberOfCardsToDraw += 4;
+            case NONE:
+                break;
+        }
+    }
+
+    public void handleActionPlayed(Card c) {
+        switch (GameLogic.actionRequired(c)) {
             case WISH:
                 activity.wishAColor(this);
                 break;
@@ -199,7 +243,7 @@ public class Game {
         ArrayList<Card> cards = this.deck.deal(amount);
         p = p == null ? self : p;
         p.getHand().addCards(cards);
-        if(p == self) {
+        if (p == self) {
             updateHand(cards);
         }
         return cards;
@@ -245,9 +289,8 @@ public class Game {
             }
 
             this.state = Game.STATE_RUNNING;
-            this.activePlayer = 1; //TODO: change to player to the left of game initiator
+            this.activePlayer = 1;
             this.gameStarted = true;
-            handleAction(cardTopped);
 
             session.send(new Setup(this));
         }
