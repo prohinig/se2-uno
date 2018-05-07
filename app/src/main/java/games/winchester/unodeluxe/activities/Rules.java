@@ -35,7 +35,7 @@ public class Rules extends AppCompatActivity {
       // listView.setAdapter(adapter);
     }
     public void goToMain (View view){
-        Intent intent = new Intent (this, MainActivityMenu.class);
+        Intent intent = new Intent (this,MenuActivity.class);
         startActivity(intent);
     }
 
