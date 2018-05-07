@@ -5,10 +5,8 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,15 +21,13 @@ import at.laubi.network.session.ClientSession;
 import at.laubi.network.session.Session;
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
+import games.winchester.unodeluxe.R;
+import games.winchester.unodeluxe.app.UnoDeluxe;
 import games.winchester.unodeluxe.models.Card;
 import games.winchester.unodeluxe.models.ColorWishDialog;
 import games.winchester.unodeluxe.models.Game;
 import games.winchester.unodeluxe.models.Player;
-import games.winchester.unodeluxe.R;
 import games.winchester.unodeluxe.models.ShakeDetector;
-import games.winchester.unodeluxe.app.UnoDeluxe;
-import games.winchester.unodeluxe.utils.GameLogic;
 import games.winchester.unodeluxe.utils.NetworkUtils;
 
 public class GameActivity extends AppCompatActivity {
@@ -47,9 +43,6 @@ public class GameActivity extends AppCompatActivity {
 
     @BindView(R.id.ipText)
     TextView ip;
-
-    @BindView(R.id.btnStartGame)
-    Button btnStartGame;
 
     private Player self;
     private Game game;
@@ -98,15 +91,15 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void onMessageReceived(Message message, Session session) {
-        // TODO call game.messageReceived
+        runOnUiThread(() -> game.messageReceived(message));
     }
 
     private void onNewSession(ClientSession session) {
-        // TODO call game.clientConnected
+        runOnUiThread(() -> game.clientConnected());
     }
 
     private void onSessionEnd(Session session) {
-        // TODO call game.clientDisconnected
+        runOnUiThread(() -> game.clientDisconnected());
     }
 
     private void setupSensors() {
@@ -126,47 +119,32 @@ public class GameActivity extends AppCompatActivity {
 
         network.createHost(hostSession -> {
             session = hostSession;
+            game.setSession(hostSession);
+            self = game.getSelf();
+
+            deckView.setClickable(true);
+            deckView.setOnClickListener(l -> game.deckClicked());
 
             runOnUiThread(() -> {
                 ip.setText(String.format(format, hostIp));
-                btnStartGame.setVisibility(View.VISIBLE);
             });
         }, null);
 
-
-        self = new Player("admin", Player.TYPE_ADMIN);
-        game = new Game(self, this);
+        game = new Game(this);
 
         deckView.setClickable(true);
-    }
-
-    @OnClick(R.id.deckView)
-    void onDeckViewClick() {
-        if (!game.isGameStarted()) {
-            game.startGame();
-            stackView.setVisibility(View.VISIBLE);
-        } else {
-            if (game.getNumberOfCardsToDraw() != 0) {
-                game.handCards(1);
-                game.decrementNumberOfCardsToDraw();
-            } else {
-                if (!GameLogic.hasPlayableCard(self.getHand(), game.getActiveColor(), game.getTopOfStackCard())) {
-                    ArrayList<Card> tmp = game.handCards(1);
-
-                    if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), game.getTopOfStackCard(), game.getActiveColor())) {
-                        //TODO: player is allowed to play drawn card if its playable
-                    }
-
-                } else {
-                    notificationHasPlayableCard();
-                }
-            }
-        }
     }
 
     private void setupMultiplayerClient(String host) {
         network.createClient(host, clientSession -> {
             session = clientSession;
+
+            game.setSession(clientSession);
+            self = game.getSelf();
+
+            deckView.setClickable(true);
+            deckView.setOnClickListener(l -> game.deckClicked());
+
         }, (e, s) -> {
             toastUiThread("Verbindung zum Spiel fehlgeschlagen.");
             e.printStackTrace();
@@ -281,11 +259,5 @@ public class GameActivity extends AppCompatActivity {
 
     private void toastUiThread(final String message, final int length) {
         this.runOnUiThread(() -> Toast.makeText(GameActivity.this, message, length).show());
-    }
-
-    @OnClick(R.id.btnStartGame)
-    void onStartGameButtonClick() {
-        // game.startGame(); ?
-        btnStartGame.setVisibility(View.INVISIBLE); // ?
     }
 }

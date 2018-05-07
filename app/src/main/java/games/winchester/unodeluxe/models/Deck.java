@@ -1,5 +1,6 @@
 package games.winchester.unodeluxe.models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 

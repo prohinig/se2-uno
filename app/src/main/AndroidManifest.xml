@@ -13,15 +13,15 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".activities.GameActivity" />
+        <activity android:name=".activities.Rules" />
+        <activity android:name=".activities.Top" />
         <activity android:name=".activities.MenuActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter></activity>
+            </intent-filter>
+        </activity>
         <activity android:name=".activities.MultiplayerActivity" />
-          <activity android:name=".Top" />
-          <activity android:name=".Rules">
     </application>
-
 </manifest>
