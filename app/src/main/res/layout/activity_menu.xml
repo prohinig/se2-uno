@@ -27,7 +27,6 @@
         android:layout_gravity="center_vertical"
         android:layout_marginHorizontal="140dp"
         android:background="@drawable/buttonstyle"
-        android:onClick="goToActivity2"
         android:text="Start"
 
         ></Button>
