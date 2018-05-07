@@ -1,4 +1,4 @@
-package unodeluxe.winchester.games.unomenu;
+package games.winchester.unodeluxe.activities;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -35,7 +35,7 @@ public class Rules extends AppCompatActivity {
       // listView.setAdapter(adapter);
     }
     public void goToMain (View view){
-        Intent intent = new Intent (this,MenuActivity.class);
+        Intent intent = new Intent (this, MenuActivity.class);
         startActivity(intent);
     }
 
