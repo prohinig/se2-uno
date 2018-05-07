@@ -11,7 +11,8 @@ import butterknife.OnClick;
 import games.winchester.unodeluxe.R;
 
 public class MenuActivity extends AppCompatActivity {
-
+    int ok=0;
+    MediaPlayer player;
     @BindView(R.id.ipTextView)
     TextView ip;
 
@@ -38,7 +39,10 @@ public class MenuActivity extends AppCompatActivity {
     }
 
     
-   
+    public void goToActivity2 (View view){
+       Intent intent = new Intent (this, MultiplayerActivity.class);
+       startActivity(intent);
+    }
     public void goToTop (View view){
        Intent intent = new Intent (this, Top.class);
        startActivity(intent);
