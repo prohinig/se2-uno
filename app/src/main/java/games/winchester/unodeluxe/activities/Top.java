@@ -19,7 +19,7 @@ public class Top extends AppCompatActivity {
         setContentView(R.layout.activity_top);
     }
     public void goToMain (View view){
-        Intent intent = new Intent (this, MainActivityMenu.class);
+        Intent intent = new Intent (this, MenuActivity.class);
         startActivity(intent);
         Topclassament();
 
