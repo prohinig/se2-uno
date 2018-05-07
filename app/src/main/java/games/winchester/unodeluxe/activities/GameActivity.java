@@ -118,27 +118,24 @@ public class GameActivity extends AppCompatActivity {
                 that.self = that.game.getSelf();
 
                 that.deckView.setClickable(true);
-                that.deckView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (!game.isGameStarted()) {
-                            game.startGame();
-                            stackView.setVisibility(View.VISIBLE);
+                that.deckView.setOnClickListener(v -> {
+                    if (!game.isGameStarted()) {
+                        game.startGame();
+                        stackView.setVisibility(View.VISIBLE);
+                    } else {
+                        if (game.getNumberOfCardsToDraw() != 0) {
+                            game.handCards(1, null);
+                            game.decrementNumberOfCardsToDraw();
                         } else {
-                            if (game.getNumberOfCardsToDraw() != 0) {
-                                game.handCards(1);
-                                game.decrementNumberOfCardsToDraw();
-                            } else {
-                                if (!GameLogic.hasPlayableCard(self.getHand(), game.getActiveColor(), game.getTopOfStackCard())) {
-                                    ArrayList<Card> tmp = game.handCards(1);
+                            if (!GameLogic.hasPlayableCard(self.getHand(), game.getActiveColor(), game.getTopOfStackCard())) {
+                                ArrayList<Card> tmp = game.handCards(1, null);
 
-                                    if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), game.getTopOfStackCard(), game.getActiveColor())) {
-                                        //TODO: player is allowed to play drawn card if its playable
-                                    }
-
-                                } else {
-                                    notificationHasPlayableCard();
+                                if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), game.getTopOfStackCard(), game.getActiveColor())) {
+                                    //TODO: player is allowed to play drawn card if its playable
                                 }
+
+                            } else {
+                                notificationHasPlayableCard();
                             }
                         }
                     }

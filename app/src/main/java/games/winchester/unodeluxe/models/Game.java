@@ -84,7 +84,9 @@ public class Game {
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
             boolean result = playCard(c, p);
             if(result){
+                turn = new Turn();
                 turn.cardPlayed = c;
+
                 if(null != session){
                     session.send(turn);
                 }
@@ -119,6 +121,18 @@ public class Game {
             this.activity.setClicksEnabled(playersTurn);
 
         }else if(m instanceof Setup){
+            Setup setup = (Setup) m;
+
+            deck = setup.deck;
+            players = setup.players;
+            activeColor = setup.activeColor;
+            stack = setup.stack;
+            activePlayer = setup.activePlayer;
+
+            activity.updateTopCard(stack.getTopCard().getGraphic());
+
+            self = players.get(1);
+            this.activity.addToHand(self.getHand().getCards());
 
         }else if(m instanceof CardsDealt) {
 
@@ -126,8 +140,7 @@ public class Game {
     }
 
     public void clientConnected() {
-        //TODO
-
+        players.add(new Player("Player" + ( players.size() + 1)));
     }
 
     public void clientDisconnected() {
@@ -182,11 +195,18 @@ public class Game {
         this.activity.updateTopCard(c.getGraphic());
     }
 
-    public ArrayList<Card> handCards(int amount) {
+    public ArrayList<Card> handCards(int amount, Player p) {
         ArrayList<Card> cards = this.deck.deal(amount);
-        self.getHand().addCards(cards);
-        this.activity.addToHand(cards);
+        p = p == null ? self : p;
+        p.getHand().addCards(cards);
+        if(p == self) {
+            updateHand(cards);
+        }
         return cards;
+    }
+
+    public void updateHand(ArrayList<Card> cards) {
+        this.activity.addToHand(cards);
     }
 
     public Player join(String playerName) {
@@ -220,14 +240,16 @@ public class Game {
             // deal 3 * 3 for each player
             for (int i = 0; i < 7; i++) {
                 for (Player p : this.players) {
-                    this.handCards(1);
+                    this.handCards(1, p);
                 }
             }
 
             this.state = Game.STATE_RUNNING;
-            this.activePlayer = 0; //TODO: change to player to the left of game initiator
+            this.activePlayer = 1; //TODO: change to player to the left of game initiator
             this.gameStarted = true;
             handleAction(cardTopped);
+
+            session.send(new Setup(this));
         }
     }
 
@@ -269,4 +291,27 @@ public class Game {
     }
 
 
+    public Deck getDeck() {
+        return deck;
+    }
+
+    public Stack getStack() {
+        return stack;
+    }
+
+    public boolean isReverse() {
+        return reverse;
+    }
+
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public Turn getTurn() {
+        return turn;
+    }
 }

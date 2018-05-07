@@ -1,11 +1,10 @@
 package games.winchester.unodeluxe.models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-import games.winchester.unodeluxe.models.Card;
-import games.winchester.unodeluxe.models.Hand;
 
-public class Player {
+public class Player implements Serializable{
 
     private String name;
     private Hand hand;
