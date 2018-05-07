@@ -1,4 +1,4 @@
-package unodeluxe.winchester.games.unomenu;
+package games.winchester.unodeluxe.activities;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
