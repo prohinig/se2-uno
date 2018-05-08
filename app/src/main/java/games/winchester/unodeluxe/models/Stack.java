@@ -1,6 +1,7 @@
 package games.winchester.unodeluxe.models;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import games.winchester.unodeluxe.models.Card;
 import games.winchester.unodeluxe.models.CardCollection;
@@ -14,7 +15,7 @@ public class Stack extends CardCollection {
     private Card topCard;
 
     public Stack() {
-        this.cards = new ArrayList<Card>();
+        this.cards = new ArrayList<>();
     }
 
     // returns true if successfully playd
@@ -30,13 +31,12 @@ public class Stack extends CardCollection {
 
     // to be called when shuffling stack back into deck
     // removes all but the top card from stack
-    public ArrayList<Card> getCards() {
+    public List<Card> getCards() {
 
         // we do not return the topcard as it has to remain on stack
         this.cards.remove(this.topCard);
 
-        ArrayList<Card> stackCards = new ArrayList<>();
-        stackCards.addAll(this.cards);
+        List<Card> stackCards = new ArrayList<>(this.cards);
 
         this.cards.clear();
         this.cards.add(topCard);

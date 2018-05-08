@@ -1,6 +1,7 @@
 package games.winchester.unodeluxe.messages;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import at.laubi.network.messages.Message;
 import games.winchester.unodeluxe.enums.CardColor;
@@ -14,7 +15,7 @@ public class Setup implements Message {
     public Deck deck;
     public Stack stack;
     public CardColor activeColor;
-    public ArrayList<Player> players;
+    public List<Player> players;
     public int activePlayer;
 
     public Setup(Game game) {

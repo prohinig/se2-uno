@@ -167,7 +167,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     // used to keep the hand UI up to date with the backend model
-    public void addToHand(ArrayList<Card> cards) {
+    public void addToHand(List<Card> cards) {
         for (Card c : cards) {
             ImageView cardView = new ImageView(GameActivity.this);
             cardView.setPadding(0, 0, 0, 0);
