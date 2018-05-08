@@ -8,6 +8,10 @@ import java.util.Collections;
 import java.util.List;
 
 public class NetworkUtils {
+    /**
+     * Private constructor for utility class
+     */
+    private NetworkUtils() {}
 
     /**
      * Get local IPV4 addresses.
