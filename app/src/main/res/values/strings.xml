@@ -1,3 +1,23 @@
 <resources>
     <string name="app_name">UnoDeluxe</string>
+    <string name="dialog_title">Wünsch dir eine Farbe:</string>
+
+    <string-array name="colors_array">
+        <item>Blau</item>
+        <item>Gelb</item>
+        <item>Grün</item>
+        <item>Rot</item>
+    </string-array>
+    
+    
+    <string name="Button01">Start</string>
+    <string name="Button02">Start</string>
+    <string name="Button03">Start</string>
+    <string name="Button04">Start</string>
+    <string name="Button05">Start</string>
+    <string name="Button06">Start</string>
+    <string name="Button07">Start</string>
+    <string name="mainListView"></string>
+    <string name="rowTextView"></string>
+    <string name="mainListView2"></string>
 </resources>
