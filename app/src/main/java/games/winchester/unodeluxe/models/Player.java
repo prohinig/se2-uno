@@ -1,7 +1,7 @@
 package games.winchester.unodeluxe.models;
 
 import java.io.Serializable;
-import java.util.ArrayList;
+import java.util.List;
 
 
 public class Player implements Serializable{
@@ -18,7 +18,7 @@ public class Player implements Serializable{
         return this.hand;
     }
 
-    public void addCards(ArrayList<Card> cards){
+    public void addCards(List<Card> cards){
         this.hand.addCards(cards);
     }
 }

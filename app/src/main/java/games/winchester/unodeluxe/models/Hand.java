@@ -1,20 +1,21 @@
 package games.winchester.unodeluxe.models;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Hand extends CardCollection {
 
-    private ArrayList<Card> cards;
+    private List<Card> cards;
 
     public Hand(){
-        this.cards = new ArrayList<Card>();
+        this.cards = new ArrayList<>();
     }
 
-    public ArrayList<Card> getCards() {
+    public List<Card> getCards() {
         return this.cards;
     }
 
-    public void addCards(ArrayList<Card> cards){
+    public void addCards(List<Card> cards){
         this.cards.addAll(cards);
     }
 

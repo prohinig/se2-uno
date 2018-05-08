@@ -1,23 +1,17 @@
 package games.winchester.unodeluxe.models;
 
-import android.support.v4.app.FragmentManager;
-import android.view.View;
-
 import java.util.ArrayList;
+import java.util.List;
 
 import at.laubi.network.messages.Message;
-import at.laubi.network.session.ClientSession;
 import at.laubi.network.session.HostSession;
 import at.laubi.network.session.Session;
+import games.winchester.unodeluxe.activities.GameActivity;
+import games.winchester.unodeluxe.enums.CardColor;
 import games.winchester.unodeluxe.enums.CardSymbol;
-import games.winchester.unodeluxe.messages.CardsDealt;
 import games.winchester.unodeluxe.messages.Setup;
 import games.winchester.unodeluxe.messages.Turn;
 import games.winchester.unodeluxe.utils.GameLogic;
-import games.winchester.unodeluxe.activities.GameActivity;
-import games.winchester.unodeluxe.enums.Action;
-import games.winchester.unodeluxe.enums.CardColor;
-import games.winchester.unodeluxe.enums.Direction;
 
 public class Game {
     public static int MAXPLAYERS = 5;
@@ -36,7 +30,7 @@ public class Game {
     // color that is active does not always match topcard
     private CardColor activeColor;
     // players in the game, each player is one device
-    private ArrayList<Player> players;
+    private List<Player> players;
     private Player self;
     private GameActivity activity;
     // player that has the turn
@@ -55,7 +49,7 @@ public class Game {
         this.deck = new Deck();
         this.stack = new Stack();
         this.reverse = false;
-        this.players = new ArrayList<Player>();
+        this.players = new ArrayList<>();
         this.self = new Player("player1");
         this.activity = activity;
         this.state = Game.STATE_PENDING;
@@ -92,7 +86,7 @@ public class Game {
                     decrementNumberOfCardsToDraw();
                 } else {
                     if (!GameLogic.hasPlayableCard(self.getHand(), getActiveColor(), getTopOfStackCard())) {
-                        ArrayList<Card> tmp = handCards(1, null);
+                        List<Card> tmp = handCards(1, null);
 
                         if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), getTopOfStackCard(), getActiveColor())) {
                             //TODO: player is allowed to play drawn card if its playable
@@ -250,8 +244,8 @@ public class Game {
         this.activity.updateTopCard(c.getGraphic());
     }
 
-    public ArrayList<Card> handCards(int amount, Player p) {
-        ArrayList<Card> cards = this.deck.deal(amount);
+    public List<Card> handCards(int amount, Player p) {
+        List<Card> cards = this.deck.deal(amount);
         p = p == null ? self : p;
         p.getHand().addCards(cards);
         if (p == self) {
@@ -260,7 +254,7 @@ public class Game {
         return cards;
     }
 
-    public void updateHand(ArrayList<Card> cards) {
+    public void updateHand(List<Card> cards) {
         this.activity.addToHand(cards);
     }
 
@@ -282,7 +276,7 @@ public class Game {
 
             //guarantees that no +4 Card is on top
             while (cardTopped.getSymbol() == CardSymbol.PLUSFOUR) {
-                ArrayList<Card> tmp = new ArrayList<>();
+                List<Card> tmp = new ArrayList<>();
                 tmp.add(cardTopped);
                 deck.addCards(tmp);
                 deck.shuffle();
@@ -358,7 +352,7 @@ public class Game {
         return reverse;
     }
 
-    public ArrayList<Player> getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
 
