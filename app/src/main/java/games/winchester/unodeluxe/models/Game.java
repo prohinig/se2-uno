@@ -1,24 +1,17 @@
 package games.winchester.unodeluxe.models;
 
-import android.support.v4.app.FragmentManager;
-import android.view.View;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import at.laubi.network.messages.Message;
-import at.laubi.network.session.ClientSession;
 import at.laubi.network.session.HostSession;
 import at.laubi.network.session.Session;
+import games.winchester.unodeluxe.activities.GameActivity;
+import games.winchester.unodeluxe.enums.CardColor;
 import games.winchester.unodeluxe.enums.CardSymbol;
-import games.winchester.unodeluxe.messages.CardsDealt;
 import games.winchester.unodeluxe.messages.Setup;
 import games.winchester.unodeluxe.messages.Turn;
 import games.winchester.unodeluxe.utils.GameLogic;
-import games.winchester.unodeluxe.activities.GameActivity;
-import games.winchester.unodeluxe.enums.Action;
-import games.winchester.unodeluxe.enums.CardColor;
-import games.winchester.unodeluxe.enums.Direction;
 
 public class Game {
     public static int MAXPLAYERS = 5;

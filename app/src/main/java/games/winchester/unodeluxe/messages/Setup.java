@@ -1,6 +1,5 @@
 package games.winchester.unodeluxe.messages;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import at.laubi.network.messages.Message;
