@@ -95,7 +95,5 @@ public class MenuActivity extends AppCompatActivity {
         Intent intent = new Intent(this, GameActivity.class);
         intent.putExtra("host", host);
         startActivity(intent);
-
-        finish();
-    }
+     }
 }
