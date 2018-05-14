@@ -1,8 +1,4 @@
 package games.winchester.unodeluxe.models;
-
-import android.support.v4.app.FragmentManager;
-import android.view.View;
-
 import java.util.ArrayList;
 
 import at.laubi.network.messages.Message;
@@ -10,20 +6,15 @@ import at.laubi.network.session.ClientSession;
 import at.laubi.network.session.HostSession;
 import at.laubi.network.session.Session;
 import games.winchester.unodeluxe.enums.CardSymbol;
-import games.winchester.unodeluxe.messages.CardsDealt;
+import games.winchester.unodeluxe.messages.Name;
 import games.winchester.unodeluxe.messages.Setup;
 import games.winchester.unodeluxe.messages.Turn;
 import games.winchester.unodeluxe.utils.GameLogic;
 import games.winchester.unodeluxe.activities.GameActivity;
-import games.winchester.unodeluxe.enums.Action;
 import games.winchester.unodeluxe.enums.CardColor;
-import games.winchester.unodeluxe.enums.Direction;
 
 public class Game {
     public static int MAXPLAYERS = 5;
-    public static int STATE_PENDING = 0;
-    public static int STATE_RUNNING = 1;
-
 
     // deck of cards
     private Deck deck;
@@ -41,49 +32,59 @@ public class Game {
     private GameActivity activity;
     // player that has the turn
     private int activePlayer;
-    private int state;
     // keeps track of how many cards need to be drawn
     private int numberOfCardsToDraw;
+    // session
     private Session session;
     private Turn turn;
-
-
-    // something like a connection to join the game and receive requests or send messages
-    // private Connection conn
+    // player name
+    private String name;
+    private boolean colorWishPending;
 
     public Game(GameActivity activity) {
+        this.reverse = false;
+        this.activity = activity;
+        this.gameStarted = false;
+        this.numberOfCardsToDraw = 0;
+        this.activePlayer = 0;
+        this.players = new ArrayList<Player>();
+        this.self = null;
+        this.colorWishPending = false;
+    }
+
+    public Game(GameActivity activity, Player admin) {
         this.deck = new Deck();
         this.stack = new Stack();
         this.reverse = false;
         this.players = new ArrayList<Player>();
-        this.self = new Player("player1");
+        this.self = admin;
         this.activity = activity;
-        this.state = Game.STATE_PENDING;
         this.gameStarted = false;
         this.numberOfCardsToDraw = 0;
         this.turn = new Turn();
         // read player name from configuration
         this.players.add(self);
-    }
-
-    public Player getSelf() {
-        return this.self;
-    }
-
-    public Game(String name, GameActivity activity) {
-        // in this case the game is uninitialized and waits for message of master
+        this.colorWishPending = false;
     }
 
     public boolean cardClicked(Card c) {
-        if (activePlayer == players.indexOf(self)) {
+        if (myTurn()) {
             return handleTurn(c, self);
         }
         return false;
     }
 
-    public void deckClicked() {
-        if (activePlayer == players.indexOf(self)) {
+    private boolean myTurn() {
+        if(self != null) {
+            if (activePlayer == players.indexOf(self)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+    public void deckClicked() {
+        if (myTurn()) {
             if (!isGameStarted()) {
                 startGame();
             } else {
@@ -122,7 +123,9 @@ public class Game {
                 turn.activeColor = c.getColor();
 
                 if (null != session) {
-                    session.send(turn);
+                    if(!colorWishPending) {
+                        session.send(turn);
+                    }
                 }
             }
             return result;
@@ -149,6 +152,7 @@ public class Game {
             Turn turn = (Turn) m;
             activePlayer = turn.activePlayer;
             activeColor = turn.activeColor;
+            reverse = turn.reverse;
 
             if(0 < turn.cardsDrawn) {
                 deck.deal(turn.cardsDrawn);
@@ -172,23 +176,35 @@ public class Game {
             cardPlayed = stack.getTopCard();
 
             activity.updateTopCard(cardPlayed.getGraphic());
-
-            self = players.get(1);
+            for(Player p : players){
+                if(p.getName().equals(this.name)){
+                    self = p;
+                    break;
+                }
+            }
             this.activity.addToHand(self.getHand().getCards());
 
+        } else if (m instanceof Name) {
+            Name name = (Name) m;
+            this.name = name.name;
         }
 
+
         // if its my turn enable clicks
-        if (activePlayer == players.indexOf(self)) {
+        if (myTurn()) {
             turn = new Turn();
             if(null != cardPlayed){
                 handleAction(cardPlayed);
             }
         }
+
     }
 
-    public void clientConnected() {
-        players.add(new Player("Player" + (players.size() + 1)));
+    public void clientConnected(ClientSession s) {
+        String playerName = "Player" + (players.size() + 1);
+        Player playerConnected = new Player(playerName);
+        players.add(playerConnected);
+        s.send(new Name(playerName));
     }
 
     public void clientDisconnected() {
@@ -232,10 +248,13 @@ public class Game {
     public void handleActionPlayed(Card c) {
         switch (GameLogic.actionRequired(c)) {
             case WISH:
+            case DRAWFOUR:
                 activity.wishAColor(this);
+                colorWishPending = true;
                 break;
             case REVERSE:
                 reverse = !reverse;
+                turn.reverse = reverse;
                 break;
             case SKIP:
                 //TODO implement Skip function
@@ -253,7 +272,7 @@ public class Game {
     public ArrayList<Card> handCards(int amount, Player p) {
         ArrayList<Card> cards = this.deck.deal(amount);
         p = p == null ? self : p;
-        p.getHand().addCards(cards);
+        p.addCards(cards);
         if (p == self) {
             updateHand(cards);
         }
@@ -264,19 +283,8 @@ public class Game {
         this.activity.addToHand(cards);
     }
 
-    public Player join(String playerName) {
-        if (this.players.size() + 1 <= Game.MAXPLAYERS) {
-            Player player = new Player(playerName);
-            this.players.add(player);
-            return player;
-        }
-
-        return null;
-    }
-
     public void startGame() {
-        // for testing purposes its 0 but should be 1
-        if (0 < this.players.size() && Game.STATE_PENDING == this.state) {
+        if (1 < this.players.size() && !gameStarted) {
             // player next to dealer (=gamestarter) starts
             Card cardTopped = this.deck.deal(1).remove(0);
 
@@ -286,20 +294,19 @@ public class Game {
                 tmp.add(cardTopped);
                 deck.addCards(tmp);
                 deck.shuffle();
+                cardTopped = this.deck.deal(1).remove(0);
             }
 
             this.layCard(cardTopped);
             activeColor = cardTopped.getColor();
             this.activity.updateTopCard(cardTopped.getGraphic());
 
-            // deal 3 * 3 for each player
             for (int i = 0; i < 7; i++) {
                 for (Player p : this.players) {
                     this.handCards(1, p);
                 }
             }
 
-            this.state = Game.STATE_RUNNING;
             this.activePlayer = 1;
             this.gameStarted = true;
 
@@ -315,6 +322,11 @@ public class Game {
     public void setActiveColor(CardColor color) {
         this.activeColor = color;
         this.turn.activeColor = color;
+        if(colorWishPending){
+            colorWishPending = false;
+            session.send(turn);
+        }
+
     }
 
     public boolean isGameStarted() {
@@ -333,10 +345,6 @@ public class Game {
         return activePlayer;
     }
 
-    public void setActivePlayer(int indexOfPlayer) {
-        this.activePlayer = indexOfPlayer;
-    }
-
     public CardColor getActiveColor() {
         return activeColor;
     }
@@ -344,7 +352,6 @@ public class Game {
     public Card getTopOfStackCard() {
         return stack.getTopCard();
     }
-
 
     public Deck getDeck() {
         return deck;
@@ -360,10 +367,6 @@ public class Game {
 
     public ArrayList<Player> getPlayers() {
         return players;
-    }
-
-    public int getState() {
-        return state;
     }
 
     public Turn getTurn() {

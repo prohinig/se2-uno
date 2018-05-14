@@ -44,18 +44,14 @@ public class GameActivity extends AppCompatActivity {
     @BindView(R.id.ipText)
     TextView ip;
 
-    private Player self;
     private Game game;
     private Network network;
     private Session session;
-
-    private boolean clicksEnabled = true;
 
     // The following are used for the shake detection
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private ShakeDetector mShakeDetector;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,13 +66,13 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void setupGame() {
-        game = new Game(this);
-
         String host = getIntent().getStringExtra("host");
 
         if (host == null) {
+            game = new Game(this, new Player("Player1"));
             this.setupMultiplayerHost();
         } else {
+            game = new Game(this);
             this.setupMultiplayerClient(host);
         }
     }
@@ -100,7 +96,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void onNewSession(ClientSession session) {
-        runOnUiThread(() -> game.clientConnected());
+        runOnUiThread(() -> game.clientConnected(session));
     }
 
     private void onSessionEnd(Session session) {
@@ -125,7 +121,6 @@ public class GameActivity extends AppCompatActivity {
         network.createHost(hostSession -> {
             session = hostSession;
             game.setSession(hostSession);
-            self = game.getSelf();
 
             deckView.setClickable(true);
             deckView.setOnClickListener(l -> game.deckClicked());
@@ -135,7 +130,6 @@ public class GameActivity extends AppCompatActivity {
             });
         }, null);
 
-        deckView.setClickable(true);
     }
 
     private void setupMultiplayerClient(String host) {
@@ -143,7 +137,6 @@ public class GameActivity extends AppCompatActivity {
             session = clientSession;
 
             game.setSession(clientSession);
-            self = game.getSelf();
 
             deckView.setClickable(true);
             deckView.setOnClickListener(l -> game.deckClicked());
@@ -225,10 +218,6 @@ public class GameActivity extends AppCompatActivity {
         this.game.stackToDeck();
 
         this.toastUiThread("Deck wurde gemischt", Toast.LENGTH_SHORT);
-    }
-
-    public void setClicksEnabled(boolean clicksEnabled) {
-        this.clicksEnabled = clicksEnabled;
     }
 
     @Override

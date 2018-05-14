@@ -21,4 +21,9 @@ public class Player implements Serializable{
     public void addCards(ArrayList<Card> cards){
         this.hand.addCards(cards);
     }
+
+    public String getName(){
+        return this.name;
+    }
+
 }

@@ -13,6 +13,7 @@ public class Turn implements Message {
     public Card cardDisappeared;
     public Player accusedCheating;
     public CardColor activeColor;
+    public boolean reverse;
 
     public Turn(){
         this.cardsDrawn = 0;
@@ -21,6 +22,7 @@ public class Turn implements Message {
         this.cardDisappeared = null;
         this.accusedCheating = null;
         this.activeColor = null;
+        this.reverse = false;
     }
 
 }
