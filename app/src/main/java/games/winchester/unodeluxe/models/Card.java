@@ -1,9 +1,6 @@
 package games.winchester.unodeluxe.models;
 
-import android.support.annotation.NonNull;
-
 import java.io.Serializable;
-import java.util.Comparator;
 
 import games.winchester.unodeluxe.enums.CardColor;
 import games.winchester.unodeluxe.enums.CardSymbol;

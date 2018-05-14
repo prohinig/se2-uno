@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import games.winchester.unodeluxe.R;
 
@@ -27,7 +28,7 @@ public class Top extends AppCompatActivity {
     }
     public void Topclassament(){
 
-        ArrayList<String> list =new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         list.add("Primul");
         ListView mainListView = (ListView) findViewById( R.id.mainListView );
     }

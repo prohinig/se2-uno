@@ -7,6 +7,10 @@ import games.winchester.unodeluxe.models.Card;
 import games.winchester.unodeluxe.models.Hand;
 
 public class GameLogic {
+    /**
+     * Private constructor for utility class
+     */
+    private GameLogic() {}
 
     //checks if player has a playable card
     public static boolean hasPlayableCard(Hand hand, CardColor activeColor, Card topCard) {

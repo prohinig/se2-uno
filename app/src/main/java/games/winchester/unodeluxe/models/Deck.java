@@ -1,13 +1,11 @@
 package games.winchester.unodeluxe.models;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import games.winchester.unodeluxe.enums.CardColor;
 import games.winchester.unodeluxe.enums.CardSymbol;
-import games.winchester.unodeluxe.models.Card;
-import games.winchester.unodeluxe.models.CardCollection;
 
 /**
  * Created by christianprohinig on 10.04.18.
@@ -20,7 +18,7 @@ public class Deck extends CardCollection {
     }
 
     private void initialize() {
-        this.cards = new ArrayList<Card>();
+        this.cards = new ArrayList<>();
         // add all cards
         for (CardColor color : CardColor.values()) {
             switch (color) {
@@ -71,7 +69,7 @@ public class Deck extends CardCollection {
         }
     }
 
-    public void addCards(ArrayList<Card> cs) {
+    public void addCards(List<Card> cs) {
         this.cards.addAll(cs);
     }
 
@@ -82,8 +80,8 @@ public class Deck extends CardCollection {
 
     // deal function used for dealing but also to draw cards
     // returns ArrayList containing x cards from top of deck
-    public ArrayList<Card> deal(int amount) {
-        ArrayList<Card> dealtCards = new ArrayList<Card>();
+    public List<Card> deal(int amount) {
+        List<Card> dealtCards = new ArrayList<>();
 
         int amountDealt = 0;
 
