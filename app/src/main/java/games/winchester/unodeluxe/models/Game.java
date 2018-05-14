@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import at.laubi.network.messages.Message;
+import at.laubi.network.session.ClientSession;
 import at.laubi.network.session.HostSession;
 import at.laubi.network.session.Session;
 import games.winchester.unodeluxe.activities.GameActivity;
