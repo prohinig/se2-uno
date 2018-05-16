@@ -143,7 +143,7 @@ public class GameActivity extends AppCompatActivity {
         }, (e, s) -> {
             toastUiThread("Verbindung zum Spiel fehlgeschlagen.");
             e.printStackTrace();
-            startActivity(new Intent(this, MenuActivity.class));
+            // startActivity(new Intent(this, MenuActivity.class));
         });
     }
 
@@ -223,7 +223,7 @@ public class GameActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
 
-        if (session != null) session.close();
+        //if (session != null) session.close();
     }
 
     @Override

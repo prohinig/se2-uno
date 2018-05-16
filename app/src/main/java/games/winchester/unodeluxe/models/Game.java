@@ -125,9 +125,10 @@ public class Game {
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
             boolean result = playCard(c, p);
             if (result) {
-                turn.activePlayer = (++activePlayer) % players.size();
+                turn.activePlayer = setNextPlayer();
                 turn.cardPlayed = c;
                 turn.activeColor = c.getColor();
+                turn.reverse = reverse;
 
                 if (null != session) {
                     if(!colorWishPending) {
@@ -215,7 +216,7 @@ public class Game {
     }
 
     public void clientDisconnected() {
-        //TODO
+        //TODO: client disconnected
     }
 
     public void notifyPlayers(Turn turn) {
@@ -247,7 +248,7 @@ public class Game {
                 break;
             case DRAWFOUR:
                 numberOfCardsToDraw += 4;
-            case NONE:
+            default:
                 break;
         }
     }
@@ -260,13 +261,16 @@ public class Game {
                 colorWishPending = true;
                 break;
             case REVERSE:
-                reverse = !reverse;
-                turn.reverse = reverse;
-                break;
+                //if a reverse card is played in a 2-Player-Game it acts like a Skip-Card
+                //therefore skipping the reverse action and going to Skip action.
+                if(players.size() > 2) {
+                    reverse = !reverse;
+                    break;
+                }
             case SKIP:
-                //TODO implement Skip function
+                activePlayer = setNextPlayer();
                 break;
-            case NONE:
+            default:
                 break;
         }
     }
@@ -378,5 +382,13 @@ public class Game {
 
     public Turn getTurn() {
         return turn;
+    }
+
+    public int setNextPlayer() {
+        if(isReverse()) {
+            return ((--activePlayer) + players.size()) % players.size();
+        } else {
+            return (++activePlayer) % players.size();
+        }
     }
 }
