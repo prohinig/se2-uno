@@ -7,6 +7,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -86,8 +87,8 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void onFallbackException(Exception e, Session s) {
-        toastUiThread("Exception thrown: " + e.getMessage());
-        e.printStackTrace();
+        toastUiThread("Failed to connect: " + e.getMessage());
+        Log.e("GameActivity", e.getMessage(), e);
     }
 
     private void onMessageReceived(Message message, Session session) {
@@ -142,7 +143,7 @@ public class GameActivity extends AppCompatActivity {
 
         }, (e, s) -> {
             toastUiThread("Verbindung zum Spiel fehlgeschlagen.");
-            e.printStackTrace();
+            Log.e("GameActivity", e.getMessage(), e);
             // startActivity(new Intent(this, MenuActivity.class));
         });
     }
