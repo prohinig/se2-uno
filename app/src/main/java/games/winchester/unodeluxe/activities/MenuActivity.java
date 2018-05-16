@@ -43,11 +43,6 @@ public class MenuActivity extends AppCompatActivity {
         }
     }
 
-    
-    public void goToActivity2 (View view){
-       Intent intent = new Intent (this, MultiplayerActivity.class);
-       startActivity(intent);
-    }
     public void goToTop (View view){
        Intent intent = new Intent (this, Top.class);
        startActivity(intent);
