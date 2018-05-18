@@ -85,12 +85,12 @@ public class GameActivity extends AppCompatActivity {
         network.setConnectionEndListener(this::onSessionEnd);
     }
 
-    private void onFallbackException(Exception e, Session s) {
+    private void onFallbackException(Exception e, @SuppressWarnings("unused") Session session) {
         toastUiThread("Failed to connect: " + e.getMessage());
         Log.e("GameActivity", e.getMessage(), e);
     }
 
-    private void onMessageReceived(Message message, Session session) {
+    private void onMessageReceived(Message message, @SuppressWarnings("unused") Session session) {
         runOnUiThread(() -> game.messageReceived(message));
     }
 
@@ -98,7 +98,7 @@ public class GameActivity extends AppCompatActivity {
         runOnUiThread(() -> game.clientConnected(session));
     }
 
-    private void onSessionEnd(Session session) {
+    private void onSessionEnd(@SuppressWarnings("unused") Session session) {
         runOnUiThread(() -> game.clientDisconnected());
     }
 
@@ -210,7 +210,7 @@ public class GameActivity extends AppCompatActivity {
         this.toastUiThread("Du hast noch spielbare Karten.", Toast.LENGTH_SHORT);
     }
 
-    public void handleShakeEvent(int count) {
+    public void handleShakeEvent(@SuppressWarnings("unused") int count) {
         this.game.stackToDeck();
 
         this.toastUiThread("Deck wurde gemischt", Toast.LENGTH_SHORT);
