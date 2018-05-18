@@ -46,7 +46,6 @@ public class GameActivity extends AppCompatActivity {
 
     private Game game;
     private Network network;
-    private Session session;
 
     // The following are used for the shake detection
     private SensorManager mSensorManager;
@@ -119,7 +118,6 @@ public class GameActivity extends AppCompatActivity {
         final String hostIp = networks.get(0);
 
         network.createHost(hostSession -> {
-            session = hostSession;
             game.setSession(hostSession);
 
             deckView.setClickable(true);
@@ -134,8 +132,6 @@ public class GameActivity extends AppCompatActivity {
 
     private void setupMultiplayerClient(String host) {
         network.createClient(host, clientSession -> {
-            session = clientSession;
-
             game.setSession(clientSession);
 
             deckView.setClickable(true);
