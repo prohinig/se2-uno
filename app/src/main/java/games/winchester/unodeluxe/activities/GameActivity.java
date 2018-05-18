@@ -17,7 +17,6 @@ import java.util.List;
 import at.laubi.network.Network;
 import at.laubi.network.messages.Message;
 import at.laubi.network.session.ClientSession;
-import at.laubi.network.session.Session;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import games.winchester.unodeluxe.R;
@@ -80,18 +79,18 @@ public class GameActivity extends AppCompatActivity {
     private void setupNetwork() {
         network = new Network();
 
-        network.setFallbackExceptionListener(this::onFallbackException);
-        network.setMessageListener(this::onMessageReceived);
+        network.setFallbackExceptionListener((e, s) -> onFallbackException(e));
+        network.setMessageListener((m, s) -> onMessageReceived(m));
         network.setNewSessionListener(this::onNewSession);
-        network.setConnectionEndListener(this::onSessionEnd);
+        network.setConnectionEndListener(s -> onSessionEnd());
     }
 
-    private void onFallbackException(Exception e, @SuppressWarnings("unused") Session session) {
+    private void onFallbackException(Exception e) {
         toastUiThread(String.format(getString(R.string.failed_connecting), e.getMessage()));
         Log.e("GameActivity", e.getMessage(), e);
     }
 
-    private void onMessageReceived(Message message, @SuppressWarnings("unused") Session session) {
+    private void onMessageReceived(Message message) {
         runOnUiThread(() -> game.messageReceived(message));
     }
 
@@ -99,7 +98,7 @@ public class GameActivity extends AppCompatActivity {
         runOnUiThread(() -> game.clientConnected(session));
     }
 
-    private void onSessionEnd(@SuppressWarnings("unused") Session session) {
+    private void onSessionEnd() {
         runOnUiThread(() -> game.clientDisconnected());
     }
 
@@ -108,7 +107,7 @@ public class GameActivity extends AppCompatActivity {
         if(mSensorManager != null) {
             mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             mShakeDetector = new ShakeDetector();
-            mShakeDetector.setOnShakeListener(this::handleShakeEvent);
+            mShakeDetector.setOnShakeListener(c -> handleShakeEvent());
         }
     }
 
@@ -211,7 +210,7 @@ public class GameActivity extends AppCompatActivity {
         this.toastUiThread(getString(R.string.cards_playable), LENGTH_SHORT);
     }
 
-    public void handleShakeEvent(@SuppressWarnings("unused") int count) {
+    public void handleShakeEvent() {
         this.game.stackToDeck();
 
         this.toastUiThread(getString(R.string.deck_shuffeled), LENGTH_SHORT);
