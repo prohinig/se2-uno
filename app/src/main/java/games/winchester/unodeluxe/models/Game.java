@@ -1,8 +1,5 @@
 package games.winchester.unodeluxe.models;
 
-import android.support.v4.app.FragmentManager;
-import android.view.View;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,11 +14,8 @@ import games.winchester.unodeluxe.messages.Name;
 import games.winchester.unodeluxe.messages.Setup;
 import games.winchester.unodeluxe.messages.Turn;
 import games.winchester.unodeluxe.utils.GameLogic;
-import games.winchester.unodeluxe.activities.GameActivity;
-import games.winchester.unodeluxe.enums.CardColor;
 
 public class Game {
-    public static int MAXPLAYERS = 5;
 
     // deck of cards
     private Deck deck;
@@ -75,19 +69,11 @@ public class Game {
     }
 
     public boolean cardClicked(Card c) {
-        if (myTurn()) {
-            return handleTurn(c, self);
-        }
-        return false;
+        return myTurn() && handleTurn(c, self);
     }
 
     private boolean myTurn() {
-        if(self != null) {
-            if (activePlayer == players.indexOf(self)) {
-                return true;
-            }
-        }
-        return false;
+        return self != null && activePlayer == players.indexOf(self);
     }
 
     public void deckClicked() {
@@ -102,6 +88,7 @@ public class Game {
                     if (!GameLogic.hasPlayableCard(self.getHand(), getActiveColor(), getTopOfStackCard())) {
                         List<Card> tmp = handCards(1, null);
 
+                        //noinspection StatementWithEmptyBody
                         if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), getTopOfStackCard(), getActiveColor())) {
                             //TODO: player is allowed to play drawn card if its playable
                         }
