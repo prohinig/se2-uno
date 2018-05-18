@@ -125,9 +125,7 @@ public class GameActivity extends AppCompatActivity {
             deckView.setClickable(true);
             deckView.setOnClickListener(l -> game.deckClicked());
 
-            runOnUiThread(() -> {
-                ip.setText(String.format(format, hostIp));
-            });
+            runOnUiThread(() -> ip.setText(String.format(format, hostIp)));
         }, null);
 
     }
