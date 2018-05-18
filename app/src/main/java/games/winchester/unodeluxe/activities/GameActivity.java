@@ -30,6 +30,8 @@ import games.winchester.unodeluxe.models.Player;
 import games.winchester.unodeluxe.models.ShakeDetector;
 import games.winchester.unodeluxe.utils.NetworkUtils;
 
+import static android.widget.Toast.LENGTH_SHORT;
+
 public class GameActivity extends AppCompatActivity {
 
     @BindView(R.id.deckView)
@@ -86,7 +88,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void onFallbackException(Exception e, @SuppressWarnings("unused") Session session) {
-        toastUiThread("Failed to connect: " + e.getMessage());
+        toastUiThread(String.format(getString(R.string.failed_connecting), e.getMessage()));
         Log.e("GameActivity", e.getMessage(), e);
     }
 
@@ -112,7 +114,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     private void setupMultiplayerHost() {
-        final String format = "I am: %s";
+        final String format = getString(R.string.host_message);
         final List<String> networks = NetworkUtils.getLocalIpAddresses();
 
         if(networks.isEmpty()) return;
@@ -138,7 +140,7 @@ public class GameActivity extends AppCompatActivity {
             deckView.setOnClickListener(l -> game.deckClicked());
 
         }, (e, s) -> {
-            toastUiThread("Verbindung zum Spiel fehlgeschlagen.");
+            toastUiThread(getString(R.string.connection_failed));
             Log.e("GameActivity", e.getMessage(), e);
             // startActivity(new Intent(this, MenuActivity.class));
         });
@@ -193,27 +195,27 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void notificationNumberOfCardsToDraw(int i) {
-        String text = i == 1 ? "Du musst noch eine Karte ziehen." : "Du musst noch " + i + " Karten ziehen.";
+        String text = i == 1 ? getString(R.string.draw_one) : "Du musst noch " + i + " Karten ziehen.";
 
-        this.toastUiThread(text, Toast.LENGTH_SHORT);
+        this.toastUiThread(text, LENGTH_SHORT);
     }
 
     public void notificationCardNotPlayable() {
-        this.toastUiThread("Du darfst diese Karte jetzt nicht spielen.", Toast.LENGTH_SHORT);
+        this.toastUiThread(getString(R.string.card_not_possible), LENGTH_SHORT);
     }
 
     public void notificationGameWon() {
-        this.toastUiThread("Glückwunsch! Du hast diese Runde gewonnen!", Toast.LENGTH_SHORT);
+        this.toastUiThread(getString(R.string.round_won), LENGTH_SHORT);
     }
 
     public void notificationHasPlayableCard() {
-        this.toastUiThread("Du hast noch spielbare Karten.", Toast.LENGTH_SHORT);
+        this.toastUiThread(getString(R.string.cards_playable), LENGTH_SHORT);
     }
 
     public void handleShakeEvent(@SuppressWarnings("unused") int count) {
         this.game.stackToDeck();
 
-        this.toastUiThread("Deck wurde gemischt", Toast.LENGTH_SHORT);
+        this.toastUiThread(getString(R.string.deck_shuffeled), LENGTH_SHORT);
     }
 
     @Override
