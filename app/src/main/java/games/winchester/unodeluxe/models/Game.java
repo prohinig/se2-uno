@@ -380,10 +380,6 @@ public class Game {
         return players;
     }
 
-    public Turn getTurn() {
-        return turn;
-    }
-
     private int setNextPlayer() {
         if(isReverse()) {
             return ((--activePlayer) + players.size()) % players.size();
