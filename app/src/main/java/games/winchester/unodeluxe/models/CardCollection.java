@@ -5,7 +5,7 @@ import java.util.List;
 
 public abstract class CardCollection implements Serializable {
 
-    protected List<Card> cards;
+    List<Card> cards;
 
     public int getSize() {
         return this.cards.size();
