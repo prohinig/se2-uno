@@ -43,11 +43,7 @@ public class GameLogic {
         } else if (chosenCard.getSymbol() == topCard.getSymbol()) {
             return true;
         } else if (chosenCard.getColor() == CardColor.BLACK) {
-            if (chosenCard.getSymbol() == CardSymbol.WISH) {
-                return true;
-            } else if (chosenCard.getSymbol() == CardSymbol.PLUSFOUR && !hasCurrentColor) {
-                return true;
-            }
+            return chosenCard.getSymbol() == CardSymbol.WISH || chosenCard.getSymbol() == CardSymbol.PLUSFOUR && !hasCurrentColor;
         }
 
         return false;

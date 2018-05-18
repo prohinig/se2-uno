@@ -1,12 +1,12 @@
 package games.winchester.unodeluxe.activities;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -17,7 +17,6 @@ import java.util.List;
 import at.laubi.network.Network;
 import at.laubi.network.messages.Message;
 import at.laubi.network.session.ClientSession;
-import at.laubi.network.session.Session;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import games.winchester.unodeluxe.R;
@@ -28,6 +27,8 @@ import games.winchester.unodeluxe.models.Game;
 import games.winchester.unodeluxe.models.Player;
 import games.winchester.unodeluxe.models.ShakeDetector;
 import games.winchester.unodeluxe.utils.NetworkUtils;
+
+import static android.widget.Toast.LENGTH_SHORT;
 
 public class GameActivity extends AppCompatActivity {
 
@@ -45,7 +46,6 @@ public class GameActivity extends AppCompatActivity {
 
     private Game game;
     private Network network;
-    private Session session;
 
     // The following are used for the shake detection
     private SensorManager mSensorManager;
@@ -79,18 +79,18 @@ public class GameActivity extends AppCompatActivity {
     private void setupNetwork() {
         network = new Network();
 
-        network.setFallbackExceptionListener(this::onFallbackException);
-        network.setMessageListener(this::onMessageReceived);
+        network.setFallbackExceptionListener((e, s) -> onFallbackException(e));
+        network.setMessageListener((m, s) -> onMessageReceived(m));
         network.setNewSessionListener(this::onNewSession);
-        network.setConnectionEndListener(this::onSessionEnd);
+        network.setConnectionEndListener(s -> onSessionEnd());
     }
 
-    private void onFallbackException(Exception e, Session s) {
-        toastUiThread("Exception thrown: " + e.getMessage());
-        e.printStackTrace();
+    private void onFallbackException(Exception e) {
+        toastUiThread(String.format(getString(R.string.failed_connecting), e.getMessage()));
+        Log.e("GameActivity", e.getMessage(), e);
     }
 
-    private void onMessageReceived(Message message, Session session) {
+    private void onMessageReceived(Message message) {
         runOnUiThread(() -> game.messageReceived(message));
     }
 
@@ -98,19 +98,21 @@ public class GameActivity extends AppCompatActivity {
         runOnUiThread(() -> game.clientConnected(session));
     }
 
-    private void onSessionEnd(Session session) {
+    private void onSessionEnd() {
         runOnUiThread(() -> game.clientDisconnected());
     }
 
     private void setupSensors() {
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mShakeDetector = new ShakeDetector();
-        mShakeDetector.setOnShakeListener(this::handleShakeEvent);
+        if(mSensorManager != null) {
+            mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            mShakeDetector = new ShakeDetector();
+            mShakeDetector.setOnShakeListener(c -> handleShakeEvent());
+        }
     }
 
     private void setupMultiplayerHost() {
-        final String format = "I am: %s";
+        final String format = getString(R.string.host_message);
         final List<String> networks = NetworkUtils.getLocalIpAddresses();
 
         if(networks.isEmpty()) return;
@@ -118,31 +120,26 @@ public class GameActivity extends AppCompatActivity {
         final String hostIp = networks.get(0);
 
         network.createHost(hostSession -> {
-            session = hostSession;
             game.setSession(hostSession);
 
             deckView.setClickable(true);
             deckView.setOnClickListener(l -> game.deckClicked());
 
-            runOnUiThread(() -> {
-                ip.setText(String.format(format, hostIp));
-            });
+            runOnUiThread(() -> ip.setText(String.format(format, hostIp)));
         }, null);
 
     }
 
     private void setupMultiplayerClient(String host) {
         network.createClient(host, clientSession -> {
-            session = clientSession;
-
             game.setSession(clientSession);
 
             deckView.setClickable(true);
             deckView.setOnClickListener(l -> game.deckClicked());
 
         }, (e, s) -> {
-            toastUiThread("Verbindung zum Spiel fehlgeschlagen.");
-            e.printStackTrace();
+            toastUiThread(getString(R.string.connection_failed));
+            Log.e("GameActivity", e.getMessage(), e);
             // startActivity(new Intent(this, MenuActivity.class));
         });
     }
@@ -196,27 +193,27 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void notificationNumberOfCardsToDraw(int i) {
-        String text = i == 1 ? "Du musst noch eine Karte ziehen." : "Du musst noch " + i + " Karten ziehen.";
+        String text = i == 1 ? getString(R.string.draw_one) : "Du musst noch " + i + " Karten ziehen.";
 
-        this.toastUiThread(text, Toast.LENGTH_SHORT);
+        this.toastUiThread(text, LENGTH_SHORT);
     }
 
     public void notificationCardNotPlayable() {
-        this.toastUiThread("Du darfst diese Karte jetzt nicht spielen.", Toast.LENGTH_SHORT);
+        this.toastUiThread(getString(R.string.card_not_possible), LENGTH_SHORT);
     }
 
     public void notificationGameWon() {
-        this.toastUiThread("Glückwunsch! Du hast diese Runde gewonnen!", Toast.LENGTH_SHORT);
+        this.toastUiThread(getString(R.string.round_won), LENGTH_SHORT);
     }
 
     public void notificationHasPlayableCard() {
-        this.toastUiThread("Du hast noch spielbare Karten.", Toast.LENGTH_SHORT);
+        this.toastUiThread(getString(R.string.cards_playable), LENGTH_SHORT);
     }
 
-    public void handleShakeEvent(int count) {
+    public void handleShakeEvent() {
         this.game.stackToDeck();
 
-        this.toastUiThread("Deck wurde gemischt", Toast.LENGTH_SHORT);
+        this.toastUiThread(getString(R.string.deck_shuffeled), LENGTH_SHORT);
     }
 
     @Override

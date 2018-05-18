@@ -1,7 +1,6 @@
 package games.winchester.unodeluxe.models;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
@@ -18,25 +17,23 @@ public class ColorWishDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(R.string.dialog_title)
-                .setItems(R.array.colors_array, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        // The 'which' argument contains the index position
-                        // of the selected item
-                        switch(which) {
-                            case 0:
-                                game.setActiveColor(CardColor.BLUE);
-                                break;
-                            case 1:
-                                game.setActiveColor(CardColor.YELLOW);
-                                break;
-                            case 2:
-                                game.setActiveColor(CardColor.GREEN);
-                                break;
-                            case 3:
-                                game.setActiveColor(CardColor.RED);
-                                break;
+                .setItems(R.array.colors_array, (dialog, which) -> {
+                    // The 'which' argument contains the index position
+                    // of the selected item
+                    switch (which) {
+                        case 0:
+                            game.setActiveColor(CardColor.BLUE);
+                            break;
+                        case 1:
+                            game.setActiveColor(CardColor.YELLOW);
+                            break;
+                        case 2:
+                            game.setActiveColor(CardColor.GREEN);
+                            break;
+                        case 3:
+                            game.setActiveColor(CardColor.RED);
+                            break;
 
-                        }
                     }
                 });
         return builder.create();

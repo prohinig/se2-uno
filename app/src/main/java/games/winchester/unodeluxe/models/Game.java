@@ -1,8 +1,5 @@
 package games.winchester.unodeluxe.models;
 
-import android.support.v4.app.FragmentManager;
-import android.view.View;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,11 +14,8 @@ import games.winchester.unodeluxe.messages.Name;
 import games.winchester.unodeluxe.messages.Setup;
 import games.winchester.unodeluxe.messages.Turn;
 import games.winchester.unodeluxe.utils.GameLogic;
-import games.winchester.unodeluxe.activities.GameActivity;
-import games.winchester.unodeluxe.enums.CardColor;
 
 public class Game {
-    public static int MAXPLAYERS = 5;
 
     // deck of cards
     private Deck deck;
@@ -54,7 +48,7 @@ public class Game {
         this.gameStarted = false;
         this.numberOfCardsToDraw = 0;
         this.activePlayer = 0;
-        this.players = new ArrayList<Player>();
+        this.players = new ArrayList<>();
         this.self = null;
         this.colorWishPending = false;
     }
@@ -63,7 +57,7 @@ public class Game {
         this.deck = new Deck();
         this.stack = new Stack();
         this.reverse = false;
-        this.players = new ArrayList<Player>();
+        this.players = new ArrayList<>();
         this.self = admin;
         this.activity = activity;
         this.gameStarted = false;
@@ -75,19 +69,11 @@ public class Game {
     }
 
     public boolean cardClicked(Card c) {
-        if (myTurn()) {
-            return handleTurn(c, self);
-        }
-        return false;
+        return myTurn() && handleTurn(c, self);
     }
 
     private boolean myTurn() {
-        if(self != null) {
-            if (activePlayer == players.indexOf(self)) {
-                return true;
-            }
-        }
-        return false;
+        return self != null && activePlayer == players.indexOf(self);
     }
 
     public void deckClicked() {
@@ -102,6 +88,7 @@ public class Game {
                     if (!GameLogic.hasPlayableCard(self.getHand(), getActiveColor(), getTopOfStackCard())) {
                         List<Card> tmp = handCards(1, null);
 
+                        //noinspection StatementWithEmptyBody
                         if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), getTopOfStackCard(), getActiveColor())) {
                             //TODO: player is allowed to play drawn card if its playable
                         }
@@ -116,27 +103,27 @@ public class Game {
     }
 
     //handles a whole turn
-    public boolean handleTurn(Card c, Player p) {
+    private boolean handleTurn(Card c, Player p) {
         if (numberOfCardsToDraw != 0) {
             activity.notificationNumberOfCardsToDraw(numberOfCardsToDraw);
             return false;
         }
 
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
-            boolean result = playCard(c, p);
-            if (result) {
-                turn.activePlayer = setNextPlayer();
-                turn.cardPlayed = c;
-                turn.activeColor = c.getColor();
-                turn.reverse = reverse;
+            playCard(c, p);
 
-                if (null != session) {
-                    if(!colorWishPending) {
-                        session.send(turn);
-                    }
+            turn.activePlayer = setNextPlayer();
+            turn.cardPlayed = c;
+            turn.activeColor = c.getColor();
+            turn.reverse = reverse;
+
+            if (null != session) {
+                if(!colorWishPending) {
+                    session.send(turn);
                 }
             }
-            return result;
+
+            return true;
         } else {
             activity.notificationCardNotPlayable();
             return false;
@@ -219,14 +206,13 @@ public class Game {
         //TODO: client disconnected
     }
 
-    public void notifyPlayers(Turn turn) {
+    private void notifyPlayers(Turn turn) {
 //      we receive a turn from one player and send it to all
         session.send(turn);
     }
 
     // check if card can be played and return result
-    public boolean playCard(Card c, Player p) {
-
+    private void playCard(Card c, Player p) {
         p.getHand().removeCard(c);
         this.layCard(c);
         activeColor = c.getColor();
@@ -237,11 +223,9 @@ public class Game {
             activity.notificationGameWon();
             gameStarted = false;
         }
-
-        return true;
     }
 
-    public void handleAction(Card c) {
+    private void handleAction(Card c) {
         switch (GameLogic.actionRequired(c)) {
             case DRAWTWO:
                 numberOfCardsToDraw += 2;
@@ -253,7 +237,7 @@ public class Game {
         }
     }
 
-    public void handleActionPlayed(Card c) {
+    private void handleActionPlayed(Card c) {
         switch (GameLogic.actionRequired(c)) {
             case WISH:
             case DRAWFOUR:
@@ -280,7 +264,7 @@ public class Game {
         this.activity.updateTopCard(c.getGraphic());
     }
 
-    public List<Card> handCards(int amount, Player p) {
+    private List<Card> handCards(@SuppressWarnings("SameParameterValue") int amount, Player p) {
         List<Card> cards = this.deck.deal(amount);
         p = p == null ? self : p;
         p.addCards(cards);
@@ -290,11 +274,11 @@ public class Game {
         return cards;
     }
 
-    public void updateHand(List<Card> cards) {
+    private void updateHand(List<Card> cards) {
         this.activity.addToHand(cards);
     }
 
-    public void startGame() {
+    private void startGame() {
         if (1 < this.players.size() && !gameStarted) {
             // player next to dealer (=gamestarter) starts
             Card cardTopped = this.deck.deal(1).remove(0);
@@ -340,15 +324,15 @@ public class Game {
 
     }
 
-    public boolean isGameStarted() {
+    private boolean isGameStarted() {
         return gameStarted;
     }
 
-    public int getNumberOfCardsToDraw() {
+    private int getNumberOfCardsToDraw() {
         return numberOfCardsToDraw;
     }
 
-    public void decrementNumberOfCardsToDraw() {
+    private void decrementNumberOfCardsToDraw() {
         numberOfCardsToDraw--;
     }
 
@@ -360,7 +344,7 @@ public class Game {
         return activeColor;
     }
 
-    public Card getTopOfStackCard() {
+    private Card getTopOfStackCard() {
         return stack.getTopCard();
     }
 
@@ -372,7 +356,7 @@ public class Game {
         return stack;
     }
 
-    public boolean isReverse() {
+    private boolean isReverse() {
         return reverse;
     }
 
@@ -380,11 +364,7 @@ public class Game {
         return players;
     }
 
-    public Turn getTurn() {
-        return turn;
-    }
-
-    public int setNextPlayer() {
+    private int setNextPlayer() {
         if(isReverse()) {
             return ((--activePlayer) + players.size()) % players.size();
         } else {
