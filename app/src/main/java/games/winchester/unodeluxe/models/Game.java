@@ -54,7 +54,7 @@ public class Game {
         this.gameStarted = false;
         this.numberOfCardsToDraw = 0;
         this.activePlayer = 0;
-        this.players = new ArrayList<Player>();
+        this.players = new ArrayList<>();
         this.self = null;
         this.colorWishPending = false;
     }
@@ -63,7 +63,7 @@ public class Game {
         this.deck = new Deck();
         this.stack = new Stack();
         this.reverse = false;
-        this.players = new ArrayList<Player>();
+        this.players = new ArrayList<>();
         this.self = admin;
         this.activity = activity;
         this.gameStarted = false;
