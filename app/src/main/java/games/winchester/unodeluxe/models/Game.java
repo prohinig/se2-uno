@@ -110,20 +110,20 @@ public class Game {
         }
 
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
-            boolean result = playCard(c, p);
-            if (result) {
-                turn.activePlayer = setNextPlayer();
-                turn.cardPlayed = c;
-                turn.activeColor = c.getColor();
-                turn.reverse = reverse;
+            playCard(c, p);
 
-                if (null != session) {
-                    if(!colorWishPending) {
-                        session.send(turn);
-                    }
+            turn.activePlayer = setNextPlayer();
+            turn.cardPlayed = c;
+            turn.activeColor = c.getColor();
+            turn.reverse = reverse;
+
+            if (null != session) {
+                if(!colorWishPending) {
+                    session.send(turn);
                 }
             }
-            return result;
+
+            return true;
         } else {
             activity.notificationCardNotPlayable();
             return false;
@@ -212,8 +212,7 @@ public class Game {
     }
 
     // check if card can be played and return result
-    private boolean playCard(Card c, Player p) {
-
+    private void playCard(Card c, Player p) {
         p.getHand().removeCard(c);
         this.layCard(c);
         activeColor = c.getColor();
@@ -224,8 +223,6 @@ public class Game {
             activity.notificationGameWon();
             gameStarted = false;
         }
-
-        return true;
     }
 
     private void handleAction(Card c) {
