@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Hand extends CardCollection {
-
-    private List<Card> cards;
-
     public Hand(){
         this.cards = new ArrayList<>();
     }
