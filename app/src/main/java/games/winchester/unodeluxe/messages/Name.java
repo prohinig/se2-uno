@@ -3,13 +3,13 @@ package games.winchester.unodeluxe.messages;
 import at.laubi.network.messages.Message;
 
 public class Name implements Message {
-    private String name;
+    private String playerName;
 
     public Name(String name) {
-        this.name = name;
+        this.playerName = name;
     }
 
     public String getName() {
-        return name;
+        return playerName;
     }
 }
