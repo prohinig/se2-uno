@@ -142,17 +142,17 @@ public class Game {
                 notifyPlayers((Turn) m);
             }
 
-            Turn turn = (Turn) m;
-            activePlayer = turn.getActivePlayer();
-            activeColor = turn.getActiveColor();
-            reverse = turn.isReverse();
+            Turn receivedTurn = (Turn) m;
+            activePlayer = receivedTurn.getActivePlayer();
+            activeColor = receivedTurn.getActiveColor();
+            reverse = receivedTurn.isReverse();
 
-            if(0 < turn.getCardsDrawn()) {
-                deck.deal(turn.getCardsDrawn());
+            if(0 < receivedTurn.getCardsDrawn()) {
+                deck.deal(receivedTurn.getCardsDrawn());
             }
-            cardPlayed = turn.getCardPlayed();
-            if (null != turn.getCardPlayed()) {
-                this.layCard(turn.getCardPlayed());
+            cardPlayed = receivedTurn.getCardPlayed();
+            if (null != receivedTurn.getCardPlayed()) {
+                this.layCard(receivedTurn.getCardPlayed());
             }
 
 
