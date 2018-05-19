@@ -178,8 +178,8 @@ public class Game {
             this.activity.addToHand(self.getHand().getCards());
 
         } else if (m instanceof Name) {
-            Name name = (Name) m;
-            this.name = name.getName();
+            Name nameMessage = (Name) m;
+            this.name = nameMessage.getName();
         }
 
 
