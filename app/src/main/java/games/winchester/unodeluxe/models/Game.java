@@ -112,10 +112,10 @@ public class Game {
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
             playCard(c, p);
 
-            turn.activePlayer = setNextPlayer();
-            turn.cardPlayed = c;
-            turn.activeColor = c.getColor();
-            turn.reverse = reverse;
+            turn.setActivePlayer(setNextPlayer());
+            turn.setCardPlayed(c);
+            turn.setActiveColor(c.getColor());
+            turn.setReverse(reverse);
 
             if (null != session) {
                 if(!colorWishPending) {
@@ -145,27 +145,27 @@ public class Game {
             }
 
             Turn turn = (Turn) m;
-            activePlayer = turn.activePlayer;
-            activeColor = turn.activeColor;
-            reverse = turn.reverse;
+            activePlayer = turn.getActivePlayer();
+            activeColor = turn.getActiveColor();
+            reverse = turn.isReverse();
 
-            if(0 < turn.cardsDrawn) {
-                deck.deal(turn.cardsDrawn);
+            if(0 < turn.getCardsDrawn()) {
+                deck.deal(turn.getCardsDrawn());
             }
-            cardPlayed = turn.cardPlayed;
-            if (null != turn.cardPlayed) {
-                this.layCard(turn.cardPlayed);
+            cardPlayed = turn.getCardPlayed();
+            if (null != turn.getCardPlayed()) {
+                this.layCard(turn.getCardPlayed());
             }
 
 
         } else if (m instanceof Setup) {
             Setup setup = (Setup) m;
 
-            deck = setup.deck;
-            players = setup.players;
-            activeColor = setup.activeColor;
-            stack = setup.stack;
-            activePlayer = setup.activePlayer;
+            deck = setup.getDeck();
+            players = setup.getPlayers();
+            activeColor = setup.getActiveColor();
+            stack = setup.getStack();
+            activePlayer = setup.getActivePlayer();
             gameStarted = true;
 
             cardPlayed = stack.getTopCard();
@@ -181,7 +181,7 @@ public class Game {
 
         } else if (m instanceof Name) {
             Name name = (Name) m;
-            this.name = name.name;
+            this.name = name.getName();
         }
 
 
@@ -316,7 +316,7 @@ public class Game {
 
     public void setActiveColor(CardColor color) {
         this.activeColor = color;
-        this.turn.activeColor = color;
+        this.turn.setActiveColor(color);
         if(colorWishPending){
             colorWishPending = false;
             session.send(turn);
