@@ -117,10 +117,8 @@ public class Game {
             turn.setActiveColor(c.getColor());
             turn.setReverse(reverse);
 
-            if (null != session) {
-                if(!colorWishPending) {
-                    session.send(turn);
-                }
+            if (null != session && !colorWishPending) {
+                session.send(turn);
             }
 
             return true;
