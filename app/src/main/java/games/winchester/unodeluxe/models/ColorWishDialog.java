@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 
 import games.winchester.unodeluxe.R;
 import games.winchester.unodeluxe.enums.CardColor;
@@ -33,7 +34,9 @@ public class ColorWishDialog extends DialogFragment {
                         case 3:
                             game.setActiveColor(CardColor.RED);
                             break;
-
+                        default:
+                            Log.e("ColorWishDialog", "Invalid select option: " + which);
+                            break;
                     }
                 });
         return builder.create();

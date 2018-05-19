@@ -112,15 +112,13 @@ public class Game {
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
             playCard(c, p);
 
-            turn.activePlayer = setNextPlayer();
-            turn.cardPlayed = c;
-            turn.activeColor = c.getColor();
-            turn.reverse = reverse;
+            turn.setActivePlayer(setNextPlayer());
+            turn.setCardPlayed(c);
+            turn.setActiveColor(c.getColor());
+            turn.setReverse(reverse);
 
-            if (null != session) {
-                if(!colorWishPending) {
-                    session.send(turn);
-                }
+            if (null != session && !colorWishPending) {
+                session.send(turn);
             }
 
             return true;
@@ -144,28 +142,28 @@ public class Game {
                 notifyPlayers((Turn) m);
             }
 
-            Turn turn = (Turn) m;
-            activePlayer = turn.activePlayer;
-            activeColor = turn.activeColor;
-            reverse = turn.reverse;
+            Turn receivedTurn = (Turn) m;
+            activePlayer = receivedTurn.getActivePlayer();
+            activeColor = receivedTurn.getActiveColor();
+            reverse = receivedTurn.isReverse();
 
-            if(0 < turn.cardsDrawn) {
-                deck.deal(turn.cardsDrawn);
+            if(0 < receivedTurn.getCardsDrawn()) {
+                deck.deal(receivedTurn.getCardsDrawn());
             }
-            cardPlayed = turn.cardPlayed;
-            if (null != turn.cardPlayed) {
-                this.layCard(turn.cardPlayed);
+            cardPlayed = receivedTurn.getCardPlayed();
+            if (null != receivedTurn.getCardPlayed()) {
+                this.layCard(receivedTurn.getCardPlayed());
             }
 
 
         } else if (m instanceof Setup) {
             Setup setup = (Setup) m;
 
-            deck = setup.deck;
-            players = setup.players;
-            activeColor = setup.activeColor;
-            stack = setup.stack;
-            activePlayer = setup.activePlayer;
+            deck = setup.getDeck();
+            players = setup.getPlayers();
+            activeColor = setup.getActiveColor();
+            stack = setup.getStack();
+            activePlayer = setup.getActivePlayer();
             gameStarted = true;
 
             cardPlayed = stack.getTopCard();
@@ -180,8 +178,8 @@ public class Game {
             this.activity.addToHand(self.getHand().getCards());
 
         } else if (m instanceof Name) {
-            Name name = (Name) m;
-            this.name = name.name;
+            Name nameMessage = (Name) m;
+            this.name = nameMessage.getName();
         }
 
 
@@ -219,7 +217,7 @@ public class Game {
 
         handleActionPlayed(c);
 
-        if (p.getHand().getCards().size() == 0) {
+        if (p.getHand().getCards().isEmpty()) {
             activity.notificationGameWon();
             gameStarted = false;
         }
@@ -232,6 +230,7 @@ public class Game {
                 break;
             case DRAWFOUR:
                 numberOfCardsToDraw += 4;
+                break;
             default:
                 break;
         }
@@ -251,6 +250,8 @@ public class Game {
                     reverse = !reverse;
                     break;
                 }
+                activePlayer = setNextPlayer();
+                break;
             case SKIP:
                 activePlayer = setNextPlayer();
                 break;
@@ -316,7 +317,7 @@ public class Game {
 
     public void setActiveColor(CardColor color) {
         this.activeColor = color;
-        this.turn.activeColor = color;
+        this.turn.setActiveColor(color);
         if(colorWishPending){
             colorWishPending = false;
             session.send(turn);

@@ -144,8 +144,8 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-    public static Drawable getImageDrawable(Context c, String ImageName) {
-        final int resourceIdentifier = c.getResources().getIdentifier(ImageName, "drawable", c.getPackageName());
+    public static Drawable getImageDrawable(Context c, String imageName) {
+        final int resourceIdentifier = c.getResources().getIdentifier(imageName, "drawable", c.getPackageName());
 
         return c.getResources().getDrawable(resourceIdentifier);
     }
