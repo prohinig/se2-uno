@@ -5,6 +5,7 @@ import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -39,7 +40,7 @@ public class MenuActivity extends AppCompatActivity {
             player.setLooping(true);
             player.start();
         } catch (IOException e) {
-            e.printStackTrace();
+             Log.e("MenuActivity", e.getMessage(), e);
         }
     }
 
@@ -67,7 +68,7 @@ public class MenuActivity extends AppCompatActivity {
                player.start();
                this.ok = 1;
            } catch (IOException e) {
-               e.printStackTrace();
+               Log.e("MenuActivity", e.getMessage(), e);
            }
        }
    }
