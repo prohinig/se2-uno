@@ -219,7 +219,7 @@ public class Game {
 
         handleActionPlayed(c);
 
-        if (p.getHand().getCards().size() == 0) {
+        if (p.getHand().getCards().isEmpty()) {
             activity.notificationGameWon();
             gameStarted = false;
         }
