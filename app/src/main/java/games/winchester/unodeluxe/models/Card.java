@@ -36,19 +36,19 @@ public class Card implements Serializable{
 
 
     private void initGraphic(CardColor color, CardSymbol symbol) {
-        String graphic = "";
+        String graphicName = "";
         switch (color) {
             case RED:
-                graphic += "r";
+                graphicName += "r";
                 break;
             case YELLOW:
-                graphic += "y";
+                graphicName += "y";
                 break;
             case GREEN:
-                graphic += "g";
+                graphicName += "g";
                 break;
             case BLUE:
-                graphic += "b";
+                graphicName += "b";
                 break;
             default:
                 break;
@@ -56,55 +56,55 @@ public class Card implements Serializable{
 
         switch (symbol) {
             case ZERO:
-                graphic += "0";
+                graphicName += "0";
                 break;
             case ONE:
-                graphic += "1";
+                graphicName += "1";
                 break;
             case TWO:
-                graphic += "2";
+                graphicName += "2";
                 break;
             case THREE:
-                graphic += "3";
+                graphicName += "3";
                 break;
             case FOUR:
-                graphic += "4";
+                graphicName += "4";
                 break;
             case FIVE:
-                graphic += "5";
+                graphicName += "5";
                 break;
             case SIX:
-                graphic += "6";
+                graphicName += "6";
                 break;
             case SEVEN:
-                graphic += "7";
+                graphicName += "7";
                 break;
             case EIGHT:
-                graphic += "8";
+                graphicName += "8";
                 break;
             case NINE:
-                graphic += "9";
+                graphicName += "9";
                 break;
             case PLUSTWO:
-                graphic += "d2";
+                graphicName += "d2";
                 break;
             case SKIP:
-                graphic += "s";
+                graphicName += "s";
                 break;
             case REVERSE:
-                graphic += "r";
+                graphicName += "r";
                 break;
             case PLUSFOUR:
-                graphic += "draw4";
+                graphicName += "draw4";
                 break;
             case WISH:
-                graphic += "wild";
+                graphicName += "wild";
         }
 
-        if (1 > graphic.length()) {
-            graphic += "back";
+        if (graphicName.length() < 1) {
+            graphicName += "back";
         }
 
-        this.graphic = graphic;
+        this.graphic = graphicName;
     }
 }
