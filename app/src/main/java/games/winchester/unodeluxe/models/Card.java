@@ -50,6 +50,8 @@ public class Card implements Serializable{
             case BLUE:
                 graphic += "b";
                 break;
+            default:
+                break;
         }
 
         switch (symbol) {

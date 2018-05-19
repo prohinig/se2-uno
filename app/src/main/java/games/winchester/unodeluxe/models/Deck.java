@@ -29,6 +29,7 @@ public class Deck extends CardCollection {
                             case WISH:
                                 // there are 4 of each black ones
                                 this.addCard(color, symbol, 4);
+                                break;
                             default:
                                 break;
                         }

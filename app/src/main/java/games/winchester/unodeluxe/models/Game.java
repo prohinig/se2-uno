@@ -232,6 +232,7 @@ public class Game {
                 break;
             case DRAWFOUR:
                 numberOfCardsToDraw += 4;
+                break;
             default:
                 break;
         }
@@ -251,6 +252,8 @@ public class Game {
                     reverse = !reverse;
                     break;
                 }
+                activePlayer = setNextPlayer();
+                break;
             case SKIP:
                 activePlayer = setNextPlayer();
                 break;
