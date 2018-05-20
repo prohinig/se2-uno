@@ -8,11 +8,13 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Arrays;
 import java.util.List;
 
 import at.laubi.network.Network;
@@ -163,6 +165,7 @@ public class GameActivity extends AppCompatActivity {
 
     // used to keep the hand UI up to date with the backend model
     public void addToHand(List<Card> cards) {
+
         for (Card c : cards) {
             ImageView cardView = new ImageView(GameActivity.this);
             cardView.setPadding(0, 0, 0, 0);
@@ -190,6 +193,29 @@ public class GameActivity extends AppCompatActivity {
             cardView.setLayoutParams(layoutParams);
             handLayout.addView(cardView);
         }
+
+        final int childCount = handLayout.getChildCount();
+        View [] children = new View[childCount];
+        for(int i = 0; i < childCount; i++) {
+            children[i] = handLayout.getChildAt(i);
+        }
+
+        Arrays.sort(children, (a, b) -> {
+            Card cardA = (Card) a.getTag();
+            Card cardB = (Card) b.getTag();
+
+            return cardA.compareTo(cardB);
+        });
+
+        handLayout.removeAllViews();
+
+        for(int  i = 0; i < childCount; i++){
+            if(i != 0)
+                ((LinearLayout.LayoutParams) children[i].getLayoutParams())
+                        .setMargins(-30, 0, 0, 0);
+            handLayout.addView(children[i]);
+        }
+
     }
 
     public void wishAColor(Game game) {
