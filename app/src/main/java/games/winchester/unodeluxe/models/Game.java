@@ -372,4 +372,8 @@ public class Game {
             return (++activePlayer) % players.size();
         }
     }
+
+    public Session getSession() {
+        return session;
+    }
 }

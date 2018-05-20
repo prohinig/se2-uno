@@ -1,6 +1,9 @@
 package games.winchester.unodeluxe.models;
 
+import android.support.annotation.NonNull;
+
 import java.io.Serializable;
+import java.util.Objects;
 
 import games.winchester.unodeluxe.enums.CardColor;
 import games.winchester.unodeluxe.enums.CardSymbol;
@@ -9,7 +12,7 @@ import games.winchester.unodeluxe.enums.CardSymbol;
  * Created by christianprohinig on 10.04.18.
  */
 
-public class Card implements Serializable{
+public class Card implements Serializable, Comparable<Card>{
     private CardColor color;
     private CardSymbol symbol;
     private String graphic;
@@ -106,5 +109,39 @@ public class Card implements Serializable{
         }
 
         this.graphic = graphicName;
+    }
+
+    @Override
+    public int compareTo(@NonNull Card o) {
+        if(this == o) return 0;
+
+        int resultColor = color.compareTo(o.color);
+        if(resultColor != 0) return resultColor;
+
+        return symbol.compareTo(o.symbol);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Card card = (Card) o;
+        return color == card.color &&
+                symbol == card.symbol &&
+                Objects.equals(graphic, card.graphic);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(color, symbol, graphic);
+    }
+
+    @Override
+    public String toString() {
+        return "Card{" +
+                "color=" + color +
+                ", symbol=" + symbol +
+                ", graphic='" + graphic + '\'' +
+                '}';
     }
 }
