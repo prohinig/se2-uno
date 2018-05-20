@@ -123,8 +123,10 @@ public class GameActivity extends AppCompatActivity {
         network.createHost(hostSession -> {
             game.setSession(hostSession);
 
-            deckView.setClickable(true);
-            deckView.setOnClickListener(l -> game.deckClicked());
+            runOnUiThread(() -> {
+                deckView.setClickable(true);
+                deckView.setOnClickListener(l -> game.deckClicked());
+            });
 
             runOnUiThread(() -> ip.setText(String.format(format, hostIp)));
         }, null);
@@ -135,8 +137,10 @@ public class GameActivity extends AppCompatActivity {
         network.createClient(host, clientSession -> {
             game.setSession(clientSession);
 
-            deckView.setClickable(true);
-            deckView.setOnClickListener(l -> game.deckClicked());
+            runOnUiThread(() -> {
+                deckView.setClickable(true);
+                deckView.setOnClickListener(l -> game.deckClicked());
+            });
 
         }, (e, s) -> {
             toastUiThread(getString(R.string.connection_failed));
