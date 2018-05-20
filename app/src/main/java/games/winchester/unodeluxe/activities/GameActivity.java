@@ -1,6 +1,7 @@
 package games.winchester.unodeluxe.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -140,7 +141,8 @@ public class GameActivity extends AppCompatActivity {
         }, (e, s) -> {
             toastUiThread(getString(R.string.connection_failed));
             Log.e("GameActivity", e.getMessage(), e);
-            // startActivity(new Intent(this, MenuActivity.class));
+            startActivity(new Intent(this, MenuActivity.class));
+            finish();
         });
     }
 
@@ -220,7 +222,11 @@ public class GameActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
 
-        //if (session != null) session.close();
+        if(game != null && game.getSession() != null) {
+            game.getSession().close();
+        }
+
+        finish();
     }
 
     @Override
