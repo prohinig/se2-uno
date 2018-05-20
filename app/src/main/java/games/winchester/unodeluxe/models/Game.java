@@ -83,16 +83,19 @@ public class Game {
             } else {
                 if (getNumberOfCardsToDraw() != 0) {
                     handCards(1, null);
+                    turn.setCardsDrawn(turn.getCardsDrawn() + 1);
                     decrementNumberOfCardsToDraw();
                 } else {
                     if (!GameLogic.hasPlayableCard(self.getHand(), getActiveColor(), getTopOfStackCard())) {
                         List<Card> tmp = handCards(1, null);
+                        turn.setCardsDrawn(turn.getCardsDrawn() + 1);
 
-                        //noinspection StatementWithEmptyBody
-                        if (GameLogic.isPlayableCard(tmp.get(0), self.getHand(), getTopOfStackCard(), getActiveColor())) {
-                            //TODO: player is allowed to play drawn card if its playable
+                        if (!GameLogic.isPlayableCard(tmp.get(0), self.getHand(), getTopOfStackCard(), getActiveColor())) {
+                            turn.setActivePlayer(setNextPlayer());
+                            turn.setReverse(reverse);
+                            turn.setActiveColor(activeColor);
+                            sendTurn();
                         }
-
                     } else {
                         activity.notificationHasPlayableCard();
                     }
@@ -117,8 +120,8 @@ public class Game {
             turn.setActiveColor(c.getColor());
             turn.setReverse(reverse);
 
-            if (null != session && !colorWishPending) {
-                session.send(turn);
+            if (!colorWishPending) {
+                sendTurn();
             }
 
             return true;
@@ -144,10 +147,20 @@ public class Game {
 
             Turn receivedTurn = (Turn) m;
             activePlayer = receivedTurn.getActivePlayer();
-            activeColor = receivedTurn.getActiveColor();
+
+            // card might not change
+            if (null != receivedTurn.getActiveColor()) {
+                activeColor = receivedTurn.getActiveColor();
+            }
+
             reverse = receivedTurn.isReverse();
 
-            if(0 < receivedTurn.getCardsDrawn()) {
+            // remove all cards the player drew from my deck
+            if (0 < receivedTurn.getCardsDrawn()) {
+                deck.deal(receivedTurn.getCardsDrawn());
+            }
+
+            if (0 < receivedTurn.getCardsDrawn()) {
                 deck.deal(receivedTurn.getCardsDrawn());
             }
             cardPlayed = receivedTurn.getCardPlayed();
@@ -169,8 +182,8 @@ public class Game {
             cardPlayed = stack.getTopCard();
 
             activity.updateTopCard(cardPlayed.getGraphic());
-            for(Player p : players){
-                if(p.getName().equals(this.name)){
+            for (Player p : players) {
+                if (p.getName().equals(this.name)) {
                     self = p;
                     break;
                 }
@@ -186,7 +199,8 @@ public class Game {
         // if its my turn enable clicks
         if (myTurn()) {
             turn = new Turn();
-            if(null != cardPlayed){
+            turn.setCardsDrawn(0);
+            if (null != cardPlayed) {
                 handleAction(cardPlayed);
             }
         }
@@ -246,14 +260,14 @@ public class Game {
             case REVERSE:
                 //if a reverse card is played in a 2-Player-Game it acts like a Skip-Card
                 //therefore skipping the reverse action and going to Skip action.
-                if(players.size() > 2) {
+                if (players.size() > 2) {
                     reverse = !reverse;
                     break;
                 }
-                activePlayer = setNextPlayer();
+                setNextPlayer();
                 break;
             case SKIP:
-                activePlayer = setNextPlayer();
+                setNextPlayer();
                 break;
             default:
                 break;
@@ -316,13 +330,22 @@ public class Game {
     }
 
     public void setActiveColor(CardColor color) {
-        this.activeColor = color;
-        this.turn.setActiveColor(color);
-        if(colorWishPending){
+        activeColor = color;
+        turn.setActiveColor(color);
+        if (colorWishPending) {
             colorWishPending = false;
-            session.send(turn);
+            sendTurn();
         }
 
+    }
+
+    private void sendTurn() {
+        if (null != session) {
+            session.send(turn);
+        }
+        // we reset turn here to avoid sending same info twice
+        // when same player is having turn twice
+        turn = new Turn();
     }
 
     private boolean isGameStarted() {
@@ -366,11 +389,13 @@ public class Game {
     }
 
     private int setNextPlayer() {
-        if(isReverse()) {
-            return ((--activePlayer) + players.size()) % players.size();
+        int current = activePlayer;
+        if (isReverse()) {
+            activePlayer = (current + players.size() - 1) % players.size();
         } else {
-            return (++activePlayer) % players.size();
+            activePlayer = (current + 1) % players.size();
         }
+        return activePlayer;
     }
 
     public Session getSession() {
