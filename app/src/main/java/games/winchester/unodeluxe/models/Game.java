@@ -41,6 +41,10 @@ public class Game {
     // player name
     private String name;
     private boolean colorWishPending;
+    // for advanced ruleset (+2 and +4 can be stacked)
+    private boolean advancedRules;
+    // for sevenO ruleset (if 0 is played every hand is swaped in current directions hand, if 7 is played choose a other player and swap hands)
+    private boolean sevenO;
 
     public Game(GameActivity activity) {
         this.reverse = false;
@@ -51,6 +55,9 @@ public class Game {
         this.players = new ArrayList<>();
         this.self = null;
         this.colorWishPending = false;
+        // TODO: change the initialisation of the additional rule variables (reading from file or light SQL)
+        advancedRules = true;
+        sevenO = true;
     }
 
     public Game(GameActivity activity, Player admin) {
@@ -66,6 +73,9 @@ public class Game {
         // read player name from configuration
         this.players.add(self);
         this.colorWishPending = false;
+        // TODO: change the initialisation of the additional rule variables (reading from file or light SQL)
+        advancedRules = true;
+        sevenO = true;
     }
 
     public boolean cardClicked(Card c) {
@@ -94,6 +104,7 @@ public class Game {
                             turn.setActivePlayer(setNextPlayer());
                             turn.setReverse(reverse);
                             turn.setActiveColor(activeColor);
+                            turn.setCardsToDraw(numberOfCardsToDraw);
                             sendTurn();
                         }
                     } else {
@@ -108,8 +119,28 @@ public class Game {
     //handles a whole turn
     private boolean handleTurn(Card c, Player p) {
         if (numberOfCardsToDraw != 0) {
-            activity.notificationNumberOfCardsToDraw(numberOfCardsToDraw);
-            return false;
+            if (advancedRules && turn.getCardsDrawn() == 0) {
+                if (c.getSymbol() == getStack().getTopCard().getSymbol()) {
+
+                    playCard(c, p);
+                    //TODO: should be place this code also in playCard-function or do another function just for that?
+                    turn.setActivePlayer(setNextPlayer());
+                    turn.setCardPlayed(c);
+                    turn.setActiveColor(c.getColor());
+                    turn.setReverse(reverse);
+                    turn.setCardsToDraw(numberOfCardsToDraw);
+
+                    sendTurn();
+
+                    return true;
+                } else {
+                    activity.notificationNumberOfCardsToDraw(numberOfCardsToDraw);
+                    return false;
+                }
+            } else {
+                activity.notificationNumberOfCardsToDraw(numberOfCardsToDraw);
+                return false;
+            }
         }
 
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
@@ -119,6 +150,7 @@ public class Game {
             turn.setCardPlayed(c);
             turn.setActiveColor(c.getColor());
             turn.setReverse(reverse);
+            turn.setCardsToDraw(numberOfCardsToDraw);
 
             if (!colorWishPending) {
                 sendTurn();
@@ -154,6 +186,7 @@ public class Game {
             }
 
             reverse = receivedTurn.isReverse();
+            numberOfCardsToDraw = receivedTurn.getCardsToDraw();
 
             // remove all cards the player drew from my deck
             if (0 < receivedTurn.getCardsDrawn()) {
@@ -200,9 +233,6 @@ public class Game {
         if (myTurn()) {
             turn = new Turn();
             turn.setCardsDrawn(0);
-            if (null != cardPlayed) {
-                handleAction(cardPlayed);
-            }
         }
 
     }
@@ -237,23 +267,14 @@ public class Game {
         }
     }
 
-    private void handleAction(Card c) {
+    private void handleActionPlayed(Card c) {
         switch (GameLogic.actionRequired(c)) {
             case DRAWTWO:
                 numberOfCardsToDraw += 2;
                 break;
             case DRAWFOUR:
                 numberOfCardsToDraw += 4;
-                break;
-            default:
-                break;
-        }
-    }
-
-    private void handleActionPlayed(Card c) {
-        switch (GameLogic.actionRequired(c)) {
             case WISH:
-            case DRAWFOUR:
                 activity.wishAColor(this);
                 colorWishPending = true;
                 break;
@@ -310,6 +331,8 @@ public class Game {
             this.layCard(cardTopped);
             activeColor = cardTopped.getColor();
             this.activity.updateTopCard(cardTopped.getGraphic());
+
+            // TODO: handle actions of the first card
 
             for (int i = 0; i < 7; i++) {
                 for (Player p : this.players) {

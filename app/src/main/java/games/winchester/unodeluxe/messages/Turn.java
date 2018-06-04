@@ -17,6 +17,7 @@ public class Turn implements Message {
     private Player accusedCheating;
     private CardColor activeColor;
     private boolean reverse;
+    private int cardsToDraw;
 
     public Turn(){
         this.cardsDrawn = 0;
@@ -26,6 +27,7 @@ public class Turn implements Message {
         this.accusedCheating = null;
         this.activeColor = null;
         this.reverse = false;
+        this.cardsToDraw = 0;
     }
 
     public int getCardsDrawn() {
@@ -74,5 +76,13 @@ public class Turn implements Message {
 
     public void setReverse(boolean reverse) {
         this.reverse = reverse;
+    }
+
+    public void setCardsToDraw(int count) {
+        this.cardsToDraw = count;
+    }
+
+    public int getCardsToDraw() {
+        return this.cardsToDraw;
     }
 }
