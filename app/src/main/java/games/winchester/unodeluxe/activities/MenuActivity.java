@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -22,6 +23,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import games.winchester.unodeluxe.R;
 import games.winchester.unodeluxe.app.UnoDeluxe;
+import games.winchester.unodeluxe.dialog.SettingsDialog;
 
 public class MenuActivity extends AppCompatActivity {
     @BindView(R.id.etIP)
@@ -51,28 +53,7 @@ public class MenuActivity extends AppCompatActivity {
 
     @OnClick(R.id.btnHouseRules)
     void onBtnHouseRulesClick(){
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = getLayoutInflater();
-        View view = inflater.inflate(R.layout.layout_options, null);
-        Switch switchButton = view.findViewById(R.id.switchStack);
-
-        SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
-        switchButton.setChecked(preferences.getBoolean("stack", false));
-
-        builder
-                .setTitle("Hausregeln konfigurieren")
-                .setView(view)
-                .setPositiveButton("Speichern", (d, id) -> {
-
-                    preferences
-                            .edit()
-                            .putBoolean("stack", switchButton.isChecked())
-                            .apply();
-                })
-                .setNegativeButton("Abbrechen", (d, id) -> {});
-
-        Dialog dialog = builder.create();
-        dialog.show();
+        (new SettingsDialog(this, getPreferences(Context.MODE_PRIVATE))).create().show();
     }
 
     @OnClick(R.id.btnTutorial)
