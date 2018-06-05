@@ -20,24 +20,6 @@
                 android:value=".activities.MenuActivity" />
         </activity>
 
-        <activity
-            android:name=".activities.Rules"
-            android:parentActivityName=".activities.MenuActivity">
-
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MenuActivity" />
-        </activity>
-
-        <activity
-            android:name=".activities.Top"
-            android:parentActivityName=".activities.MenuActivity">
-
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".activities.MenuActivity" />
-        </activity>
-
         <activity android:name=".activities.MenuActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
