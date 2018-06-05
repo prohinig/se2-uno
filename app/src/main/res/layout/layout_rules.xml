@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:text="Sobald die Karten gemischt sind, enthält jeder Spieler 7 Karten. Die übrigen Karten werden mit dem Gesicht nach unten auf den Tisch gelegt und bilden den KARTENSTOCK. Die oberste Karte wird herumgedreht und neben den KARTENSTOCK gelegt. Sie bildet den ABLEGESTAPEL. Ist diese Karte eine Aktionskarte, gelten bestimmte Regeln (SIEHE FUNKTIONEN DER AKTIONSKARTEN). Der Spieler zur Linken des Gebers beginnt das Spiel. Die Karten, die die Spieler ablegen, müssen mit den Karten des ABLEGESTAPELS in Zahl, Farbe oder Symbol übereinstimmen. Ist zum Beispiel die Karte eine rote 7, muss der Spieler entweder eine rote Karte oder eine andere Karte beliebiger Farbe mit der Zahl 7 ablegen. Alternativ hierzu kan der Spieler auch eine Farbenwahlkarte ablegen ( Siehe FUNKTIONEN DER AKTIONSKARTEN). Hält ein Spieler keine Karte in der Hand, die er auf den ABLEGESTAPEL legen könnte, muss er vom KARTENSTOCK eine Karte ziehen. Er darf die gezogene Karte sofort legen, wenn er kann. Ansonsten setzt der nächste Spieler das Spiel fort. Die Spieler haben die Möglichkeit, eine ablegbare Karte nicht abzulegen. Wenn dies der Fall ist, muss der Spieler vom KARTENSTOCK eine Karte ziehen. Er darf die gezogene Karte sofort legen, wenn er kann. Der Spieler darf jedoch nach dem Ziehen kein Karte, der er bereits in der Hand hält, legen."
+                tools:layout_editor_absoluteX="0dp"
+                tools:layout_editor_absoluteY="0dp" />
+        </LinearLayout>
+    </ScrollView>
+
+</android.support.constraint.ConstraintLayout>
