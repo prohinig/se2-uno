@@ -1,7 +1,9 @@
 package games.winchester.unodeluxe.activities;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.AssetFileDescriptor;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -19,11 +21,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import games.winchester.unodeluxe.R;
+import games.winchester.unodeluxe.app.UnoDeluxe;
 
 public class MenuActivity extends AppCompatActivity {
-
-
-
     @BindView(R.id.etIP)
     TextView ip;
 
@@ -54,13 +54,20 @@ public class MenuActivity extends AppCompatActivity {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View view = inflater.inflate(R.layout.layout_options, null);
+        Switch switchButton = view.findViewById(R.id.switchStack);
+
+        SharedPreferences preferences = getPreferences(Context.MODE_PRIVATE);
+        switchButton.setChecked(preferences.getBoolean("stack", false));
 
         builder
                 .setTitle("Hausregeln konfigurieren")
                 .setView(view)
                 .setPositiveButton("Speichern", (d, id) -> {
-                    Switch s = view.findViewById(R.id.switchStack);
-                    Log.e("Switch", s.isChecked() + "");
+
+                    preferences
+                            .edit()
+                            .putBoolean("stack", switchButton.isChecked())
+                            .apply();
                 })
                 .setNegativeButton("Abbrechen", (d, id) -> {});
 
