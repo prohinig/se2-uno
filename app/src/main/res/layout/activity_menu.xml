@@ -30,6 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
+            android:background="@drawable/buttonstyle"
             android:text="Start game"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -60,6 +61,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:background="@drawable/buttonstyle"
                 android:text="Join Game"
                 app:layout_constraintTop_toBottomOf="@+id/btnStartGame"
                 tools:layout_editor_absoluteX="597dp" />
@@ -80,6 +82,7 @@
             android:id="@+id/btnHouseRules"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/buttonstyle"
             android:text="Hausregeln"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
@@ -90,6 +93,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"
+            android:background="@drawable/buttonstyle"
             android:text="Anleitung"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/btnHouseRules" />
