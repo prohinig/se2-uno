@@ -22,6 +22,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import games.winchester.unodeluxe.R;
+import games.winchester.unodeluxe.app.Preferences;
 import games.winchester.unodeluxe.app.UnoDeluxe;
 import games.winchester.unodeluxe.dialog.SettingsDialog;
 
@@ -53,7 +54,7 @@ public class MenuActivity extends AppCompatActivity {
 
     @OnClick(R.id.btnHouseRules)
     void onBtnHouseRulesClick(){
-        (new SettingsDialog(this, getPreferences(Context.MODE_PRIVATE))).create().show();
+        new SettingsDialog(this).create().show();
     }
 
     @OnClick(R.id.btnTutorial)
