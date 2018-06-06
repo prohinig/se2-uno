@@ -1,29 +1,18 @@
 package games.winchester.unodeluxe.activities;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.AssetFileDescriptor;
-import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Switch;
 import android.widget.TextView;
-
-import java.io.IOException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import games.winchester.unodeluxe.R;
-import games.winchester.unodeluxe.app.Preferences;
-import games.winchester.unodeluxe.app.UnoDeluxe;
 import games.winchester.unodeluxe.dialog.SettingsDialog;
 
 public class MenuActivity extends AppCompatActivity {

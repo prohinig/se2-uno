@@ -23,7 +23,6 @@ import at.laubi.network.session.ClientSession;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import games.winchester.unodeluxe.R;
-import games.winchester.unodeluxe.app.UnoDeluxe;
 import games.winchester.unodeluxe.models.Card;
 import games.winchester.unodeluxe.models.ColorWishDialog;
 import games.winchester.unodeluxe.models.Game;
