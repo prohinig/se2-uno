@@ -292,6 +292,10 @@ public class GameActivity extends AppCompatActivity {
         this.toastUiThread(getString(R.string.already_cheated), LENGTH_SHORT);
     }
 
+    public void notificationNotAllowedToCheat() {
+        this.toastUiThread(getString(R.string.not_allowed_to_cheat), LENGTH_SHORT);
+    }
+
     public void vibrate() {
         // Get instance of Vibrator from current Context
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);

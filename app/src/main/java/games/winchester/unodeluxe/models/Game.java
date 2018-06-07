@@ -172,11 +172,16 @@ public class Game {
             activity.notificationAlreadyCheated();
             return false;
         } else {
-            players.get(activePlayer).setHasCheated(true);
-            players.get(activePlayer).getHand().removeCard(c);
-            stack.getCards().add(c);
-            activity.notificationCheated();
-            return true;
+            if(players.get(activePlayer).getHand().getSize() > 2) {
+                players.get(activePlayer).setHasCheated(true);
+                players.get(activePlayer).getHand().removeCard(c);
+                stack.getCards().add(c);
+                activity.notificationCheated();
+                return true;
+            } else {
+                activity.notificationNotAllowedToCheat();
+                return false;
+            }
         }
     }
 
@@ -212,7 +217,7 @@ public class Game {
             if (0 < receivedTurn.getCardsDrawn()) {
                 deck.deal(receivedTurn.getCardsDrawn());
             }
-            cardPlayed = receivedTurn.getCardPlayed();
+
             if (null != receivedTurn.getCardPlayed()) {
                 this.layCard(receivedTurn.getCardPlayed());
             }
@@ -291,6 +296,9 @@ public class Game {
                 break;
             case DRAWFOUR:
                 numberOfCardsToDraw += 4;
+                activity.wishAColor(this);
+                colorWishPending = true;
+                break;
             case WISH:
                 activity.wishAColor(this);
                 colorWishPending = true;
