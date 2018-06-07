@@ -319,8 +319,8 @@ public class Game {
             // player next to dealer (=gamestarter) starts
             Card cardTopped = this.deck.deal(1).remove(0);
 
-            //guarantees that no +4 Card is on top
-            while (cardTopped.getSymbol() == CardSymbol.PLUSFOUR) {
+            //guarantees that no action card is topped as first card
+            while (isActionCard(cardTopped)) {
                 List<Card> tmp = new ArrayList<>();
                 tmp.add(cardTopped);
                 deck.addCards(tmp);
@@ -344,6 +344,19 @@ public class Game {
             this.gameStarted = true;
 
             session.send(new Setup(this));
+        }
+    }
+
+    public boolean isActionCard(Card c) {
+        switch (c.getSymbol()) {
+            case PLUSTWO:
+            case PLUSFOUR:
+            case SKIP:
+            case REVERSE:
+            case WISH:
+                return true;
+            default:
+                return false;
         }
     }
 
