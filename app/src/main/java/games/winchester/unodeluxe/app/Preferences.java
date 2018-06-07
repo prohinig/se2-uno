@@ -7,25 +7,25 @@ public class Preferences {
     private static final String KEY_ADVANCED_RULES = "advancedRules";
     private static final String KEY_ALLOW_CUSTOM_CARDS = "customCards";
 
-    private SharedPreferences preferences;
+    private SharedPreferences sharedPreferences;
 
     private Preferences(SharedPreferences preferences) {
-        this.preferences = preferences;
+        this.sharedPreferences = preferences;
     }
 
     public boolean advancedRules() {
-        return preferences.getBoolean(KEY_ADVANCED_RULES, false);
+        return sharedPreferences.getBoolean(KEY_ADVANCED_RULES, false);
     }
 
     public boolean customCardsAllowed() {
-        return preferences.getBoolean(KEY_ALLOW_CUSTOM_CARDS, false);
+        return sharedPreferences.getBoolean(KEY_ALLOW_CUSTOM_CARDS, false);
     }
 
     public void setAdvancedRulesAllowed(boolean allowed){
-        preferences.edit().putBoolean(KEY_ADVANCED_RULES, allowed).apply();
+        sharedPreferences.edit().putBoolean(KEY_ADVANCED_RULES, allowed).apply();
     }
     public void setCustomCardsAllowed(boolean allowed){
-        preferences.edit().putBoolean(KEY_ADVANCED_RULES, allowed).apply();
+        sharedPreferences.edit().putBoolean(KEY_ADVANCED_RULES, allowed).apply();
     }
 
     public static Preferences from(Context context) {
