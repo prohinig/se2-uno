@@ -28,4 +28,5 @@
     <string name="connection_failed">Verbindung zum Spiel fehlgeschlagen.</string>
     <string name="host_message">I am: %s</string>
     <string name="failed_connecting">Failed to connect: %s</string>
+    <string name="help_rules">Hilfe zu den Hausregeln</string>
 </resources>
