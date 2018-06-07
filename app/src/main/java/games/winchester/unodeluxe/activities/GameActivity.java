@@ -36,7 +36,7 @@ import games.winchester.unodeluxe.utils.NetworkUtils;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
-public class GameActivity extends AppCompatActivity implements GestureDetector.OnGestureListener {
+public class GameActivity extends AppCompatActivity {
 
     @BindView(R.id.deckView)
     ImageView deckView;
@@ -180,15 +180,6 @@ public class GameActivity extends AppCompatActivity implements GestureDetector.O
             cardView.setImageDrawable(getImageDrawable(UnoDeluxe.getContext(), c.getGraphic()));
             cardView.setClickable(true);
             cardView.setTag(c);
-
-            /*
-            cardView.setOnClickListener(v -> {
-                if (v.getTag() == null) return;
-                if (game.cardClicked((Card) v.getTag())) {
-                    handLayout.removeView(v);
-                }
-            });
-            */
 
             cardView.setOnTouchListener((v, event) -> {
                 switch (event.getAction()) {
@@ -345,45 +336,5 @@ public class GameActivity extends AppCompatActivity implements GestureDetector.O
 
     private void toastUiThread(final String message, final int length) {
         this.runOnUiThread(() -> Toast.makeText(GameActivity.this, message, length).show());
-    }
-
-    // for gesture detection
-    @Override
-    public boolean onDown(MotionEvent e) {
-        if (game.getPlayers().get(game.getActivePlayer()).hasCheated()) {
-            this.toastUiThread(getString(R.string.already_cheated), LENGTH_SHORT);
-        } else {
-            game.getPlayers().get(game.getActivePlayer()).setHasCheated(true);
-            this.toastUiThread(getString(R.string.cheated), LENGTH_SHORT);
-        }
-
-        // by returning false the gesture detector ignores all other gestures
-        // which we don't need anyway
-        return false;
-    }
-
-    @Override
-    public void onShowPress(MotionEvent e) {
-
-    }
-
-    @Override
-    public boolean onSingleTapUp(MotionEvent e) {
-        return false;
-    }
-
-    @Override
-    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-        return false;
-    }
-
-    @Override
-    public void onLongPress(MotionEvent e) {
-
-    }
-
-    @Override
-    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-        return false;
     }
 }
