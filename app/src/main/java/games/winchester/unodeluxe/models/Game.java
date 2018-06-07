@@ -43,8 +43,6 @@ public class Game {
     private boolean colorWishPending;
     // for advanced ruleset (+2 and +4 can be stacked)
     private boolean advancedRules;
-    // for sevenO ruleset (if 0 is played every hand is swaped in current directions hand, if 7 is played choose a other player and swap hands)
-    private boolean sevenO;
 
     public Game(GameActivity activity) {
         this.reverse = false;
@@ -57,7 +55,6 @@ public class Game {
         this.colorWishPending = false;
         // TODO: change the initialisation of the additional rule variables (reading from file or light SQL)
         advancedRules = true;
-        sevenO = true;
     }
 
     public Game(GameActivity activity, Player admin) {
@@ -75,7 +72,6 @@ public class Game {
         this.colorWishPending = false;
         // TODO: change the initialisation of the additional rule variables (reading from file or light SQL)
         advancedRules = true;
-        sevenO = true;
     }
 
     public boolean cardClicked(Card c) {

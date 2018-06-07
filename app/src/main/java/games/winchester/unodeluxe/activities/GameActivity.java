@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
@@ -61,7 +60,7 @@ public class GameActivity extends AppCompatActivity {
     // Needed to detect swipe event
     private float oldTouchValue = 0f;
     private float newTouchValue = 0f;
-    private final float MIN_DISTANCE = 50f;
+    private static final float MIN_DISTANCE = 50f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -206,6 +205,8 @@ public class GameActivity extends AppCompatActivity {
                                 return true;
                             }
                         }
+                        break;
+                    default:
                         break;
                 }
 
