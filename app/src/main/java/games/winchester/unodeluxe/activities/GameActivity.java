@@ -296,6 +296,14 @@ public class GameActivity extends AppCompatActivity {
         this.toastUiThread(getString(R.string.not_allowed_to_cheat), LENGTH_SHORT);
     }
 
+    public void notificationDeckShuffled() {
+        this.toastUiThread(getString(R.string.deck_shuffeled), LENGTH_SHORT);
+    }
+
+    public void notificationDrawCardsFirst(int i) {
+        this.toastUiThread(String.format(getString(R.string.draw_cards_first), i), LENGTH_SHORT);
+    }
+
     public void vibrate() {
         // Get instance of Vibrator from current Context
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
@@ -303,11 +311,11 @@ public class GameActivity extends AppCompatActivity {
         v.vibrate(400);
     }
 
-    public void handleShakeEvent() {
-        this.game.stackToDeck();
 
-        this.toastUiThread(getString(R.string.deck_shuffeled), LENGTH_SHORT);
+    public void handleShakeEvent() {
+        //TODO: for shake action card
     }
+
 
     @Override
     protected void onStop() {

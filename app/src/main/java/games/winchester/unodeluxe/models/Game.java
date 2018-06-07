@@ -92,20 +92,28 @@ public class Game {
             if (!isGameStarted()) {
                 startGame();
             } else {
-                if (getNumberOfCardsToDraw() != 0) {
+                if (numberOfCardsToDraw != 0) {
                     handCards(1, null);
                     turn.setCardsDrawn(turn.getCardsDrawn() + 1);
                     decrementNumberOfCardsToDraw();
+
+                    // after drawing number of cards to draw the turn ends
+                    if(numberOfCardsToDraw == 0) {
+                        sendTurn();
+                    }
                 } else {
                     if (!GameLogic.hasPlayableCard(self.getHand(), getActiveColor(), getTopOfStackCard())) {
                         List<Card> tmp = handCards(1, null);
                         turn.setCardsDrawn(turn.getCardsDrawn() + 1);
 
+                        // if deck is empty, get cards from stack and put them to deck and shuffle
+                        if(deck.getSize() == 0) {
+                            stackToDeck();
+                            deck.shuffle();
+                            activity.notificationDeckShuffled();
+                        }
+
                         if (!GameLogic.isPlayableCard(tmp.get(0), self.getHand(), getTopOfStackCard(), getActiveColor())) {
-                            turn.setActivePlayer(setNextPlayer());
-                            turn.setReverse(reverse);
-                            turn.setActiveColor(activeColor);
-                            turn.setCardsToDraw(numberOfCardsToDraw);
                             sendTurn();
                         }
                     } else {
@@ -124,17 +132,8 @@ public class Game {
         if (numberOfCardsToDraw != 0) {
             if (advancedRules && turn.getCardsDrawn() == 0) {
                 if (c.getSymbol() == getStack().getTopCard().getSymbol()) {
-
                     playCard(c, p);
-                    //TODO: should be place this code also in playCard-function or do another function just for that?
-                    turn.setActivePlayer(setNextPlayer());
-                    turn.setCardPlayed(c);
-                    turn.setActiveColor(c.getColor());
-                    turn.setReverse(reverse);
-                    turn.setCardsToDraw(numberOfCardsToDraw);
-
                     sendTurn();
-
                     return true;
                 } else {
                     activity.notificationNumberOfCardsToDraw(numberOfCardsToDraw);
@@ -149,12 +148,6 @@ public class Game {
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
             playCard(c, p);
 
-            turn.setActivePlayer(setNextPlayer());
-            turn.setCardPlayed(c);
-            turn.setActiveColor(c.getColor());
-            turn.setReverse(reverse);
-            turn.setCardsToDraw(numberOfCardsToDraw);
-
             if (!colorWishPending) {
                 sendTurn();
             }
@@ -168,20 +161,28 @@ public class Game {
     }
 
     public boolean cheat(Card c) {
-        if(players.get(activePlayer).hasCheated()) {
-            activity.notificationAlreadyCheated();
-            return false;
-        } else {
-            if(players.get(activePlayer).getHand().getSize() > 2) {
-                players.get(activePlayer).setHasCheated(true);
-                players.get(activePlayer).getHand().removeCard(c);
-                stack.getCards().add(c);
-                activity.notificationCheated();
-                return true;
-            } else {
-                activity.notificationNotAllowedToCheat();
+        if(myTurn()) {
+            if (self.hasCheated()) {
+                activity.notificationAlreadyCheated();
                 return false;
+            } else {
+                if(numberOfCardsToDraw != 0) {
+                    activity.notificationDrawCardsFirst(numberOfCardsToDraw);
+                    return false;
+                } else if (self.getHand().getSize() > 2) {
+                    self.setCheated(true);
+                    self.getHand().removeCard(c);
+                    stack.getCards().add(c);
+                    activity.notificationCheated();
+                    return true;
+                } else {
+                    activity.notificationNotAllowedToCheat();
+                    return false;
+                }
             }
+        } else {
+            activity.notificationNotYourTurn();
+            return false;
         }
     }
 
@@ -344,8 +345,8 @@ public class Game {
             // player next to dealer (=gamestarter) starts
             Card cardTopped = this.deck.deal(1).remove(0);
 
-            //guarantees that no +4 Card is on top
-            while (cardTopped.getSymbol() == CardSymbol.PLUSFOUR) {
+            //guarantees that no action card is topped as first card
+            while (isActionCard(cardTopped)) {
                 List<Card> tmp = new ArrayList<>();
                 tmp.add(cardTopped);
                 deck.addCards(tmp);
@@ -372,9 +373,25 @@ public class Game {
         }
     }
 
+    public boolean isActionCard(Card c) {
+        switch (c.getSymbol()) {
+            case PLUSTWO:
+            case PLUSFOUR:
+            case SKIP:
+            case REVERSE:
+            case WISH:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     public void stackToDeck() {
-        this.deck.addCards(this.stack.getCards());
-        this.deck.shuffle();
+        Card toppedCard = stack.getTopCard();
+        stack.getCards().remove(toppedCard);
+        deck.addCards(stack.getCards());
+        stack.getCards().removeAll(stack.getCards());
+        stack.playCard(toppedCard);
     }
 
     public void setActiveColor(CardColor color) {
@@ -389,6 +406,11 @@ public class Game {
 
     private void sendTurn() {
         if (null != session) {
+            turn.setActivePlayer(setNextPlayer());
+            turn.setCardPlayed(stack.getTopCard());
+            turn.setActiveColor(activeColor);
+            turn.setReverse(reverse);
+            turn.setCardsToDraw(numberOfCardsToDraw);
             session.send(turn);
         }
         // we reset turn here to avoid sending same info twice
