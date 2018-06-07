@@ -12,10 +12,10 @@ import games.winchester.unodeluxe.app.Preferences;
 
 public class SettingsDialog extends AlertDialog.Builder {
 
-    Switch switchAdvancedRules;
-    Switch swichAllowCustomCards;
+    private Switch switchAdvancedRules;
+    private Switch swichAllowCustomCards;
 
-    LayoutInflater inflater;
+    private LayoutInflater inflater;
 
     private Preferences preferences;
 
