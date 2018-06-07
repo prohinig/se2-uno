@@ -79,7 +79,12 @@ public class Game {
     }
 
     public boolean cardClicked(Card c) {
-        return myTurn() && handleTurn(c, self);
+        if(myTurn()) {
+            return handleTurn(c, self);
+        } else {
+            activity.notificationNotYourTurn();
+            return false;
+        }
     }
 
     private boolean myTurn() {
@@ -112,6 +117,8 @@ public class Game {
                     }
                 }
             }
+        } else {
+            activity.notificationNotYourTurn();
         }
 
     }
@@ -162,6 +169,19 @@ public class Game {
             return false;
         }
 
+    }
+
+    public boolean cheat(Card c) {
+        if(players.get(activePlayer).hasCheated()) {
+            activity.notificationAlreadyCheated();
+            return false;
+        } else {
+            players.get(activePlayer).setHasCheated(true);
+            players.get(activePlayer).getHand().removeCard(c);
+            stack.getCards().add(c);
+            activity.notificationCheated();
+            return true;
+        }
     }
 
     public void setSession(Session s) {
@@ -233,6 +253,7 @@ public class Game {
         if (myTurn()) {
             turn = new Turn();
             turn.setCardsDrawn(0);
+            activity.notificationYourTurn();
         }
 
     }

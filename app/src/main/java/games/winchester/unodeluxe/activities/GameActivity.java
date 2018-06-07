@@ -6,8 +6,11 @@ import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -33,7 +36,7 @@ import games.winchester.unodeluxe.utils.NetworkUtils;
 
 import static android.widget.Toast.LENGTH_SHORT;
 
-public class GameActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity implements GestureDetector.OnGestureListener {
 
     @BindView(R.id.deckView)
     ImageView deckView;
@@ -54,6 +57,11 @@ public class GameActivity extends AppCompatActivity {
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private ShakeDetector mShakeDetector;
+
+    // Needed to detect swipe event
+    private float oldTouchValue = 0f;
+    private float newTouchValue = 0f;
+    private final float MIN_DISTANCE = 50f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +115,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void setupSensors() {
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        if(mSensorManager != null) {
+        if (mSensorManager != null) {
             mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             mShakeDetector = new ShakeDetector();
             mShakeDetector.setOnShakeListener(c -> handleShakeEvent());
@@ -118,7 +126,7 @@ public class GameActivity extends AppCompatActivity {
         final String format = getString(R.string.host_message);
         final List<String> networks = NetworkUtils.getLocalIpAddresses();
 
-        if(networks.isEmpty()) return;
+        if (networks.isEmpty()) return;
 
         final String hostIp = networks.get(0);
 
@@ -173,11 +181,44 @@ public class GameActivity extends AppCompatActivity {
             cardView.setClickable(true);
             cardView.setTag(c);
 
+            /*
             cardView.setOnClickListener(v -> {
-                if(v.getTag() == null) return;
-                if(game.cardClicked((Card) v.getTag())) {
+                if (v.getTag() == null) return;
+                if (game.cardClicked((Card) v.getTag())) {
                     handLayout.removeView(v);
                 }
+            });
+            */
+
+            cardView.setOnTouchListener((v, event) -> {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        oldTouchValue = event.getY();
+                        break;
+                    case MotionEvent.ACTION_UP:
+                        newTouchValue = event.getY();
+                        float deltaY = Math.abs(newTouchValue - oldTouchValue);
+                        if (deltaY > MIN_DISTANCE) {
+                            // user swiped a card down
+                            if(newTouchValue > oldTouchValue) {
+                                if(v.getTag() == null) return false;
+                                if(game.cheat((Card) v.getTag())) {
+                                    handLayout.removeView(v);
+                                }
+                                return true;
+                            }
+                        } else if (deltaY <= MIN_DISTANCE) {
+                            // user clicked a card
+                            if (v.getTag() == null) return false;
+                            if (game.cardClicked((Card) v.getTag())) {
+                                handLayout.removeView(v);
+                                return true;
+                            }
+                        }
+                        break;
+                }
+
+                return false;
             });
 
 
@@ -195,8 +236,8 @@ public class GameActivity extends AppCompatActivity {
         }
 
         final int childCount = handLayout.getChildCount();
-        View [] children = new View[childCount];
-        for(int i = 0; i < childCount; i++) {
+        View[] children = new View[childCount];
+        for (int i = 0; i < childCount; i++) {
             children[i] = handLayout.getChildAt(i);
         }
 
@@ -209,8 +250,8 @@ public class GameActivity extends AppCompatActivity {
 
         handLayout.removeAllViews();
 
-        for(int  i = 0; i < childCount; i++){
-            if(i != 0)
+        for (int i = 0; i < childCount; i++) {
+            if (i != 0)
                 ((LinearLayout.LayoutParams) children[i].getLayoutParams())
                         .setMargins(-30, 0, 0, 0);
             handLayout.addView(children[i]);
@@ -242,6 +283,30 @@ public class GameActivity extends AppCompatActivity {
         this.toastUiThread(getString(R.string.cards_playable), LENGTH_SHORT);
     }
 
+    public void notificationNotYourTurn() {
+        this.toastUiThread(getString(R.string.not_your_turn), LENGTH_SHORT);
+    }
+
+    public void notificationYourTurn() {
+        this.vibrate();
+        this.toastUiThread(getString(R.string.your_turn), LENGTH_SHORT);
+    }
+
+    public void notificationCheated() {
+        this.toastUiThread(getString(R.string.cheated), LENGTH_SHORT);
+    }
+
+    public void notificationAlreadyCheated() {
+        this.toastUiThread(getString(R.string.already_cheated), LENGTH_SHORT);
+    }
+
+    public void vibrate() {
+        // Get instance of Vibrator from current Context
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        // Vibrate for 400 milliseconds
+        v.vibrate(400);
+    }
+
     public void handleShakeEvent() {
         this.game.stackToDeck();
 
@@ -252,7 +317,7 @@ public class GameActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
 
-        if(game != null && game.getSession() != null) {
+        if (game != null && game.getSession() != null) {
             game.getSession().close();
         }
 
@@ -280,5 +345,45 @@ public class GameActivity extends AppCompatActivity {
 
     private void toastUiThread(final String message, final int length) {
         this.runOnUiThread(() -> Toast.makeText(GameActivity.this, message, length).show());
+    }
+
+    // for gesture detection
+    @Override
+    public boolean onDown(MotionEvent e) {
+        if (game.getPlayers().get(game.getActivePlayer()).hasCheated()) {
+            this.toastUiThread(getString(R.string.already_cheated), LENGTH_SHORT);
+        } else {
+            game.getPlayers().get(game.getActivePlayer()).setHasCheated(true);
+            this.toastUiThread(getString(R.string.cheated), LENGTH_SHORT);
+        }
+
+        // by returning false the gesture detector ignores all other gestures
+        // which we don't need anyway
+        return false;
+    }
+
+    @Override
+    public void onShowPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onSingleTapUp(MotionEvent e) {
+        return false;
+    }
+
+    @Override
+    public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        return false;
+    }
+
+    @Override
+    public void onLongPress(MotionEvent e) {
+
+    }
+
+    @Override
+    public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+        return false;
     }
 }

@@ -28,4 +28,8 @@
     <string name="connection_failed">Verbindung zum Spiel fehlgeschlagen.</string>
     <string name="host_message">I am: %s</string>
     <string name="failed_connecting">Failed to connect: %s</string>
+    <string name="already_cheated">Du darfst nicht noch einaml schummeln.</string>
+    <string name="cheated">Du hast eine Karte verschwinden lassen.</string>
+    <string name="not_your_turn">Du bist nicht an der Reihe.</string>
+    <string name="your_turn">Du bist an der Reihe.</string>
 </resources>

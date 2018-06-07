@@ -9,13 +9,17 @@ import java.util.List;
 public class Player implements Serializable{
 
     /**
-     * The playes name
+     * The players name
      */
     private String name;
     /**
      * Current hand of the player
      */
     private Hand hand;
+    /**
+     * Shows if player has cheated
+     */
+    private boolean hasCheated;
 
     /**
      * Create a new player
@@ -24,6 +28,7 @@ public class Player implements Serializable{
     public Player(String name){
         this.name = name;
         this.hand = new Hand();
+        this.hasCheated = false;
     }
 
     /**
@@ -50,4 +55,19 @@ public class Player implements Serializable{
         return this.name;
     }
 
+    /**
+     * Get information if player has cheated
+     * @return true if player has cheated, otherwise false
+     */
+    public boolean hasCheated() {
+        return hasCheated;
+    }
+
+    /**
+     * If player cheated, set variable to true;
+     * @param hasCheated
+     */
+    public void setHasCheated(boolean hasCheated) {
+        this.hasCheated = hasCheated;
+    }
 }
