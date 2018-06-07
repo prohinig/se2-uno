@@ -6,9 +6,13 @@ import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,6 +20,7 @@ import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import at.laubi.network.Network;
 import at.laubi.network.messages.Message;
@@ -44,6 +49,12 @@ public class GameActivity extends AppCompatActivity {
     @BindView(R.id.handLayout)
     LinearLayout handLayout;
 
+    @BindView(R.id.main_game_layout)
+    ConstraintLayout gameLayout;
+
+    @BindView(R.id.stack_layout)
+    FrameLayout stackLayout;
+
     @BindView(R.id.ipText)
     TextView ip;
 
@@ -54,11 +65,14 @@ public class GameActivity extends AppCompatActivity {
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private ShakeDetector mShakeDetector;
+    private LayoutInflater inflater;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_game);
+        inflater = getLayoutInflater();
 
         ButterKnife.bind(this);
 
@@ -160,7 +174,14 @@ public class GameActivity extends AppCompatActivity {
 
     // used to keep the stack UI up to date with the backend model
     public void updateTopCard(String graphic) {
-        this.stackView.setImageDrawable(getImageDrawable(UnoDeluxe.getContext(), graphic));
+
+        View stackLay = inflater.inflate(R.layout.stack, gameLayout, false);
+        ImageView card = stackLay.findViewById(R.id.stackView);
+        card.setImageDrawable(getImageDrawable(UnoDeluxe.getContext(), graphic));
+        Random rand = new Random();
+        float randomNum = rand.nextInt(361);
+        card.setRotation(randomNum);
+        stackLayout.addView(stackLay);
     }
 
     // used to keep the hand UI up to date with the backend model
@@ -243,9 +264,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     public void handleShakeEvent() {
-        this.game.stackToDeck();
-
-        this.toastUiThread(getString(R.string.deck_shuffeled), LENGTH_SHORT);
+        game.deviceShaked();
     }
 
     @Override

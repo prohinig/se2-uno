@@ -1,6 +1,7 @@
 package games.winchester.unodeluxe.models;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import at.laubi.network.messages.Message;
@@ -12,6 +13,7 @@ import games.winchester.unodeluxe.enums.CardColor;
 import games.winchester.unodeluxe.enums.CardSymbol;
 import games.winchester.unodeluxe.messages.Name;
 import games.winchester.unodeluxe.messages.Setup;
+import games.winchester.unodeluxe.messages.Shake;
 import games.winchester.unodeluxe.messages.Turn;
 import games.winchester.unodeluxe.utils.GameLogic;
 
@@ -42,6 +44,9 @@ public class Game {
     private String name;
     private boolean colorWishPending;
 
+    private boolean shakeRequired;
+    private boolean shakeResultPending;
+
     public Game(GameActivity activity) {
         this.reverse = false;
         this.activity = activity;
@@ -66,6 +71,7 @@ public class Game {
         // read player name from configuration
         this.players.add(self);
         this.colorWishPending = false;
+        this.shakeRequired = false;
     }
 
     public boolean cardClicked(Card c) {
@@ -91,10 +97,10 @@ public class Game {
                         turn.setCardsDrawn(turn.getCardsDrawn() + 1);
 
                         if (!GameLogic.isPlayableCard(tmp.get(0), self.getHand(), getTopOfStackCard(), getActiveColor())) {
-                            turn.setActivePlayer(setNextPlayer());
+                            turn.setActivePlayer(setNextPlayer(turn.getActivePlayer()));
                             turn.setReverse(reverse);
                             turn.setActiveColor(activeColor);
-                            sendTurn();
+                            sendMessage(turn);
                         }
                     } else {
                         activity.notificationHasPlayableCard();
@@ -115,13 +121,13 @@ public class Game {
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
             playCard(c, p);
 
-            turn.setActivePlayer(setNextPlayer());
+            turn.setActivePlayer(setNextPlayer(turn.getActivePlayer()));
             turn.setCardPlayed(c);
             turn.setActiveColor(c.getColor());
             turn.setReverse(reverse);
 
             if (!colorWishPending) {
-                sendTurn();
+                sendMessage(turn);
             }
 
             return true;
@@ -142,10 +148,24 @@ public class Game {
             // we received a turn a player made
             if (session instanceof HostSession) {
                 // we are host so notify the others
-                notifyPlayers((Turn) m);
+                sendMessage((Turn) m);
             }
 
             Turn receivedTurn = (Turn) m;
+
+            // check if last turn was my own and if so do not do stuff twice
+            if(!myTurn()) {
+                // remove all cards the player drew from my deck
+                if (0 < receivedTurn.getCardsDrawn()) {
+                    deck.deal(receivedTurn.getCardsDrawn());
+                }
+
+                cardPlayed = receivedTurn.getCardPlayed();
+                if (null != receivedTurn.getCardPlayed()) {
+                    this.layCard(receivedTurn.getCardPlayed());
+                }
+            }
+
             activePlayer = receivedTurn.getActivePlayer();
 
             // card might not change
@@ -154,20 +174,6 @@ public class Game {
             }
 
             reverse = receivedTurn.isReverse();
-
-            // remove all cards the player drew from my deck
-            if (0 < receivedTurn.getCardsDrawn()) {
-                deck.deal(receivedTurn.getCardsDrawn());
-            }
-
-            if (0 < receivedTurn.getCardsDrawn()) {
-                deck.deal(receivedTurn.getCardsDrawn());
-            }
-            cardPlayed = receivedTurn.getCardPlayed();
-            if (null != receivedTurn.getCardPlayed()) {
-                this.layCard(receivedTurn.getCardPlayed());
-            }
-
 
         } else if (m instanceof Setup) {
             Setup setup = (Setup) m;
@@ -193,6 +199,8 @@ public class Game {
         } else if (m instanceof Name) {
             Name nameMessage = (Name) m;
             this.name = nameMessage.getName();
+        } else if(m instanceof Shake) {
+            sendMessage((Turn) m);
         }
 
 
@@ -200,6 +208,7 @@ public class Game {
         if (myTurn()) {
             turn = new Turn();
             turn.setCardsDrawn(0);
+            turn.setActivePlayer(activePlayer);
             if (null != cardPlayed) {
                 handleAction(cardPlayed);
             }
@@ -216,11 +225,6 @@ public class Game {
 
     public void clientDisconnected() {
         //TODO: client disconnected
-    }
-
-    private void notifyPlayers(Turn turn) {
-//      we receive a turn from one player and send it to all
-        session.send(turn);
     }
 
     // check if card can be played and return result
@@ -264,10 +268,10 @@ public class Game {
                     reverse = !reverse;
                     break;
                 }
-                setNextPlayer();
+                turn.setActivePlayer(setNextPlayer(turn.getActivePlayer()));
                 break;
             case SKIP:
-                setNextPlayer();
+                turn.setActivePlayer(setNextPlayer(turn.getActivePlayer()));
                 break;
             default:
                 break;
@@ -320,7 +324,7 @@ public class Game {
             this.activePlayer = 1;
             this.gameStarted = true;
 
-            session.send(new Setup(this));
+            sendMessage(new Setup(this));
         }
     }
 
@@ -334,18 +338,19 @@ public class Game {
         turn.setActiveColor(color);
         if (colorWishPending) {
             colorWishPending = false;
-            sendTurn();
+            sendMessage(turn);
         }
 
     }
 
-    private void sendTurn() {
-        if (null != session) {
-            session.send(turn);
+    private void sendMessage(Message message){
+        if(null != session) {
+            session.send(message);
+
+            if(message instanceof Turn) {
+                turn = new Turn();
+            }
         }
-        // we reset turn here to avoid sending same info twice
-        // when same player is having turn twice
-        turn = new Turn();
     }
 
     private boolean isGameStarted() {
@@ -388,17 +393,30 @@ public class Game {
         return players;
     }
 
-    private int setNextPlayer() {
-        int current = activePlayer;
+    private int setNextPlayer(int current) {
+        int active;
         if (isReverse()) {
-            activePlayer = (current + players.size() - 1) % players.size();
+            active = (current + players.size() - 1) % players.size();
         } else {
-            activePlayer = (current + 1) % players.size();
+            active = (current + 1) % players.size();
         }
-        return activePlayer;
+        return active;
     }
 
     public Session getSession() {
         return session;
+    }
+
+    public void deviceShaked() {
+        if(shakeRequired) {
+            Date d = new Date();
+            Shake shake = new Shake(false);
+            shake.setTimestamp(d.getTime());
+            shake.setPlayer(players.indexOf(self));
+
+            sendMessage(shake);
+
+            shakeRequired = false;
+        }
     }
 }
