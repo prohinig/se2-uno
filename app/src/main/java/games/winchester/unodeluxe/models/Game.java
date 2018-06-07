@@ -9,7 +9,6 @@ import at.laubi.network.session.HostSession;
 import at.laubi.network.session.Session;
 import games.winchester.unodeluxe.activities.GameActivity;
 import games.winchester.unodeluxe.enums.CardColor;
-import games.winchester.unodeluxe.enums.CardSymbol;
 import games.winchester.unodeluxe.messages.Name;
 import games.winchester.unodeluxe.messages.Setup;
 import games.winchester.unodeluxe.messages.Turn;
@@ -420,10 +419,6 @@ public class Game {
 
     private boolean isGameStarted() {
         return gameStarted;
-    }
-
-    private int getNumberOfCardsToDraw() {
-        return numberOfCardsToDraw;
     }
 
     private void decrementNumberOfCardsToDraw() {
