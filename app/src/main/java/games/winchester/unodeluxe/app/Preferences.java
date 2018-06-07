@@ -10,7 +10,7 @@ public class Preferences {
     private SharedPreferences sharedPreferences;
 
     private Preferences(SharedPreferences preferences) {
-        this.sharedPreferences = preferences;
+        sharedPreferences = preferences;
     }
 
     public boolean advancedRules() {
@@ -25,7 +25,7 @@ public class Preferences {
         sharedPreferences.edit().putBoolean(KEY_ADVANCED_RULES, allowed).apply();
     }
     public void setCustomCardsAllowed(boolean allowed){
-        sharedPreferences.edit().putBoolean(KEY_ADVANCED_RULES, allowed).apply();
+        sharedPreferences.edit().putBoolean(KEY_ALLOW_CUSTOM_CARDS, allowed).apply();
     }
 
     public static Preferences from(Context context) {
