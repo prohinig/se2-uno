@@ -53,9 +53,9 @@ public class MenuActivity extends AppCompatActivity {
         View view = inflater.inflate(R.layout.layout_rules, null);
 
         builder
-                .setTitle("Spielverlauf")
+                .setTitle(R.string.course_of_play)
                 .setView(view)
-                .setPositiveButton("OK", (d, id) -> {});
+                .setPositiveButton(R.string.ok, (d, id) -> {});
 
         Dialog dialog = builder.create();
         dialog.show();

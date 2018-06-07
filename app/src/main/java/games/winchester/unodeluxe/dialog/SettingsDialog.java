@@ -29,10 +29,10 @@ public class SettingsDialog extends AlertDialog.Builder {
 
         loadSettings();
 
-        setTitle("Hausregeln konfigurieren");
+        setTitle(R.string.configure_houserules);
         setView(root);
-        setPositiveButton("Speichern", (d, id) -> saveSettings());
-        setNegativeButton("Abbrechen", (d, id) -> {});
+        setPositiveButton(R.string.save, (d, id) -> saveSettings());
+        setNegativeButton(R.string.cancel, (d, id) -> {});
     }
 
     private View createContentView(){
@@ -61,7 +61,7 @@ public class SettingsDialog extends AlertDialog.Builder {
         new AlertDialog.Builder(this.getContext())
                 .setTitle(R.string.help_rules)
                 .setView(view)
-                .setPositiveButton("OK", (d, id) -> {})
+                .setPositiveButton(R.string.ok, (d, id) -> {})
                 .create()
                 .show();
     }

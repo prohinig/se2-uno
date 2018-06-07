@@ -10,29 +10,29 @@
         android:id="@+id/deckView"
         android:layout_width="95dp"
         android:layout_height="145dp"
-        android:layout_marginLeft="30dp"
         android:layout_marginStart="30dp"
         android:layout_marginTop="16dp"
+        android:contentDescription="@string/deck"
         android:orientation="horizontal"
+        android:src="@drawable/back"
         app:layout_constraintEnd_toStartOf="@+id/stackView"
         app:layout_constraintHorizontal_bias="0.6"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed"
-        android:src="@drawable/back" />
+        app:layout_constraintVertical_chainStyle="packed" />
 
     <ImageView
         android:id="@+id/stackView"
         android:layout_width="92dp"
         android:layout_height="145dp"
         android:layout_marginEnd="30dp"
-        android:layout_marginRight="30dp"
         android:layout_marginTop="16dp"
+        android:contentDescription="@string/stack"
+        android:src="@drawable/back"
         android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/deckView"
-        app:layout_constraintTop_toTopOf="parent"
-        android:src="@drawable/back" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <HorizontalScrollView
         android:id="@+id/horizontalScrollView"
@@ -45,7 +45,7 @@
 
         <LinearLayout
             android:id="@+id/handLayout"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="0dp"
             android:gravity="center"
@@ -78,11 +78,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="87dp"
         android:layout_marginEnd="148dp"
-        android:layout_marginLeft="148dp"
-        android:layout_marginRight="148dp"
         android:layout_marginStart="148dp"
         android:layout_marginTop="32dp"
-        android:text="Start Game"
+        android:text="@string/start_game"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

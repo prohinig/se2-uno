@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="0"
         android:adjustViewBounds="true"
-        android:contentDescription="Uno Logo"
+        android:contentDescription="@string/uno_logo"
         app:srcCompat="@drawable/maxresdefault" />
 
     <android.support.constraint.ConstraintLayout
@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:background="@drawable/buttonstyle"
-            android:text="Start game"
+            android:text="@string/start_game"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -51,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="5"
                 android:ems="10"
-                android:hint="IP"
+                android:hint="@string/ip"
                 android:inputType="textPersonName"
                 app:layout_constraintTop_toBottomOf="@+id/btnStartGame"
                 tools:layout_editor_absoluteX="147dp" />
@@ -62,7 +62,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@drawable/buttonstyle"
-                android:text="Join Game"
+                android:text="@string/join_game"
                 app:layout_constraintTop_toBottomOf="@+id/btnStartGame"
                 tools:layout_editor_absoluteX="597dp" />
         </LinearLayout>
@@ -83,7 +83,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/buttonstyle"
-            android:text="Hausregeln"
+            android:text="@string/house_rules"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
@@ -91,10 +91,9 @@
             android:id="@+id/btnTutorial"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="8dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginLeft="10dp"
             android:background="@drawable/buttonstyle"
-            android:text="Anleitung"
+            android:text="@string/manual"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/btnHouseRules" />
 

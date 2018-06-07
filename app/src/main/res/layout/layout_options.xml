@@ -19,7 +19,7 @@
             android:layout_weight="1"
             android:padding="10dp"
             android:switchPadding="10dp"
-            android:text='Das Stapeln von "+" Karten erlauben' />
+            android:text="@string/allow_stacking" />
     </TableRow>
 
     <TableRow
@@ -34,7 +34,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:padding="10dp"
-            android:text="Allow custom cards" />
+            android:text="@string/allow_custom_cards" />
 
     </TableRow>
 
@@ -52,8 +52,8 @@
             android:id="@+id/btnHelp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:text="Hilfe" />
+            android:layout_marginEnd="10dp"
+            android:text="@string/help" />
     </TableRow>
 
 </TableLayout>
