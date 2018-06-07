@@ -27,8 +27,6 @@ public class SettingsDialog extends AlertDialog.Builder {
 
         View root = createContentView();
 
-        loadSettings();
-
         setTitle(R.string.configure_houserules);
         setView(root);
         setPositiveButton(R.string.save, (d, id) -> saveSettings());
@@ -39,6 +37,10 @@ public class SettingsDialog extends AlertDialog.Builder {
         View viewRoot = inflater.inflate(R.layout.layout_options, null);
         switchAdvancedRules = viewRoot.findViewById(R.id.switchStack);
         swichAllowCustomCards = viewRoot.findViewById(R.id.switchCustomCards);
+        
+        switchAdvancedRules.setChecked(preferences.advancedRules());
+        swichAllowCustomCards.setChecked(preferences.customCardsAllowed());
+
         Button btnHelp = viewRoot.findViewById(R.id.btnHelp);
         btnHelp.setOnClickListener((view) -> displayHelpText());
 
@@ -48,11 +50,6 @@ public class SettingsDialog extends AlertDialog.Builder {
     private void saveSettings() {
         preferences.setAdvancedRulesAllowed(switchAdvancedRules.isChecked());
         preferences.setCustomCardsAllowed(swichAllowCustomCards.isChecked());
-    }
-
-    private void loadSettings() {
-        switchAdvancedRules.setChecked(preferences.advancedRules());
-        swichAllowCustomCards.setChecked(preferences.customCardsAllowed());
     }
 
     private void displayHelpText(){
