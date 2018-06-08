@@ -24,7 +24,7 @@
     <string name="card_not_possible">Du darfst diese Karte jetzt nicht spielen.</string>
     <string name="round_won">Glückwunsch! Du hast diese Runde gewonnen!</string>
     <string name="cards_playable">Du hast noch spielbare Karten.</string>
-    <string name="deck_shuffeled">Deck wurde gemischt</string>
+    <string name="deck_shuffeled">Ablagestapel wurde ins Deck gemischt.</string>
     <string name="connection_failed">Verbindung zum Spiel fehlgeschlagen.</string>
     <string name="host_message">I am: %s</string>
     <string name="failed_connecting">Failed to connect: %s</string>
@@ -50,4 +50,10 @@
     <string name="configure_houserules">Hausregeln konfigurieren</string>
     <string name="save">Speichern</string>
     <string name="cancel">Abbrechen</string>
+    <string name="already_cheated">Du darfst nicht noch einmal schummeln.</string>
+    <string name="not_allowed_to_cheat">Du hast zu wenige Karten zum schummeln (mind. 3 Karten notwendig).</string>
+    <string name="draw_cards_first">Du musst zuerst die restlichen Karten ziehen bevor du schummeln darfst (noch %d).</string>
+    <string name="cheated">Du hast eine Karte verschwinden lassen.</string>
+    <string name="not_your_turn">Du bist nicht an der Reihe.</string>
+    <string name="your_turn">Du bist an der Reihe.</string>
 </resources>
