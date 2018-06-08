@@ -6,8 +6,8 @@
 
     <ImageView
         android:id="@+id/stackView"
-        android:layout_width="95dp"
-        android:layout_height="145dp"
+        android:layout_width="70dp"
+        android:layout_height="120dp"
         android:src="@drawable/back"
         android:visibility="visible"
         android:layout_gravity="center"

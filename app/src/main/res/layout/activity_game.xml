@@ -8,24 +8,62 @@
     tools:context="games.winchester.unodeluxe.activities.GameActivity">
 
     <ImageView
-        android:id="@+id/deckView"
-        android:layout_width="81dp"
-        android:layout_height="134dp"
+        android:id="@+id/player2"
+        android:layout_width="60dp"
+        android:layout_height="110dp"
         android:layout_marginBottom="8dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginLeft="-32dp"
+        android:layout_marginStart="-32dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:rotation="90"
+        android:src="@drawable/back"
+        app:layout_constraintBottom_toTopOf="@+id/stack_layout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/player3"
+        android:layout_width="60dp"
+        android:layout_height="110dp"
+        android:layout_marginTop="-32dp"
+        android:orientation="horizontal"
+        android:src="@drawable/back"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/player4"
+        android:layout_width="60dp"
+        android:layout_height="110dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="-32dp"
+        android:layout_marginRight="-32dp"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal"
         android:rotation="90"
         android:src="@drawable/back"
         app:layout_constraintBottom_toTopOf="@+id/stack_layout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/deckView"
+        android:layout_width="70dp"
+        android:layout_height="120dp"
+        android:orientation="horizontal"
+        android:rotation="90"
+        android:src="@drawable/back"
+        app:layout_constraintBottom_toTopOf="@+id/stack_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
     <FrameLayout
         android:id="@+id/stack_layout"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
