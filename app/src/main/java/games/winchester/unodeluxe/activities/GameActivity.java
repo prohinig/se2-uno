@@ -6,13 +6,10 @@ import android.graphics.drawable.Drawable;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.os.Vibrator;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.widget.FrameLayout;
@@ -31,6 +28,7 @@ import at.laubi.network.session.ClientSession;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import games.winchester.unodeluxe.R;
+import games.winchester.unodeluxe.app.UnoDeluxe;
 import games.winchester.unodeluxe.models.Card;
 import games.winchester.unodeluxe.models.ColorWishDialog;
 import games.winchester.unodeluxe.models.Game;
@@ -68,11 +66,6 @@ public class GameActivity extends AppCompatActivity {
     private Sensor mAccelerometer;
     private ShakeDetector mShakeDetector;
     private LayoutInflater inflater;
-
-    // Needed to detect swipe event
-    private float oldTouchValue = 0f;
-    private float newTouchValue = 0f;
-    private static final float MIN_DISTANCE = 50f;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,7 +121,7 @@ public class GameActivity extends AppCompatActivity {
 
     private void setupSensors() {
         mSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        if (mSensorManager != null) {
+        if(mSensorManager != null) {
             mAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
             mShakeDetector = new ShakeDetector();
             mShakeDetector.setOnShakeListener(c -> handleShakeEvent());
@@ -139,7 +132,7 @@ public class GameActivity extends AppCompatActivity {
         final String format = getString(R.string.host_message);
         final List<String> networks = NetworkUtils.getLocalIpAddresses();
 
-        if (networks.isEmpty()) return;
+        if(networks.isEmpty()) return;
 
         final String hostIp = networks.get(0);
 
@@ -181,9 +174,10 @@ public class GameActivity extends AppCompatActivity {
 
     // used to keep the stack UI up to date with the backend model
     public void updateTopCard(String graphic) {
+
         View stackLay = inflater.inflate(R.layout.stack, gameLayout, false);
         ImageView card = stackLay.findViewById(R.id.stackView);
-        card.setImageDrawable(getImageDrawable(this, graphic));
+        card.setImageDrawable(getImageDrawable(UnoDeluxe.getContext(), graphic));
         Random rand = new Random();
         float randomNum = rand.nextInt(361);
         card.setRotation(randomNum);
@@ -196,41 +190,15 @@ public class GameActivity extends AppCompatActivity {
         for (Card c : cards) {
             ImageView cardView = new ImageView(GameActivity.this);
             cardView.setPadding(0, 0, 0, 0);
-            cardView.setImageDrawable(getImageDrawable(this, c.getGraphic()));
+            cardView.setImageDrawable(getImageDrawable(UnoDeluxe.getContext(), c.getGraphic()));
             cardView.setClickable(true);
             cardView.setTag(c);
 
-            cardView.setOnTouchListener((v, event) -> {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        oldTouchValue = event.getY();
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        newTouchValue = event.getY();
-                        float deltaY = Math.abs(newTouchValue - oldTouchValue);
-                        if (deltaY > MIN_DISTANCE) {
-                            // user swiped a card down
-                            if(newTouchValue > oldTouchValue) {
-                                if(v.getTag() == null) return false;
-                                if(game.cheat((Card) v.getTag())) {
-                                    handLayout.removeView(v);
-                                }
-                                return true;
-                            }
-                        } else if (deltaY <= MIN_DISTANCE) {
-                            // user clicked a card
-                            if (v.getTag() == null) return false;
-                            if (game.cardClicked((Card) v.getTag())) {
-                                handLayout.removeView(v);
-                                return true;
-                            }
-                        }
-                        break;
-                    default:
-                        break;
+            cardView.setOnClickListener(v -> {
+                if(v.getTag() == null) return;
+                if(game.cardClicked((Card) v.getTag())) {
+                    handLayout.removeView(v);
                 }
-
-                return false;
             });
 
 
@@ -248,8 +216,8 @@ public class GameActivity extends AppCompatActivity {
         }
 
         final int childCount = handLayout.getChildCount();
-        View[] children = new View[childCount];
-        for (int i = 0; i < childCount; i++) {
+        View [] children = new View[childCount];
+        for(int i = 0; i < childCount; i++) {
             children[i] = handLayout.getChildAt(i);
         }
 
@@ -262,8 +230,8 @@ public class GameActivity extends AppCompatActivity {
 
         handLayout.removeAllViews();
 
-        for (int i = 0; i < childCount; i++) {
-            if (i != 0)
+        for(int  i = 0; i < childCount; i++){
+            if(i != 0)
                 ((LinearLayout.LayoutParams) children[i].getLayoutParams())
                         .setMargins(-30, 0, 0, 0);
             handLayout.addView(children[i]);
@@ -298,54 +266,12 @@ public class GameActivity extends AppCompatActivity {
     public void handleShakeEvent() {
         game.deviceShaked();
     }
-      
-    public void notificationNotYourTurn() {
-        this.toastUiThread(getString(R.string.not_your_turn), LENGTH_SHORT);
-    }
-
-    public void notificationYourTurn() {
-        this.vibrate();
-        this.toastUiThread(getString(R.string.your_turn), LENGTH_SHORT);
-    }
-
-    public void notificationCheated() {
-        this.toastUiThread(getString(R.string.cheated), LENGTH_SHORT);
-    }
-
-    public void notificationAlreadyCheated() {
-        this.toastUiThread(getString(R.string.already_cheated), LENGTH_SHORT);
-    }
-
-    public void notificationNotAllowedToCheat() {
-        this.toastUiThread(getString(R.string.not_allowed_to_cheat), LENGTH_SHORT);
-    }
-
-    public void notificationDeckShuffled() {
-        this.toastUiThread(getString(R.string.deck_shuffeled), LENGTH_SHORT);
-    }
-
-    public void notificationDrawCardsFirst(int i) {
-        this.toastUiThread(String.format(getString(R.string.draw_cards_first), i), LENGTH_SHORT);
-    }
-
-    public void vibrate() {
-        // Get instance of Vibrator from current Context
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        // Vibrate for 400 milliseconds
-        v.vibrate(400);
-    }
-
-
-    public void handleShakeEvent() {
-        //TODO: for shake action card
-    }
-
 
     @Override
     protected void onStop() {
         super.onStop();
 
-        if (game != null && game.getSession() != null) {
+        if(game != null && game.getSession() != null) {
             game.getSession().close();
         }
 

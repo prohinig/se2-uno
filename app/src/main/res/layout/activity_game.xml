@@ -5,8 +5,6 @@
     android:id="@+id/main_game_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keepScreenOn="true"
-
     tools:context="games.winchester.unodeluxe.activities.GameActivity">
 
     <ImageView
@@ -84,6 +82,8 @@
             android:gravity="center"
             android:visibility="invisible" />
     </FrameLayout>
+
+
 
 
     <HorizontalScrollView
