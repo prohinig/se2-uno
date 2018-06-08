@@ -2,39 +2,89 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_game_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keepScreenOn="true"
-
     tools:context="games.winchester.unodeluxe.activities.GameActivity">
 
     <ImageView
-        android:id="@+id/deckView"
-        android:layout_width="95dp"
-        android:layout_height="145dp"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="16dp"
-        android:contentDescription="@string/deck"
+        android:id="@+id/player2"
+        android:layout_width="60dp"
+        android:layout_height="110dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="-32dp"
+        android:layout_marginStart="-32dp"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal"
+        android:rotation="90"
         android:src="@drawable/back"
-        app:layout_constraintEnd_toStartOf="@+id/stackView"
-        app:layout_constraintHorizontal_bias="0.6"
+        app:layout_constraintBottom_toTopOf="@+id/stack_layout"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/stackView"
-        android:layout_width="92dp"
-        android:layout_height="145dp"
-        android:layout_marginEnd="30dp"
-        android:layout_marginTop="16dp"
-        android:contentDescription="@string/stack"
+        android:id="@+id/player3"
+        android:layout_width="60dp"
+        android:layout_height="110dp"
+        android:layout_marginTop="-32dp"
+        android:orientation="horizontal"
         android:src="@drawable/back"
-        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/deckView"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/player4"
+        android:layout_width="60dp"
+        android:layout_height="110dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="-32dp"
+        android:layout_marginRight="-32dp"
+        android:layout_marginTop="8dp"
+        android:orientation="horizontal"
+        android:rotation="90"
+        android:src="@drawable/back"
+        app:layout_constraintBottom_toTopOf="@+id/stack_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/deckView"
+        android:layout_width="70dp"
+        android:layout_height="120dp"
+        android:orientation="horizontal"
+        android:rotation="90"
+        android:src="@drawable/back"
+        app:layout_constraintBottom_toTopOf="@+id/stack_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+
+    <FrameLayout
+        android:id="@+id/stack_layout"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginStart="8dp"
+        android:gravity="center"
+        app:layout_constraintBottom_toTopOf="@+id/ipText"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <include
+            layout="@layout/stack"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:visibility="invisible" />
+    </FrameLayout>
+
+
+
 
     <HorizontalScrollView
         android:id="@+id/horizontalScrollView"
@@ -68,24 +118,8 @@
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toTopOf="@+id/horizontalScrollView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/deckView" />
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/btnStartGame"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="87dp"
-        android:layout_marginEnd="148dp"
-        android:layout_marginStart="148dp"
-        android:layout_marginTop="32dp"
-        android:text="@string/start_game"
-        android:visibility="invisible"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ipText" />
 </android.support.constraint.ConstraintLayout>
