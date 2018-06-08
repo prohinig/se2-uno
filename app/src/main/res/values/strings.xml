@@ -28,4 +28,26 @@
     <string name="connection_failed">Verbindung zum Spiel fehlgeschlagen.</string>
     <string name="host_message">I am: %s</string>
     <string name="failed_connecting">Failed to connect: %s</string>
+    <string name="help_rules">Hilfe zu den Hausregeln</string>
+    <string name="help_allow_stacking">Stapeln erlauben</string>
+    <string name="rules_help_stacking_text">Bla</string>
+    <string name="rules_help_allow_custom_cards">Allow custom cards</string>
+    <string name="rules_help_allow_custom_cards_text">Bla</string>
+    <string name="rules">Sobald die Karten gemischt sind, enthält jeder Spieler 7 Karten. Die übrigen Karten werden mit dem Gesicht nach unten auf den Tisch gelegt und bilden den KARTENSTOCK. Die oberste Karte wird herumgedreht und neben den KARTENSTOCK gelegt. Sie bildet den ABLEGESTAPEL. Ist diese Karte eine Aktionskarte, gelten bestimmte Regeln (SIEHE FUNKTIONEN DER AKTIONSKARTEN). Der Spieler zur Linken des Gebers beginnt das Spiel. Die Karten, die die Spieler ablegen, müssen mit den Karten des ABLEGESTAPELS in Zahl, Farbe oder Symbol übereinstimmen. Ist zum Beispiel die Karte eine rote 7, muss der Spieler entweder eine rote Karte oder eine andere Karte beliebiger Farbe mit der Zahl 7 ablegen. Alternativ hierzu kan der Spieler auch eine Farbenwahlkarte ablegen ( Siehe FUNKTIONEN DER AKTIONSKARTEN). Hält ein Spieler keine Karte in der Hand, die er auf den ABLEGESTAPEL legen könnte, muss er vom KARTENSTOCK eine Karte ziehen. Er darf die gezogene Karte sofort legen, wenn er kann. Ansonsten setzt der nächste Spieler das Spiel fort. Die Spieler haben die Möglichkeit, eine ablegbare Karte nicht abzulegen. Wenn dies der Fall ist, muss der Spieler vom KARTENSTOCK eine Karte ziehen. Er darf die gezogene Karte sofort legen, wenn er kann. Der Spieler darf jedoch nach dem Ziehen kein Karte, der er bereits in der Hand hält, legen.</string>
+    <string name="help">Hilfe</string>
+    <string name="allow_custom_cards">Allow custom cards</string>
+    <string name="allow_stacking">Das Stapeln von +Karten erlauben</string>
+    <string name="manual">Anleitung</string>
+    <string name="uno_logo">Uno Logo</string>
+    <string name="start_game">Start game</string>
+    <string name="ip">IP</string>
+    <string name="join_game">Join Game</string>
+    <string name="house_rules">Hausregeln</string>
+    <string name="stack">Stack</string>
+    <string name="deck">Deck</string>
+    <string name="course_of_play">Spielverlauf</string>
+    <string name="ok">OK</string>
+    <string name="configure_houserules">Hausregeln konfigurieren</string>
+    <string name="save">Speichern</string>
+    <string name="cancel">Abbrechen</string>
 </resources>

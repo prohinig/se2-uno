@@ -23,7 +23,6 @@ import at.laubi.network.session.ClientSession;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import games.winchester.unodeluxe.R;
-import games.winchester.unodeluxe.app.UnoDeluxe;
 import games.winchester.unodeluxe.models.Card;
 import games.winchester.unodeluxe.models.ColorWishDialog;
 import games.winchester.unodeluxe.models.Game;
@@ -160,7 +159,7 @@ public class GameActivity extends AppCompatActivity {
 
     // used to keep the stack UI up to date with the backend model
     public void updateTopCard(String graphic) {
-        this.stackView.setImageDrawable(getImageDrawable(UnoDeluxe.getContext(), graphic));
+        this.stackView.setImageDrawable(getImageDrawable(this, graphic));
     }
 
     // used to keep the hand UI up to date with the backend model
@@ -169,7 +168,7 @@ public class GameActivity extends AppCompatActivity {
         for (Card c : cards) {
             ImageView cardView = new ImageView(GameActivity.this);
             cardView.setPadding(0, 0, 0, 0);
-            cardView.setImageDrawable(getImageDrawable(UnoDeluxe.getContext(), c.getGraphic()));
+            cardView.setImageDrawable(getImageDrawable(this, c.getGraphic()));
             cardView.setClickable(true);
             cardView.setTag(c);
 
