@@ -7,10 +7,14 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Layout;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -18,6 +22,7 @@ import android.widget.Toast;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import at.laubi.network.Network;
 import at.laubi.network.messages.Message;
@@ -39,11 +44,14 @@ public class GameActivity extends AppCompatActivity {
     @BindView(R.id.deckView)
     ImageView deckView;
 
-    @BindView(R.id.stackView)
-    ImageView stackView;
+    @BindView(R.id.stack_layout)
+    FrameLayout stackLayout;
 
     @BindView(R.id.handLayout)
     LinearLayout handLayout;
+
+    @BindView(R.id.main_game_layout)
+    ConstraintLayout gameLayout;
 
     @BindView(R.id.ipText)
     TextView ip;
@@ -165,8 +173,16 @@ public class GameActivity extends AppCompatActivity {
     }
 
     // used to keep the stack UI up to date with the backend model
+    // used to keep the stack UI up to date with the backend model
     public void updateTopCard(String graphic) {
-        this.stackView.setImageDrawable(getImageDrawable(this, graphic));
+        LayoutInflater inflater = getLayoutInflater();
+        View stackLay = inflater.inflate(R.layout.stack, gameLayout, false);
+        ImageView card = stackLay.findViewById(R.id.stackView);
+        card.setImageDrawable(getImageDrawable(this, graphic));
+        Random rand = new Random();
+        float randomNum = rand.nextInt(361);
+        card.setRotation(randomNum);
+        stackLayout.addView(stackLay);
     }
 
     // used to keep the hand UI up to date with the backend model
