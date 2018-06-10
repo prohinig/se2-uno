@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 public class Preferences {
     private static final String KEY_ADVANCED_RULES = "advancedRules";
     private static final String KEY_ALLOW_CUSTOM_CARDS = "customCards";
+    private static final String KEY_ALLOW_CHEATING = "cheating";
 
     private SharedPreferences sharedPreferences;
 
@@ -26,6 +27,14 @@ public class Preferences {
     }
     public void setCustomCardsAllowed(boolean allowed){
         sharedPreferences.edit().putBoolean(KEY_ALLOW_CUSTOM_CARDS, allowed).apply();
+    }
+
+    public void setAllowCheating(boolean allowed){
+        sharedPreferences.edit().putBoolean(KEY_ALLOW_CHEATING, allowed).apply();
+    }
+
+    public boolean isCheatingAllowed(){
+        return sharedPreferences.getBoolean(KEY_ALLOW_CHEATING, false);
     }
 
     public static Preferences from(Context context) {

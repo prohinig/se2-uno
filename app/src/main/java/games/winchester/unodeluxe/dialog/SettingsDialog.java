@@ -14,6 +14,7 @@ public class SettingsDialog extends AlertDialog.Builder {
 
     private Switch switchAdvancedRules;
     private Switch swichAllowCustomCards;
+    private Switch switchAllowCheating;
 
     private LayoutInflater inflater;
 
@@ -37,9 +38,11 @@ public class SettingsDialog extends AlertDialog.Builder {
         View viewRoot = inflater.inflate(R.layout.layout_options, null);
         switchAdvancedRules = viewRoot.findViewById(R.id.switchStack);
         swichAllowCustomCards = viewRoot.findViewById(R.id.switchCustomCards);
+        switchAllowCheating = viewRoot.findViewById(R.id.switchCheating);
         
         switchAdvancedRules.setChecked(preferences.advancedRules());
         swichAllowCustomCards.setChecked(preferences.customCardsAllowed());
+        switchAllowCheating.setChecked(preferences.isCheatingAllowed());
 
         Button btnHelp = viewRoot.findViewById(R.id.btnHelp);
         btnHelp.setOnClickListener((view) -> displayHelpText());
@@ -50,6 +53,7 @@ public class SettingsDialog extends AlertDialog.Builder {
     private void saveSettings() {
         preferences.setAdvancedRulesAllowed(switchAdvancedRules.isChecked());
         preferences.setCustomCardsAllowed(swichAllowCustomCards.isChecked());
+        preferences.setAllowCheating(switchAllowCheating.isChecked());
     }
 
     private void displayHelpText(){
