@@ -4,19 +4,24 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Switch;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import games.winchester.unodeluxe.R;
 import games.winchester.unodeluxe.app.Preferences;
 
 public class SettingsDialog extends AlertDialog.Builder {
 
-    private Switch switchAdvancedRules;
-    private Switch swichAllowCustomCards;
-    private Switch switchAllowCheating;
+    @BindView(R.id.switchStack)
+    Switch switchAdvancedRules;
 
-    private LayoutInflater inflater;
+    @BindView(R.id.switchCustomCards)
+    Switch swichAllowCustomCards;
+
+    @BindView(R.id.switchCheating)
+    Switch switchAllowCheating;
 
     private Preferences preferences;
 
@@ -24,30 +29,21 @@ public class SettingsDialog extends AlertDialog.Builder {
         super(context);
 
         preferences = Preferences.from(context);
-        inflater = LayoutInflater.from(context);
 
-        View root = createContentView();
+        View view = LayoutInflater.from(context).inflate(R.layout.layout_options, null);
+        ButterKnife.bind(this, view);
+        initializeViews();
 
         setTitle(R.string.configure_houserules);
-        setView(root);
+        setView(view);
         setPositiveButton(R.string.save, (d, id) -> saveSettings());
         setNegativeButton(R.string.cancel, (d, id) -> {});
     }
 
-    private View createContentView(){
-        View viewRoot = inflater.inflate(R.layout.layout_options, null);
-        switchAdvancedRules = viewRoot.findViewById(R.id.switchStack);
-        swichAllowCustomCards = viewRoot.findViewById(R.id.switchCustomCards);
-        switchAllowCheating = viewRoot.findViewById(R.id.switchCheating);
-        
+    private void initializeViews(){
         switchAdvancedRules.setChecked(preferences.advancedRules());
         swichAllowCustomCards.setChecked(preferences.customCardsAllowed());
         switchAllowCheating.setChecked(preferences.isCheatingAllowed());
-
-        Button btnHelp = viewRoot.findViewById(R.id.btnHelp);
-        btnHelp.setOnClickListener((view) -> displayHelpText());
-
-        return viewRoot;
     }
 
     private void saveSettings() {
@@ -56,8 +52,9 @@ public class SettingsDialog extends AlertDialog.Builder {
         preferences.setAllowCheating(switchAllowCheating.isChecked());
     }
 
-    private void displayHelpText(){
-        View view = inflater.inflate(R.layout.layout_rules_help, null);
+    @OnClick(R.id.btnHelp)
+    void displayHelpText(){
+        View view = LayoutInflater.from(getContext()).inflate(R.layout.layout_rules_help, null);
 
         new AlertDialog.Builder(this.getContext())
                 .setTitle(R.string.help_rules)
