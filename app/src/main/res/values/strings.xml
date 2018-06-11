@@ -56,4 +56,5 @@
     <string name="cheated">Du hast eine Karte verschwinden lassen.</string>
     <string name="not_your_turn">Du bist nicht an der Reihe.</string>
     <string name="your_turn">Du bist an der Reihe.</string>
+    <string name="allow_cheating">Allow Cheating</string>
 </resources>
