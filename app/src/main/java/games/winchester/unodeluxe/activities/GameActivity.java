@@ -37,7 +37,13 @@ import games.winchester.unodeluxe.models.Player;
 import games.winchester.unodeluxe.models.ShakeDetector;
 import games.winchester.unodeluxe.utils.NetworkUtils;
 
+import android.widget.Button;
+import java.util.Locale;
+import android.content.ActivityNotFoundException;
+import android.speech.RecognizerIntent;
+import java.util.ArrayList;
 import static android.widget.Toast.LENGTH_SHORT;
+
 
 public class GameActivity extends AppCompatActivity {
 
@@ -76,6 +82,14 @@ public class GameActivity extends AppCompatActivity {
 
         ButterKnife.bind(this);
 
+
+        btnRecord = (Button) findViewById(R.id.btnRecord);
+        btnRecord.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                SpeechRecognition();
+            }
+        });
         this.setupNetwork();
         this.setupSensors();
         this.setupGame();
@@ -364,5 +378,42 @@ public class GameActivity extends AppCompatActivity {
 
     private void toastUiThread(final String message, final int length) {
         this.runOnUiThread(() -> Toast.makeText(GameActivity.this, message, length).show());
+    }
+
+
+    Button btnRecord;
+    CharSequence text1 = "Say something";
+    CharSequence text2 = "The device does not support speech recognition";
+
+    private final int REQ_CODE_SPEECH_INPUT = 100;
+
+    private void SpeechRecognition() {
+        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
+                text1);
+        try {
+            startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+        } catch (ActivityNotFoundException a) {
+            Toast.makeText(getApplicationContext(),
+                    text2,
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode) {
+            case REQ_CODE_SPEECH_INPUT: {
+                if (resultCode == RESULT_OK && null != data) {
+                    ArrayList<String> result = data
+                            .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+
+                    Toast.makeText(getApplicationContext(),result.get(0),Toast.LENGTH_LONG).show();
+                }
+                break;
+            }
+        }
     }
 }

@@ -8,8 +8,12 @@
         <item>Grün</item>
         <item>Rot</item>
     </string-array>
-    
-    
+
+    <string name="speech_prompt">Say something&#8230;</string>
+    <string name="speech_not_supported">Sorry! Your device doesn\'t support speech input</string>
+    <string name="tap_on_mic">Tap on mic to speak</string>
+    <string name="uno">UNO</string>
+
     <string name="Button01">Start</string>
     <string name="Button02">Start</string>
     <string name="Button03">Start</string>
@@ -56,4 +60,5 @@
     <string name="cheated">Du hast eine Karte verschwinden lassen.</string>
     <string name="not_your_turn">Du bist nicht an der Reihe.</string>
     <string name="your_turn">Du bist an der Reihe.</string>
+
 </resources>
