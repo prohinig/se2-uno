@@ -3,6 +3,7 @@ package games.winchester.unodeluxe.activities;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
@@ -30,6 +31,7 @@ import at.laubi.network.session.ClientSession;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import games.winchester.unodeluxe.R;
+import games.winchester.unodeluxe.enums.CardColor;
 import games.winchester.unodeluxe.models.Card;
 import games.winchester.unodeluxe.models.ColorWishDialog;
 import games.winchester.unodeluxe.models.Game;
@@ -63,6 +65,8 @@ public class GameActivity extends AppCompatActivity {
     private SensorManager mSensorManager;
     private Sensor mAccelerometer;
     private ShakeDetector mShakeDetector;
+
+    private CardColor bgColor = CardColor.RED;
 
     // Needed to detect swipe event
     private float oldTouchValue = 0f;
@@ -183,6 +187,53 @@ public class GameActivity extends AppCompatActivity {
         float randomNum = rand.nextInt(361);
         card.setRotation(randomNum);
         stackLayout.addView(stackLay);
+    }
+
+    public void updateColor(CardColor newC){
+        CardColor oldC = bgColor;
+        TransitionDrawable transition = (TransitionDrawable) gameLayout.getBackground();
+        TransitionDrawable transitionRb = (TransitionDrawable) transition.findDrawableByLayerId(R.id.fader_rb);
+        TransitionDrawable transitionGy = (TransitionDrawable) transition.findDrawableByLayerId(R.id.fader_gy);
+
+        if(oldC != newC){
+            switch(newC) {
+                case RED:
+                    if(oldC == CardColor.BLUE) {
+                        transitionRb.reverseTransition(700);
+                    } else {
+                        transitionRb.resetTransition();
+                        transition.reverseTransition(700);
+                    }
+                    break;
+                case BLUE:
+                    if(oldC == CardColor.RED) {
+                        transitionRb.startTransition(700);
+                    } else {
+                        transitionRb.startTransition(0);
+                        transition.reverseTransition(700);
+                    }
+                    break;
+                case GREEN:
+                    if(oldC == CardColor.YELLOW) {
+                        transitionGy.reverseTransition(700);
+                    } else {
+                        transitionGy.resetTransition();
+                        transition.startTransition(700);
+                    }
+                    break;
+                case YELLOW:
+                    if (oldC == CardColor.GREEN) {
+                        transitionGy.reverseTransition(700);
+                    } else {
+                        transitionGy.startTransition(0);
+                        transition.startTransition(700);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            bgColor = newC;
+        }
     }
 
     // used to keep the hand UI up to date with the backend model
