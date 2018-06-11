@@ -203,7 +203,7 @@ public class Game {
 
             // card might not change
             if (null != receivedTurn.getActiveColor()) {
-                activeColor = receivedTurn.getActiveColor();
+                setActiveColorInternal(receivedTurn.getActiveColor());
             }
 
             reverse = receivedTurn.isReverse();
@@ -228,7 +228,7 @@ public class Game {
 
             deck = setup.getDeck();
             players = setup.getPlayers();
-            activeColor = setup.getActiveColor();
+            setActiveColorInternal(setup.getActiveColor());
             stack = setup.getStack();
             activePlayer = setup.getActivePlayer();
             gameStarted = true;
@@ -278,8 +278,8 @@ public class Game {
     // check if card can be played and return result
     private void playCard(Card c, Player p) {
         p.getHand().removeCard(c);
-        this.layCard(c);
-        activeColor = c.getColor();
+        layCard(c);
+        setActiveColorInternal(c.getColor());
 
         handleActionPlayed(c);
 
@@ -339,6 +339,11 @@ public class Game {
         this.activity.addToHand(cards);
     }
 
+    private void setActiveColorInternal(CardColor color) {
+        activeColor = color;
+        activity.updateColor(color);
+    }
+
     private void startGame() {
         if (1 < this.players.size() && !gameStarted) {
             // player next to dealer (=gamestarter) starts
@@ -353,10 +358,8 @@ public class Game {
                 cardTopped = this.deck.deal(1).remove(0);
             }
 
-            this.layCard(cardTopped);
-            activeColor = cardTopped.getColor();
-            this.activity.updateTopCard(cardTopped.getGraphic());
-
+            layCard(cardTopped);
+            setActiveColorInternal(cardTopped.getColor());
             // TODO: handle actions of the first card
 
             for (int i = 0; i < 7; i++) {
@@ -365,8 +368,8 @@ public class Game {
                 }
             }
 
-            this.activePlayer = 1;
-            this.gameStarted = true;
+            activePlayer = 1;
+            gameStarted = true;
 
             session.send(new Setup(this));
         }
@@ -394,7 +397,7 @@ public class Game {
     }
 
     public void setActiveColor(CardColor color) {
-        activeColor = color;
+        setActiveColorInternal(color);
         turn.setActiveColor(color);
         if (colorWishPending) {
             colorWishPending = false;
