@@ -20,6 +20,7 @@
         android:orientation="horizontal"
         android:rotation="90"
         android:src="@drawable/back"
+        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/stack_layout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -31,6 +32,7 @@
         android:layout_marginTop="-32dp"
         android:orientation="horizontal"
         android:src="@drawable/back"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -45,6 +47,7 @@
         android:orientation="horizontal"
         android:rotation="90"
         android:src="@drawable/back"
+        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/stack_layout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
