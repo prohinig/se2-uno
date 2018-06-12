@@ -195,7 +195,7 @@ public class GameActivity extends AppCompatActivity {
         TransitionDrawable transitionRb = (TransitionDrawable) transition.findDrawableByLayerId(R.id.fader_rb);
         TransitionDrawable transitionGy = (TransitionDrawable) transition.findDrawableByLayerId(R.id.fader_gy);
 
-        if(oldC != newC){
+        if(oldC != newC && newC != CardColor.BLACK){
             switch(newC) {
                 case RED:
                     if(oldC == CardColor.BLUE) {
@@ -223,7 +223,7 @@ public class GameActivity extends AppCompatActivity {
                     break;
                 case YELLOW:
                     if (oldC == CardColor.GREEN) {
-                        transitionGy.reverseTransition(700);
+                        transitionGy.startTransition(700);
                     } else {
                         transitionGy.startTransition(0);
                         transition.startTransition(700);

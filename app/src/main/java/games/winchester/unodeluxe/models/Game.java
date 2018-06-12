@@ -42,6 +42,7 @@ public class Game {
     private boolean colorWishPending;
     // for advanced ruleset (+2 and +4 can be stacked)
     private boolean advancedRules;
+    private boolean ignoreNextTurn;
 
     public Game(GameActivity activity) {
         this.reverse = false;
@@ -210,19 +211,15 @@ public class Game {
             numberOfCardsToDraw = receivedTurn.getCardsToDraw();
 
             // remove all cards the player drew from my deck
-            if (0 < receivedTurn.getCardsDrawn()) {
+            if (0 < receivedTurn.getCardsDrawn() && !ignoreNextTurn) {
                 deck.deal(receivedTurn.getCardsDrawn());
             }
 
-            if (0 < receivedTurn.getCardsDrawn()) {
-                deck.deal(receivedTurn.getCardsDrawn());
-            }
-
-            if (null != receivedTurn.getCardPlayed()) {
+            if (null != receivedTurn.getCardPlayed() && !ignoreNextTurn) {
                 this.layCard(receivedTurn.getCardPlayed());
             }
 
-
+            ignoreNextTurn = false;
         } else if (m instanceof Setup) {
             Setup setup = (Setup) m;
 
@@ -414,7 +411,11 @@ public class Game {
             turn.setReverse(reverse);
             turn.setCardsToDraw(numberOfCardsToDraw);
             session.send(turn);
+            if(session instanceof ClientSession){
+                ignoreNextTurn = true;
+            }
         }
+
         // we reset turn here to avoid sending same info twice
         // when same player is having turn twice
         turn = new Turn();
