@@ -21,9 +21,13 @@ public class Player implements Serializable{
      */
     private boolean cheated;
     /**
-     * States if player is blameable for cheating
+     * States if player is accuseable for cheating
      */
-    private boolean blameable;
+    private boolean accuseable;
+    /**
+     * number of penalty cards this player has to draw
+     */
+    private int penaltyCards;
 
     /**
      * Create a new player
@@ -33,7 +37,8 @@ public class Player implements Serializable{
         this.name = name;
         this.hand = new Hand();
         this.cheated = false;
-        this.blameable = false;
+        this.accuseable = false;
+        this.penaltyCards = 0;
     }
 
     /**
@@ -77,18 +82,43 @@ public class Player implements Serializable{
     }
 
     /**
-     * Get if player is blameable
-     * @return if player is blameable
+     * Get if player is accuseable
+     * @return if player is accuseable
      */
-    public boolean isBlameable() {
-        return blameable;
+    public boolean isAccuseable() {
+        return accuseable;
     }
 
     /**
-     * Set if player is blameable
-     * @param isBlameable
+     * Set if player is accuseable
+     * @param isAccusable
      */
-    public void setBlameable(boolean isBlameable) {
-        this.blameable = isBlameable;
+    public void setAccuseable(boolean isAccusable) {
+        this.accuseable = isAccusable;
+    }
+
+    /**
+     * returns how many penalty cards this player has to draw
+     * @return number of penalty cards a player has to draw
+     */
+    public int getPenaltyCards() {
+        return penaltyCards;
+    }
+
+    /**
+     * adds number of penalty cards to this player
+     * @param penaltyCards
+     */
+    public void addPenaltyCards(int penaltyCards) {
+        this.penaltyCards += penaltyCards;
+    }
+
+    /**
+     * decrements number of penalty cards to draw by one
+     */
+    public void decrementPenaltyCards() {
+        if(this.penaltyCards > 0) {
+            this.penaltyCards--;
+        }
     }
 }

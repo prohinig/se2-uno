@@ -1,4 +1,4 @@
-package games.winchester.unodeluxe.models;
+package games.winchester.unodeluxe.dialog;
 
 import android.app.Dialog;
 import android.os.Bundle;
@@ -9,6 +9,7 @@ import android.util.Log;
 
 import games.winchester.unodeluxe.R;
 import games.winchester.unodeluxe.enums.CardColor;
+import games.winchester.unodeluxe.models.Game;
 
 public class ColorWishDialog extends DialogFragment {
 
@@ -17,7 +18,7 @@ public class ColorWishDialog extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        builder.setTitle(R.string.dialog_title)
+        builder.setTitle(R.string.ColorWishDialog_title)
                 .setItems(R.array.colors_array, (dialog, which) -> {
                     // The 'which' argument contains the index position
                     // of the selected item

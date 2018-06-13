@@ -1,6 +1,7 @@
 package games.winchester.unodeluxe.activities;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
@@ -9,6 +10,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.constraint.ConstraintLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,9 +33,10 @@ import at.laubi.network.session.ClientSession;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import games.winchester.unodeluxe.R;
+import games.winchester.unodeluxe.app.Preferences;
 import games.winchester.unodeluxe.enums.CardColor;
 import games.winchester.unodeluxe.models.Card;
-import games.winchester.unodeluxe.models.ColorWishDialog;
+import games.winchester.unodeluxe.dialog.ColorWishDialog;
 import games.winchester.unodeluxe.models.Game;
 import games.winchester.unodeluxe.models.Player;
 import games.winchester.unodeluxe.models.ShakeDetector;
@@ -69,6 +72,7 @@ public class GameActivity extends AppCompatActivity {
 
     private Game game;
     private Network network;
+    private Preferences preferences;
 
     // The following are used for the shake detection
     private SensorManager mSensorManager;
@@ -88,6 +92,8 @@ public class GameActivity extends AppCompatActivity {
         setContentView(R.layout.activity_game);
 
         ButterKnife.bind(this);
+
+        preferences = Preferences.from(this);
 
         this.setupNetwork();
         this.setupSensors();
@@ -409,8 +415,36 @@ public class GameActivity extends AppCompatActivity {
         this.toastUiThread(getString(R.string.deck_shuffeled), LENGTH_SHORT);
     }
 
+    public void notificationNotAllowedToAccuse() {
+        this.toastUiThread(getString(R.string.not_allowed_to_accuse), LENGTH_SHORT);
+    }
+
     public void notificationDrawCardsFirst(int i) {
         this.toastUiThread(String.format(getString(R.string.draw_cards_first), i), LENGTH_SHORT);
+    }
+
+    public void notificationCorrectlyAccusedAccuser(String accused) {
+        this.toastUiThread(String.format(getString(R.string.correctly_accused_accuser), accused), LENGTH_SHORT);
+    }
+
+    public void notificationCorrectlyAccusedAccused(String accuser) {
+        this.toastUiThread(String.format(getString(R.string.correctly_accused_accused), accuser), LENGTH_SHORT);
+    }
+
+    public void notificationCorrectlyAccusedAll(String accuser, String accused) {
+        this.toastUiThread(String.format(getString(R.string.correctly_accused_all), accuser, accused, accused), LENGTH_SHORT);
+    }
+
+    public void notificationWronglyAccusedAccuser(String accused) {
+        this.toastUiThread(String.format(getString(R.string.wrongly_accused_accuser), accused), LENGTH_SHORT);
+    }
+
+    public void notificationWronglyAccusedAccused(String accuser) {
+        this.toastUiThread(String.format(getString(R.string.wrongly_accused_accused), accuser), LENGTH_SHORT);
+    }
+
+    public void notificationWronglyAccusedAll(String accuser, String accused) {
+        this.toastUiThread(String.format(getString(R.string.wrongly_accused_all), accuser, accused, accused, accuser), LENGTH_SHORT);
     }
 
     public void showPlayerAccused(String name) {
@@ -462,5 +496,27 @@ public class GameActivity extends AppCompatActivity {
 
     private void toastUiThread(final String message, final int length) {
         this.runOnUiThread(() -> Toast.makeText(GameActivity.this, message, length).show());
+    }
+
+    public void showAccusePlayerDialog(String playerName) {
+        DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
+            switch (which){
+                case DialogInterface.BUTTON_POSITIVE:
+                    game.accusePlayer(playerName);
+                    break;
+
+                case DialogInterface.BUTTON_NEGATIVE:
+                    //No button clicked
+                    break;
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(String.format(getString(R.string.AccusePlayerDialog_question), playerName)).setPositiveButton(getString(R.string.buttonJa), dialogClickListener)
+                .setNegativeButton(getString(R.string.buttonNein), dialogClickListener).show();
+    }
+
+    public Preferences getPreferences() {
+        return preferences;
     }
 }

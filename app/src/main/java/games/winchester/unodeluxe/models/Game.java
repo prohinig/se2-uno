@@ -9,6 +9,9 @@ import at.laubi.network.session.HostSession;
 import at.laubi.network.session.Session;
 import games.winchester.unodeluxe.activities.GameActivity;
 import games.winchester.unodeluxe.enums.CardColor;
+import games.winchester.unodeluxe.messages.Accusation;
+import games.winchester.unodeluxe.messages.AccusationResult;
+import games.winchester.unodeluxe.messages.Cheat;
 import games.winchester.unodeluxe.messages.Name;
 import games.winchester.unodeluxe.messages.Setup;
 import games.winchester.unodeluxe.messages.Turn;
@@ -37,11 +40,14 @@ public class Game {
     // session
     private Session session;
     private Turn turn;
+    private Cheat cheat;
     // player name
     private String name;
     private boolean colorWishPending;
     // for advanced ruleset (+2 and +4 can be stacked)
     private boolean advancedRules;
+    private boolean cheatingAllowed;
+    private boolean inludeCustomCards;
     private boolean ignoreNextTurn;
 
     public Game(GameActivity activity) {
@@ -53,8 +59,11 @@ public class Game {
         this.players = new ArrayList<>();
         this.self = null;
         this.colorWishPending = false;
-        // TODO: change the initialisation of the additional rule variables (reading from file or light SQL)
-        advancedRules = true;
+        // TODO: options should be taken from Host
+        advancedRules = activity.getPreferences().advancedRules();
+        cheatingAllowed = activity.getPreferences().isCheatingAllowed();
+        inludeCustomCards = activity.getPreferences().customCardsAllowed();
+
     }
 
     public Game(GameActivity activity, Player admin) {
@@ -70,12 +79,14 @@ public class Game {
         // read player name from configuration
         this.players.add(self);
         this.colorWishPending = false;
-        // TODO: change the initialisation of the additional rule variables (reading from file or light SQL)
-        advancedRules = true;
+        // TODO: options should be taken from Host
+        advancedRules = activity.getPreferences().advancedRules();
+        cheatingAllowed = activity.getPreferences().isCheatingAllowed();
+        inludeCustomCards = activity.getPreferences().customCardsAllowed();
     }
 
     public boolean cardClicked(Card c) {
-        if(myTurn()) {
+        if (myTurn()) {
             return handleTurn(c, self);
         } else {
             activity.notificationNotYourTurn();
@@ -85,11 +96,6 @@ public class Game {
 
     private boolean myTurn() {
         return self != null && activePlayer == players.indexOf(self);
-    }
-
-    public void opponentClicked(Object playerName) {
-        String name = playerName.toString();
-        activity.showPlayerAccused(name);
     }
 
     public void deckClicked() {
@@ -103,7 +109,7 @@ public class Game {
                     decrementNumberOfCardsToDraw();
 
                     // after drawing number of cards to draw the turn ends
-                    if(numberOfCardsToDraw == 0) {
+                    if (numberOfCardsToDraw == 0) {
                         sendTurn();
                     }
                 } else {
@@ -112,7 +118,7 @@ public class Game {
                         turn.setCardsDrawn(turn.getCardsDrawn() + 1);
 
                         // if deck is empty, get cards from stack and put them to deck and shuffle
-                        if(deck.getSize() == 0) {
+                        if (deck.getSize() == 0) {
                             stackToDeck();
                             deck.shuffle();
                             activity.notificationDeckShuffled();
@@ -138,7 +144,9 @@ public class Game {
             if (advancedRules && turn.getCardsDrawn() == 0) {
                 if (c.getSymbol() == getStack().getTopCard().getSymbol()) {
                     playCard(c, p);
-                    sendTurn();
+                    if (!colorWishPending) {
+                        sendTurn();
+                    }
                     return true;
                 } else {
                     activity.notificationNumberOfCardsToDraw(numberOfCardsToDraw);
@@ -166,28 +174,100 @@ public class Game {
     }
 
     public boolean cheat(Card c) {
-        if(myTurn()) {
-            if (self.hasCheated()) {
-                activity.notificationAlreadyCheated();
-                return false;
-            } else {
-                if(numberOfCardsToDraw != 0) {
-                    activity.notificationDrawCardsFirst(numberOfCardsToDraw);
+        if (cheatingAllowed) {
+            if (myTurn()) {
+                if (self.hasCheated()) {
+                    activity.notificationAlreadyCheated();
                     return false;
-                } else if (self.getHand().getSize() > 2) {
-                    self.setCheated(true);
-                    self.getHand().removeCard(c);
-                    stack.getCards().add(c);
-                    activity.notificationCheated();
-                    return true;
                 } else {
-                    activity.notificationNotAllowedToCheat();
-                    return false;
+                    if (numberOfCardsToDraw != 0) {
+                        activity.notificationDrawCardsFirst(numberOfCardsToDraw);
+                        return false;
+                    } else if (self.getHand().getSize() > 2) {
+                        self.setCheated(true);
+                        self.setAccuseable(true);
+                        self.getHand().removeCard(c);
+                        activity.notificationCheated();
+                        if (!(session instanceof HostSession)) {
+                            sendCheat(c);
+                        }
+                        return true;
+                    } else {
+                        activity.notificationNotAllowedToCheat();
+                        return false;
+                    }
                 }
+            } else {
+                activity.notificationNotYourTurn();
+                return false;
+            }
+        }
+        return false;
+    }
+
+
+    public void opponentClicked(Object playerName) {
+        if (cheatingAllowed) {
+            if (myTurn()) {
+                String name = playerName.toString();
+                activity.showAccusePlayerDialog(name);
+            } else {
+                activity.notificationNotAllowedToAccuse();
+            }
+        }
+    }
+
+    public void accusePlayer(String playerName) {
+        if (null != session) {
+            if (session instanceof HostSession) {
+                handleAccusation(new Accusation(self.getName(), playerName));
+            } else {
+                Accusation accusation = new Accusation(self.getName(), playerName);
+                session.send(accusation);
+            }
+        }
+    }
+
+    public void handleAccusation(Accusation accusation) {
+        Player accusedPlayer = getPlayerByName(accusation.getAccused());
+        Player accuser = getPlayerByName(accusation.getAccuser());
+        if (accusedPlayer != null) {
+            AccusationResult ar = new AccusationResult(accusation.getAccuser(), accusedPlayer.getName(), accusedPlayer.isAccuseable());
+            ar.setPenaltyCards(2);
+            if (accusedPlayer.isAccuseable()) {
+                accusedPlayer.setAccuseable(false);
+            }
+            // TODO: keep Host up to date regarding cards of all players
+            handleAccusationResult(ar);
+            session.send(ar);
+        }
+    }
+
+    public void handleAccusationResult(AccusationResult accusationResult) {
+        Player accusedPlayer = getPlayerByName(accusationResult.getAccused());
+        Player accuser = getPlayerByName(accusationResult.getAccuser());
+        if (accusationResult.isAccusationCorrect()) {
+            if (self.equals(accusedPlayer)) {
+                activity.notificationCorrectlyAccusedAccused(accuser.getName());
+                handCards(2, self);
+            } else if (self.equals(accuser)) {
+                activity.notificationCorrectlyAccusedAccuser(accusedPlayer.getName());
+                deck.deal(2);
+            } else {
+                activity.notificationCorrectlyAccusedAll(accuser.getName(), accusedPlayer.getName());
+                deck.deal(2);
             }
         } else {
-            activity.notificationNotYourTurn();
-            return false;
+            if (self.equals(accusedPlayer)) {
+                activity.notificationWronglyAccusedAccused(accuser.getName());
+                deck.deal(2);
+            } else if (self.equals(accuser)) {
+                activity.notificationWronglyAccusedAccuser(accusedPlayer.getName());
+                handCards(2, self);
+            } else {
+                activity.notificationWronglyAccusedAll(accuser.getName(), accusedPlayer.getName());
+                deck.deal(2);
+            }
         }
     }
 
@@ -246,7 +326,7 @@ public class Game {
             }
             int indexOfMe = players.indexOf(self);
             ArrayList<String> opponents = new ArrayList<>();
-            for(int i = 1; i < players.size(); i++) {
+            for (int i = 1; i < players.size(); i++) {
                 opponents.add(players.get((indexOfMe + i) % players.size()).getName());
             }
 
@@ -256,8 +336,24 @@ public class Game {
         } else if (m instanceof Name) {
             Name nameMessage = (Name) m;
             this.name = nameMessage.getName();
-        }
+        } else if (m instanceof Cheat) {
+            if (session instanceof HostSession) {
+                Player cheater = getPlayerByName(((Cheat) m).getCheater());
+                if (cheater != null) {
+                    cheater.setCheated(true);
+                    cheater.setAccuseable(true);
+                    cheater.getHand().getCards().remove(((Cheat) m).getDissapearedCard());
+                    // TODO: inform all players of updated number of cards in hand of cheater
+                }
+            }
 
+        } else if (m instanceof Accusation) {
+            if (session instanceof HostSession) {
+                handleAccusation((Accusation) m);
+            }
+        } else if (m instanceof AccusationResult) {
+            handleAccusationResult((AccusationResult) m);
+        }
 
         // if its my turn enable clicks
         if (myTurn()) {
@@ -369,7 +465,6 @@ public class Game {
 
             layCard(cardTopped);
             setActiveColorInternal(cardTopped.getColor());
-            // TODO: handle actions of the first card
 
             for (int i = 0; i < 7; i++) {
                 for (Player p : this.players) {
@@ -378,7 +473,7 @@ public class Game {
             }
 
             ArrayList<String> opponents = new ArrayList<>();
-            for(int i = 1; i < players.size(); i++){
+            for (int i = 1; i < players.size(); i++) {
                 opponents.add(players.get(i).getName());
             }
 
@@ -429,7 +524,7 @@ public class Game {
             turn.setReverse(reverse);
             turn.setCardsToDraw(numberOfCardsToDraw);
             session.send(turn);
-            if(session instanceof ClientSession){
+            if (session instanceof ClientSession) {
                 ignoreNextTurn = true;
             }
         }
@@ -437,6 +532,13 @@ public class Game {
         // we reset turn here to avoid sending same info twice
         // when same player is having turn twice
         turn = new Turn();
+    }
+
+    private void sendCheat(Card c) {
+        if (null != session) {
+            cheat = new Cheat(self.getName(), c);
+            session.send(cheat);
+        }
     }
 
     private boolean isGameStarted() {
@@ -487,5 +589,14 @@ public class Game {
 
     public Session getSession() {
         return session;
+    }
+
+    private Player getPlayerByName(String name) {
+        for (Player p : players) {
+            if (p.getName().equals(name)) {
+                return p;
+            }
+        }
+        return null;
     }
 }

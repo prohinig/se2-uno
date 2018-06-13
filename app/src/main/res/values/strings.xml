@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">UnoDeluxe</string>
-    <string name="dialog_title">Wünsch dir eine Farbe:</string>
+    <string name="ColorWishDialog_title">Wünsch dir eine Farbe:</string>
+    <string name="AccusePlayerDialog_question">Möchtest du wirklich %s des Schummelns bezichtigen?</string>
 
     <string-array name="colors_array">
         <item>Blau</item>
@@ -17,6 +18,8 @@
     <string name="Button05">Start</string>
     <string name="Button06">Start</string>
     <string name="Button07">Start</string>
+    <string name="buttonJa">Ja</string>
+    <string name="buttonNein">Nein</string>
     <string name="mainListView"></string>
     <string name="rowTextView"></string>
     <string name="mainListView2"></string>
@@ -57,4 +60,11 @@
     <string name="not_your_turn">Du bist nicht an der Reihe.</string>
     <string name="your_turn">Du bist an der Reihe.</string>
     <string name="allow_cheating">Allow Cheating</string>
+    <string name="not_allowed_to_accuse">Du darfst nur jemanden des Schummelns bezichtigen, wenn du an der Reihe bist.</string>
+    <string name="correctly_accused_all">%s hat %s beim schummeln erwischt. %s erhält sofort 2 Strafarten.</string>
+    <string name="correctly_accused_accuser">%s hat tatsächlich geschummelt und hat daher sofort 2 Strafkarten erhalten.</string>
+    <string name="correctly_accused_accused">%s hat dich beim schummeln erwischt. Du erhälst sofort 2 Strafkarten.</string>
+    <string name="wrongly_accused_all">%s hat %s des Schummelns bezichtigt. %s hat aber nicht geschummelt daher erhält %s sofort 2 Strafkarten.</string>
+    <string name="wrongly_accused_accuser">%s hat NICHT geschummelt. Du erhälst daher sofort 2 Strafkarten.</string>
+    <string name="wrongly_accused_accused">%s hat dich fälschlicherweise des Schummelns bezichtigt und hat daher sofort 2 Strafkarten erhalten.</string>
 </resources>
