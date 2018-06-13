@@ -87,6 +87,11 @@ public class Game {
         return self != null && activePlayer == players.indexOf(self);
     }
 
+    public void opponentClicked(Object playerName) {
+        String name = playerName.toString();
+        activity.showPlayerAccused(name);
+    }
+
     public void deckClicked() {
         if (myTurn()) {
             if (!isGameStarted()) {
@@ -239,7 +244,14 @@ public class Game {
                     break;
                 }
             }
-            this.activity.addToHand(self.getHand().getCards());
+            int indexOfMe = players.indexOf(self);
+            ArrayList<String> opponents = new ArrayList<>();
+            for(int i = 1; i < players.size(); i++) {
+                opponents.add(players.get((indexOfMe + i) % players.size()).getName());
+            }
+
+            activity.renderOpponents(opponents);
+            activity.addToHand(self.getHand().getCards());
 
         } else if (m instanceof Name) {
             Name nameMessage = (Name) m;
@@ -365,6 +377,12 @@ public class Game {
                 }
             }
 
+            ArrayList<String> opponents = new ArrayList<>();
+            for(int i = 1; i < players.size(); i++){
+                opponents.add(players.get(i).getName());
+            }
+
+            activity.renderOpponents(opponents);
             activePlayer = 1;
             gameStarted = true;
 

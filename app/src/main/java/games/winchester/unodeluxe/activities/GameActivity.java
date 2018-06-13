@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.text.Layout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -21,6 +20,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
@@ -57,6 +57,15 @@ public class GameActivity extends AppCompatActivity {
 
     @BindView(R.id.ipText)
     TextView ip;
+
+    @BindView(R.id.player2)
+    ImageView opponentOne;
+
+    @BindView(R.id.player3)
+    ImageView opponentTwo;
+
+    @BindView(R.id.player4)
+    ImageView opponentThree;
 
     private Game game;
     private Network network;
@@ -187,7 +196,41 @@ public class GameActivity extends AppCompatActivity {
         float randomNum = rand.nextInt(361);
         card.setRotation(randomNum);
         stackLayout.addView(stackLay);
+
+        // prevent stack from looking shit
+        if(stackLayout.getChildCount() > 5) {
+            stackLayout.removeViews(0, 2);
+        }
     }
+
+    public void renderOpponents(List<String> opponents){
+        int noOpponents = opponents.size();
+        ArrayList<View> views = new ArrayList<>();
+        if(noOpponents == 1) {
+            opponentTwo.setTag(opponents.get(0));
+            views.add(opponentTwo);
+        } else if(noOpponents == 2) {
+            opponentOne.setTag(opponents.get(0));
+            opponentThree.setTag(opponents.get(1));
+            views.add(opponentOne);
+            views.add(opponentThree);
+        } else if(noOpponents == 3) {
+            opponentOne.setTag(opponents.get(0));
+            opponentTwo.setTag(opponents.get(1));
+            opponentThree.setTag(opponents.get(2));
+            views.add(opponentOne);
+            views.add(opponentTwo);
+            views.add(opponentThree);
+        }
+
+        for(View w : views) {
+            w.setVisibility(View.VISIBLE);
+            w.setClickable(true);
+            w.setOnClickListener(v -> game.opponentClicked(v.getTag()));
+        }
+    }
+
+
 
     public void updateColor(CardColor newC){
         CardColor oldC = bgColor;
@@ -368,6 +411,10 @@ public class GameActivity extends AppCompatActivity {
 
     public void notificationDrawCardsFirst(int i) {
         this.toastUiThread(String.format(getString(R.string.draw_cards_first), i), LENGTH_SHORT);
+    }
+
+    public void showPlayerAccused(String name) {
+        this.toastUiThread("accused " + name + " of cheating", LENGTH_SHORT);
     }
 
     public void vibrate() {
