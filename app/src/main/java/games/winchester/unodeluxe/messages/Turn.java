@@ -3,7 +3,6 @@ package games.winchester.unodeluxe.messages;
 import at.laubi.network.messages.Message;
 import games.winchester.unodeluxe.enums.CardColor;
 import games.winchester.unodeluxe.models.Card;
-import games.winchester.unodeluxe.models.Player;
 
 /**
  * Message which is sent every turn

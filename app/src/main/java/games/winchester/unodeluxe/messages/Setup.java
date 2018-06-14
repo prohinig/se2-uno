@@ -18,6 +18,9 @@ public class Setup implements Message {
     private CardColor activeColor;
     private List<Player> players;
     private int activePlayer;
+    private boolean advancedRules;
+    private boolean cheatingAllowed;
+    private boolean includeCustomCards;
 
     public Setup(Game game) {
         deck = game.getDeck();
@@ -25,6 +28,9 @@ public class Setup implements Message {
         activeColor = game.getActiveColor();
         players = game.getPlayers();
         activePlayer = game.getActivePlayer();
+        advancedRules = game.isAdvancedRules();
+        cheatingAllowed = game.isCheatingAllowed();
+        includeCustomCards = game.isIncludeCustomCards();
     }
 
     public Deck getDeck() {
@@ -45,5 +51,17 @@ public class Setup implements Message {
 
     public int getActivePlayer() {
         return activePlayer;
+    }
+
+    public boolean isAdvancedRules() {
+        return advancedRules;
+    }
+
+    public boolean isCheatingAllowed() {
+        return cheatingAllowed;
+    }
+
+    public boolean isIncludeCustomCards() {
+        return includeCustomCards;
     }
 }

@@ -40,14 +40,13 @@ public class Game {
     // session
     private Session session;
     private Turn turn;
-    private Cheat cheat;
     // player name
     private String name;
     private boolean colorWishPending;
     // for advanced ruleset (+2 and +4 can be stacked)
     private boolean advancedRules;
     private boolean cheatingAllowed;
-    private boolean inludeCustomCards;
+    private boolean includeCustomCards;
     private boolean ignoreNextTurn;
 
     public Game(GameActivity activity) {
@@ -59,11 +58,6 @@ public class Game {
         this.players = new ArrayList<>();
         this.self = null;
         this.colorWishPending = false;
-        // TODO: options should be taken from Host
-        advancedRules = activity.getPreferences().advancedRules();
-        cheatingAllowed = activity.getPreferences().isCheatingAllowed();
-        inludeCustomCards = activity.getPreferences().customCardsAllowed();
-
     }
 
     public Game(GameActivity activity, Player admin) {
@@ -79,10 +73,9 @@ public class Game {
         // read player name from configuration
         this.players.add(self);
         this.colorWishPending = false;
-        // TODO: options should be taken from Host
-        advancedRules = activity.getPreferences().advancedRules();
-        cheatingAllowed = activity.getPreferences().isCheatingAllowed();
-        inludeCustomCards = activity.getPreferences().customCardsAllowed();
+        this.advancedRules = activity.getPreferences().advancedRules();
+        this.cheatingAllowed = activity.getPreferences().isCheatingAllowed();
+        this.includeCustomCards = activity.getPreferences().customCardsAllowed();
     }
 
     public boolean cardClicked(Card c) {
@@ -230,7 +223,6 @@ public class Game {
 
     public void handleAccusation(Accusation accusation) {
         Player accusedPlayer = getPlayerByName(accusation.getAccused());
-        Player accuser = getPlayerByName(accusation.getAccuser());
         if (accusedPlayer != null) {
             AccusationResult ar = new AccusationResult(accusation.getAccuser(), accusedPlayer.getName(), accusedPlayer.isAccuseable());
             ar.setPenaltyCards(2);
@@ -246,27 +238,29 @@ public class Game {
     public void handleAccusationResult(AccusationResult accusationResult) {
         Player accusedPlayer = getPlayerByName(accusationResult.getAccused());
         Player accuser = getPlayerByName(accusationResult.getAccuser());
-        if (accusationResult.isAccusationCorrect()) {
-            if (self.equals(accusedPlayer)) {
-                activity.notificationCorrectlyAccusedAccused(accuser.getName());
-                handCards(2, self);
-            } else if (self.equals(accuser)) {
-                activity.notificationCorrectlyAccusedAccuser(accusedPlayer.getName());
-                deck.deal(2);
+        if (accusedPlayer != null && accuser != null) {
+            if (accusationResult.isAccusationCorrect()) {
+                if (self.equals(accusedPlayer)) {
+                    activity.notificationCorrectlyAccusedAccused(accuser.getName());
+                    handCards(2, self);
+                } else if (self.equals(accuser)) {
+                    activity.notificationCorrectlyAccusedAccuser(accusedPlayer.getName());
+                    deck.deal(2);
+                } else {
+                    activity.notificationCorrectlyAccusedAll(accuser.getName(), accusedPlayer.getName());
+                    deck.deal(2);
+                }
             } else {
-                activity.notificationCorrectlyAccusedAll(accuser.getName(), accusedPlayer.getName());
-                deck.deal(2);
-            }
-        } else {
-            if (self.equals(accusedPlayer)) {
-                activity.notificationWronglyAccusedAccused(accuser.getName());
-                deck.deal(2);
-            } else if (self.equals(accuser)) {
-                activity.notificationWronglyAccusedAccuser(accusedPlayer.getName());
-                handCards(2, self);
-            } else {
-                activity.notificationWronglyAccusedAll(accuser.getName(), accusedPlayer.getName());
-                deck.deal(2);
+                if (self.equals(accusedPlayer)) {
+                    activity.notificationWronglyAccusedAccused(accuser.getName());
+                    deck.deal(2);
+                } else if (self.equals(accuser)) {
+                    activity.notificationWronglyAccusedAccuser(accusedPlayer.getName());
+                    handCards(2, self);
+                } else {
+                    activity.notificationWronglyAccusedAll(accuser.getName(), accusedPlayer.getName());
+                    deck.deal(2);
+                }
             }
         }
     }
@@ -313,6 +307,9 @@ public class Game {
             setActiveColorInternal(setup.getActiveColor());
             stack = setup.getStack();
             activePlayer = setup.getActivePlayer();
+            advancedRules = setup.isAdvancedRules();
+            cheatingAllowed = setup.isCheatingAllowed();
+            includeCustomCards = setup.isIncludeCustomCards();
             gameStarted = true;
 
             cardPlayed = stack.getTopCard();
@@ -536,7 +533,7 @@ public class Game {
 
     private void sendCheat(Card c) {
         if (null != session) {
-            cheat = new Cheat(self.getName(), c);
+            Cheat cheat = new Cheat(self.getName(), c);
             session.send(cheat);
         }
     }
@@ -598,5 +595,17 @@ public class Game {
             }
         }
         return null;
+    }
+
+    public boolean isAdvancedRules() {
+        return advancedRules;
+    }
+
+    public boolean isCheatingAllowed() {
+        return cheatingAllowed;
+    }
+
+    public boolean isIncludeCustomCards() {
+        return includeCustomCards;
     }
 }

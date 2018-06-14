@@ -500,14 +500,11 @@ public class GameActivity extends AppCompatActivity {
 
     public void showAccusePlayerDialog(String playerName) {
         DialogInterface.OnClickListener dialogClickListener = (dialog, which) -> {
-            switch (which){
-                case DialogInterface.BUTTON_POSITIVE:
-                    game.accusePlayer(playerName);
-                    break;
+            if (which == DialogInterface.BUTTON_POSITIVE) {
+                game.accusePlayer(playerName);
 
-                case DialogInterface.BUTTON_NEGATIVE:
-                    //No button clicked
-                    break;
+            } else if (which == DialogInterface.BUTTON_NEGATIVE) {
+                //No button clicked
             }
         };
 
