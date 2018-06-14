@@ -73,6 +73,7 @@ public class Game {
         // read player name from configuration
         this.players.add(self);
         this.colorWishPending = false;
+        // read chosen rules from preferences from Host
         this.advancedRules = activity.getPreferences().advancedRules();
         this.cheatingAllowed = activity.getPreferences().isCheatingAllowed();
         this.includeCustomCards = activity.getPreferences().customCardsAllowed();
@@ -131,7 +132,7 @@ public class Game {
 
     }
 
-    //handles a whole turn
+    // handles a whole turn
     private boolean handleTurn(Card c, Player p) {
         if (numberOfCardsToDraw != 0) {
             if (advancedRules && turn.getCardsDrawn() == 0) {
@@ -181,7 +182,7 @@ public class Game {
                         self.setAccuseable(true);
                         self.getHand().removeCard(c);
                         activity.notificationCheated();
-                        if (!(session instanceof HostSession)) {
+                        if (session instanceof ClientSession) {
                             sendCheat(c);
                         }
                         return true;
@@ -194,8 +195,11 @@ public class Game {
                 activity.notificationNotYourTurn();
                 return false;
             }
+        } else {
+            activity.notificationNoCheating();
+            return false;
         }
-        return false;
+
     }
 
 

@@ -1,5 +1,6 @@
 package games.winchester.unodeluxe.activities;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -286,6 +287,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
     // used to keep the hand UI up to date with the backend model
+    @SuppressLint("ClickableViewAccessibility")
     public void addToHand(List<Card> cards) {
 
         for (Card c : cards) {
@@ -447,15 +449,17 @@ public class GameActivity extends AppCompatActivity {
         this.toastUiThread(String.format(getString(R.string.wrongly_accused_all), accuser, accused, accused, accuser), LENGTH_SHORT);
     }
 
-    public void showPlayerAccused(String name) {
-        this.toastUiThread("accused " + name + " of cheating", LENGTH_SHORT);
+    public void notificationNoCheating() {
+        this.toastUiThread(getString(R.string.no_cheating), LENGTH_SHORT);
     }
 
     public void vibrate() {
         // Get instance of Vibrator from current Context
         Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         // Vibrate for 400 milliseconds
-        v.vibrate(400);
+        if (v != null) {
+            v.vibrate(400);
+        }
     }
 
 
@@ -504,7 +508,7 @@ public class GameActivity extends AppCompatActivity {
                 game.accusePlayer(playerName);
 
             } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-                //No button clicked
+                // No button clicked: do nothing
             }
         };
 
