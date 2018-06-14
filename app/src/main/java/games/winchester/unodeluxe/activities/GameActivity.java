@@ -83,13 +83,7 @@ public class GameActivity extends AppCompatActivity {
         ButterKnife.bind(this);
 
 
-        btnRecord = (Button) findViewById(R.id.btnRecord);
-        btnRecord.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
-                SpeechRecognition();
-            }
-        });
+
         this.setupNetwork();
         this.setupSensors();
         this.setupGame();
@@ -387,7 +381,7 @@ public class GameActivity extends AppCompatActivity {
 
     private final int REQ_CODE_SPEECH_INPUT = 100;
 
-    private void SpeechRecognition() {
+    public void SpeechRecognition() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
@@ -401,16 +395,29 @@ public class GameActivity extends AppCompatActivity {
                     text2,
                     Toast.LENGTH_SHORT).show();
         }
+
     }
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public int Speechresult;
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case REQ_CODE_SPEECH_INPUT: {
                 if (resultCode == RESULT_OK && null != data) {
                     ArrayList<String> result = data
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
+                     if(result.get(0).equals("UNO")||
+                             result.get(0).equals("UN")||
+                             result.get(0).equals("U")||
+                             result.get(0).equals("uno")||
+                             result.get(0).equals("un")||
+                    result.get(0).equals("u"))   {
+                         Speechresult=1;
 
-                    Toast.makeText(getApplicationContext(),result.get(0),Toast.LENGTH_LONG).show();
+                     } else
+                     {
+                         Speechresult=0;
+                     }
+
                 }
                 break;
             }

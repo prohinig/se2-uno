@@ -1,5 +1,12 @@
 package games.winchester.unodeluxe.utils;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.speech.RecognizerIntent;
+import android.widget.Toast;
+
+import java.util.Locale;
+
 import games.winchester.unodeluxe.enums.Action;
 import games.winchester.unodeluxe.enums.CardColor;
 import games.winchester.unodeluxe.enums.CardSymbol;
