@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">UnoDeluxe</string>
-    <string name="dialog_title">Wünsch dir eine Farbe:</string>
+    <string name="ColorWishDialog_title">Wünsch dir eine Farbe:</string>
+    <string name="AccusePlayerDialog_question">Möchtest du wirklich %s des Schummelns bezichtigen?</string>
 
     <string-array name="colors_array">
         <item>Blau</item>
@@ -17,6 +18,8 @@
     <string name="Button05">Start</string>
     <string name="Button06">Start</string>
     <string name="Button07">Start</string>
+    <string name="buttonJa">Ja</string>
+    <string name="buttonNein">Nein</string>
     <string name="mainListView"></string>
     <string name="rowTextView"></string>
     <string name="mainListView2"></string>
@@ -29,14 +32,16 @@
     <string name="host_message">I am: %s</string>
     <string name="failed_connecting">Failed to connect: %s</string>
     <string name="help_rules">Hilfe zu den Hausregeln</string>
-    <string name="help_allow_stacking">Stapeln erlauben</string>
-    <string name="rules_help_stacking_text">Bla</string>
-    <string name="rules_help_allow_custom_cards">Allow custom cards</string>
-    <string name="rules_help_allow_custom_cards_text">Bla</string>
-    <string name="rules">Sobald die Karten gemischt sind, enthält jeder Spieler 7 Karten. Die übrigen Karten werden mit dem Gesicht nach unten auf den Tisch gelegt und bilden den KARTENSTOCK. Die oberste Karte wird herumgedreht und neben den KARTENSTOCK gelegt. Sie bildet den ABLEGESTAPEL. Ist diese Karte eine Aktionskarte, gelten bestimmte Regeln (SIEHE FUNKTIONEN DER AKTIONSKARTEN). Der Spieler zur Linken des Gebers beginnt das Spiel. Die Karten, die die Spieler ablegen, müssen mit den Karten des ABLEGESTAPELS in Zahl, Farbe oder Symbol übereinstimmen. Ist zum Beispiel die Karte eine rote 7, muss der Spieler entweder eine rote Karte oder eine andere Karte beliebiger Farbe mit der Zahl 7 ablegen. Alternativ hierzu kan der Spieler auch eine Farbenwahlkarte ablegen ( Siehe FUNKTIONEN DER AKTIONSKARTEN). Hält ein Spieler keine Karte in der Hand, die er auf den ABLEGESTAPEL legen könnte, muss er vom KARTENSTOCK eine Karte ziehen. Er darf die gezogene Karte sofort legen, wenn er kann. Ansonsten setzt der nächste Spieler das Spiel fort. Die Spieler haben die Möglichkeit, eine ablegbare Karte nicht abzulegen. Wenn dies der Fall ist, muss der Spieler vom KARTENSTOCK eine Karte ziehen. Er darf die gezogene Karte sofort legen, wenn er kann. Der Spieler darf jedoch nach dem Ziehen kein Karte, der er bereits in der Hand hält, legen.</string>
+    <string name="help_allow_stacking">Stapeln von +Karten:</string>
+    <string name="rules_help_stacking_text">Legt ein Spieler eine Zieh Zwei Karte ab, kann der nächste Spieler eine weitere Zieh Zwei Karten ablegen, wodurch der nächste Spieler 4 Karten ziehen muss. DiesselbeRegelgiltfürdieZiehVierFarbenwahlkarten. Legt ein Spieler eine Zieh Vier Farbenwahlkarte ab, kann der nächste Spieler eine weitere Zieh Vier Farbenwahlkarte ablegen, wodurch der nächste Spieler 8 Karten ziehen muss.</string>
+    <string name="rules_help_allow_custom_cards">Schüttelkarte:</string>
+    <string name="rules_help_allow_custom_cards_text">Sobald die Schüttelkarte gespielt wurde müssen alle übrigen Spieler das Gerät schütteln. Der Spieler, der als Letzter geschüttelt hat erhält sofort 4 Karten auf die Hand. Außerdem darf sich der Spieler der die Karte geworfen hat eine Farbe wünschen.</string>
+    <string name="rules_help_cheating">Schummeln:</string>
+    <string name="rules_help_cheating_text">Einmal pro Spiel, kann man eine Karte verschwinden lassen indem man die Karte nach unten wischt. Dies ist allerdings nur möglich wenn man noch mindestens 3 Karten auf der Hand hat.\nWenn man geschummelt hat, kann man von anderen Spielern des Schummelns bezichtigt werden. Wenn man zurecht beschuldigt wurde, erhält man sofort 2 Karten auf die Hand. Wurde man zu unrecht beschuldigt, erhält der Spieler der beschuldigt hat sofort 2 Karten auf die Hand. Wenn man nicht beschuldigt wurde, bis man wieder an der Reihe ist, wurdest du nicht erwischt und kannst auch nicht mehr erwischt werden.</string>
+    <string name="rules">Sobald die Karten gemischt sind, enthält jeder Spieler 7 Karten. Die übrigen Karten werden mit dem Gesicht nach unten auf den Tisch gelegt und bilden den KARTENSTOCK. Die oberste Karte wird herumgedreht und neben den KARTENSTOCK gelegt. Sie bildet den ABLEGESTAPEL. Der Spieler zur Linken des Gebers beginnt das Spiel. Die Karten, die die Spieler ablegen, müssen mit den Karten des ABLEGESTAPELS in Zahl, Farbe oder Symbol übereinstimmen. Ist zum Beispiel die Karte eine rote 7, muss der Spieler entweder eine rote Karte oder eine andere Karte beliebiger Farbe mit der Zahl 7 ablegen. Alternativ hierzu kann der Spieler auch eine Farbenwahlkarte ablegen. Hält ein Spieler keine Karte in der Hand, die er auf den ABLEGESTAPEL legen könnte, muss er vom KARTENSTOCK eine Karte ziehen. Er darf die gezogene Karte sofort legen, wenn er kann. Ansonsten setzt der nächste Spieler das Spiel fort.</string>
     <string name="help">Hilfe</string>
-    <string name="allow_custom_cards">Allow custom cards</string>
-    <string name="allow_stacking">Das Stapeln von +Karten erlauben</string>
+    <string name="allow_custom_cards">Schüttelkarte verwenden</string>
+    <string name="allow_stacking">Stapeln von +Karten erlauben</string>
     <string name="manual">Anleitung</string>
     <string name="uno_logo">Uno Logo</string>
     <string name="start_game">Start game</string>
@@ -56,5 +61,13 @@
     <string name="cheated">Du hast eine Karte verschwinden lassen.</string>
     <string name="not_your_turn">Du bist nicht an der Reihe.</string>
     <string name="your_turn">Du bist an der Reihe.</string>
-    <string name="allow_cheating">Allow Cheating</string>
+    <string name="allow_cheating">Schummeln erlauben</string>
+    <string name="not_allowed_to_accuse">Du darfst nur jemanden des Schummelns bezichtigen, wenn du an der Reihe bist.</string>
+    <string name="correctly_accused_all">%s hat %s beim schummeln erwischt. %s erhält sofort 2 Strafarten.</string>
+    <string name="correctly_accused_accuser">%s hat tatsächlich geschummelt und hat daher sofort 2 Strafkarten erhalten.</string>
+    <string name="correctly_accused_accused">%s hat dich beim schummeln erwischt. Du erhälst sofort 2 Strafkarten.</string>
+    <string name="wrongly_accused_all">%s hat %s des Schummelns bezichtigt. %s hat aber nicht geschummelt daher erhält %s sofort 2 Strafkarten.</string>
+    <string name="wrongly_accused_accuser">%s hat NICHT geschummelt. Du erhälst daher sofort 2 Strafkarten.</string>
+    <string name="wrongly_accused_accused">%s hat dich fälschlicherweise des Schummelns bezichtigt und hat daher sofort 2 Strafkarten erhalten.</string>
+    <string name="no_cheating">Das Schummeln ist nicht erlaubt.</string>
 </resources>
