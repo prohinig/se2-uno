@@ -37,7 +37,7 @@ import games.winchester.unodeluxe.models.Player;
 import games.winchester.unodeluxe.models.ShakeDetector;
 import games.winchester.unodeluxe.utils.NetworkUtils;
 
-import android.widget.Button;
+
 import java.util.Locale;
 import android.content.ActivityNotFoundException;
 import android.speech.RecognizerIntent;
@@ -77,15 +77,17 @@ public class GameActivity extends AppCompatActivity {
 
     private final int REQ_CODE_SPEECH_INPUT = 100;
     public int speechResult;
-    
+
+    ArrayList<String> result;
+    ArrayList<String> allowedList = new ArrayList<String>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_game);
 
         ButterKnife.bind(this);
-
-
+         addElements();
 
         this.setupNetwork();
         this.setupSensors();
@@ -102,6 +104,16 @@ public class GameActivity extends AppCompatActivity {
             game = new Game(this);
             this.setupMultiplayerClient(host);
         }
+    }
+    private void addElements(){
+
+        allowedList.add("UNO");
+        allowedList.add("UN");
+        allowedList.add("U");
+        allowedList.add("uno");
+        allowedList.add("un");
+        allowedList.add("u");
+
     }
 
     private void setupNetwork() {
@@ -379,14 +391,17 @@ public class GameActivity extends AppCompatActivity {
 
 
     public void SpeechRecognition() {
+
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
                 getString(R.string.say_something) );
+
         try {
             startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
+
         } catch (ActivityNotFoundException a) {
             Toast.makeText(getApplicationContext(),
                     getString(R.string.speech_not_supported),
@@ -398,16 +413,13 @@ public class GameActivity extends AppCompatActivity {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
+
             case REQ_CODE_SPEECH_INPUT: {
                 if (resultCode == RESULT_OK && null != data) {
-                    ArrayList<String> result = data
+                    result = data
                             .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
-                     if(result.get(0).equals("UNO")||
-                             result.get(0).equals("UN")||
-                             result.get(0).equals("U")||
-                             result.get(0).equals("uno")||
-                             result.get(0).equals("un")||
-                    result.get(0).equals("u"))   {
+
+                     if( allowedList.contains(result.get(0)) )   {
                          speechResult=1;
 
                      } else

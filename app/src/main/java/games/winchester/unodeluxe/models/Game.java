@@ -1,9 +1,5 @@
 package games.winchester.unodeluxe.models;
 
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
-import android.speech.RecognizerIntent;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,6 +48,16 @@ public class Game {
     private boolean colorWishPending;
     // for advanced ruleset (+2 and +4 can be stacked)
     private boolean advancedRules;
+
+    private final int REQ_CODE_SPEECH_INPUT = 100;
+
+    TimerTask task = new TimerTask() {
+
+        @Override
+        public void run() {
+            activity.SpeechRecognition();
+        }
+    };
 
     public Game(GameActivity activity) {
         this.reverse = false;
@@ -284,18 +290,9 @@ public class Game {
 //      we receive a turn from one player and send it to all
         session.send(turn);
     }
-    CharSequence text1 = "Say something";
-    CharSequence text2 = "The device does not support speech recognition";
 
-    private final int REQ_CODE_SPEECH_INPUT = 100;
 
-    TimerTask task = new TimerTask() {
 
-        @Override
-        public void run() {
-           activity.SpeechRecognition();
-        }
-    };
 
     // check if card can be played and return result
     private void playCard(Card c, Player p) {
@@ -311,8 +308,10 @@ public class Game {
         }
 
         if(p.getHand().getCards().size()==1) {
+
             Timer t = new Timer();
             t.schedule(task, 1000);
+
             if(activity.speechResult==0){
                 switch (GameLogic.actionRequired(c)) {
                     case DRAWTWO:
