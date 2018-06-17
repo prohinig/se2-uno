@@ -313,7 +313,7 @@ public class Game {
         if(p.getHand().getCards().size()==1) {
             Timer t = new Timer();
             t.schedule(task, 1000);
-            if(activity.Speechresult==0){
+            if(activity.speechResult==0){
                 switch (GameLogic.actionRequired(c)) {
                     case DRAWTWO:
                         numberOfCardsToDraw += 2;

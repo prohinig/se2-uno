@@ -75,6 +75,9 @@ public class GameActivity extends AppCompatActivity {
     private float newTouchValue = 0f;
     private static final float MIN_DISTANCE = 50f;
 
+    private final int REQ_CODE_SPEECH_INPUT = 100;
+    public int speechResult;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -375,29 +378,23 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
-    Button btnRecord;
-    CharSequence text1 = "Say something";
-    CharSequence text2 = "The device does not support speech recognition";
-
-    private final int REQ_CODE_SPEECH_INPUT = 100;
-
     public void SpeechRecognition() {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
                 RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
         intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                text1);
+                getString(R.string.say_something) );
         try {
             startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
         } catch (ActivityNotFoundException a) {
             Toast.makeText(getApplicationContext(),
-                    text2,
+                    getString(R.string.speech_not_supported),
                     Toast.LENGTH_SHORT).show();
         }
 
     }
-    public int Speechresult;
+
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
@@ -411,11 +408,11 @@ public class GameActivity extends AppCompatActivity {
                              result.get(0).equals("uno")||
                              result.get(0).equals("un")||
                     result.get(0).equals("u"))   {
-                         Speechresult=1;
+                         speechResult=1;
 
                      } else
                      {
-                         Speechresult=0;
+                         speechResult=0;
                      }
 
                 }
