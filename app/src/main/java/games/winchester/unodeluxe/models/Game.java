@@ -9,6 +9,7 @@ import at.laubi.network.session.HostSession;
 import at.laubi.network.session.Session;
 import games.winchester.unodeluxe.activities.GameActivity;
 import games.winchester.unodeluxe.enums.CardColor;
+import games.winchester.unodeluxe.enums.Direction;
 import games.winchester.unodeluxe.messages.Accusation;
 import games.winchester.unodeluxe.messages.AccusationResult;
 import games.winchester.unodeluxe.messages.Cheat;
@@ -26,7 +27,7 @@ public class Game {
     // checks if game has been started
     private boolean gameStarted;
     // checks direction -> false: (index++) true: (index--)
-    private boolean reverse;
+    private Direction direction = Direction.NORMAL;
     // color that is active does not always match topcard
     private CardColor activeColor;
     // players in the game, each player is one device
@@ -50,7 +51,6 @@ public class Game {
     private boolean ignoreNextTurn;
 
     public Game(GameActivity activity) {
-        this.reverse = false;
         this.activity = activity;
         this.gameStarted = false;
         this.numberOfCardsToDraw = 0;
@@ -63,7 +63,6 @@ public class Game {
     public Game(GameActivity activity, Player admin) {
         this.deck = new Deck();
         this.stack = new Stack();
-        this.reverse = false;
         this.players = new ArrayList<>();
         this.self = admin;
         this.activity = activity;
@@ -290,7 +289,8 @@ public class Game {
                 setActiveColorInternal(receivedTurn.getActiveColor());
             }
 
-            reverse = receivedTurn.isReverse();
+            direction = receivedTurn.getDirection();
+
             numberOfCardsToDraw = receivedTurn.getCardsToDraw();
 
             // remove all cards the player drew from my deck
@@ -413,10 +413,10 @@ public class Game {
                 //if a reverse card is played in a 2-Player-Game it acts like a Skip-Card
                 //therefore skipping the reverse action and going to Skip action.
                 if (players.size() > 2) {
-                    reverse = !reverse;
-                    break;
+                    direction = direction.reverseDirection();
+                }else {
+                    setNextPlayer();
                 }
-                setNextPlayer();
                 break;
             case SKIP:
                 setNextPlayer();
@@ -509,7 +509,7 @@ public class Game {
             turn.setActivePlayer(setNextPlayer());
             turn.setCardPlayed(stack.getTopCard());
             turn.setActiveColor(activeColor);
-            turn.setReverse(reverse);
+            turn.setDirection(direction);
             turn.setCardsToDraw(numberOfCardsToDraw);
             session.send(turn);
             if (session instanceof ClientSession) {
@@ -557,22 +557,13 @@ public class Game {
         return stack;
     }
 
-    private boolean isReverse() {
-        return reverse;
-    }
 
     public List<Player> getPlayers() {
         return players;
     }
 
     private int setNextPlayer() {
-        int current = activePlayer;
-        if (isReverse()) {
-            activePlayer = (current + players.size() - 1) % players.size();
-        } else {
-            activePlayer = (current + 1) % players.size();
-        }
-        return activePlayer;
+        return direction.getNextPlayerPos(activePlayer, players.size());
     }
 
     public Session getSession() {
