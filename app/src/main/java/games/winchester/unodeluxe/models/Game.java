@@ -181,7 +181,7 @@ public class Game {
                         self.setAccuseable(true);
                         self.getHand().removeCard(c);
                         activity.notificationCheated();
-                        if (session instanceof ClientSession) {
+                        if (isClientGame()) {
                             sendCheat(c);
                         }
                         return true;
@@ -215,7 +215,7 @@ public class Game {
 
     public void accusePlayer(String playerName) {
         if (null != session) {
-            if (session instanceof HostSession) {
+            if (isHostGame()) {
                 handleAccusation(new Accusation(self.getName(), playerName));
             } else {
                 Accusation accusation = new Accusation(self.getName(), playerName);
@@ -276,7 +276,7 @@ public class Game {
         Card cardPlayed = null;
         if (m instanceof Turn) {
             // we received a turn a player made
-            if (session instanceof HostSession) {
+            if (isHostGame()) {
                 // we are host so notify the others
                 notifyPlayers((Turn) m);
             }
@@ -338,7 +338,7 @@ public class Game {
             Name nameMessage = (Name) m;
             this.name = nameMessage.getName();
         } else if (m instanceof Cheat) {
-            if (session instanceof HostSession) {
+            if (isHostGame()) {
                 Player cheater = getPlayerByName(((Cheat) m).getCheater());
                 if (cheater != null) {
                     cheater.setCheated(true);
@@ -349,7 +349,7 @@ public class Game {
             }
 
         } else if (m instanceof Accusation) {
-            if (session instanceof HostSession) {
+            if (isHostGame()) {
                 handleAccusation((Accusation) m);
             }
         } else if (m instanceof AccusationResult) {
@@ -504,6 +504,14 @@ public class Game {
 
     }
 
+    private boolean isHostGame(){
+        return session instanceof HostSession;
+    }
+
+    private boolean isClientGame(){
+        return !isHostGame();
+    }
+
     private void sendTurn() {
         if (null != session) {
             turn.setActivePlayer(setNextPlayer());
@@ -512,7 +520,7 @@ public class Game {
             turn.setDirection(direction);
             turn.setCardsToDraw(numberOfCardsToDraw);
             session.send(turn);
-            if (session instanceof ClientSession) {
+            if (isClientGame()) {
                 ignoreNextTurn = true;
             }
         }
