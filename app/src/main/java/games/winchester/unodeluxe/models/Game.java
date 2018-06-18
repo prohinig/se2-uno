@@ -396,7 +396,7 @@ public class Game {
     }
 
     private void handleActionPlayed(Card c) {
-        switch (GameLogic.actionRequired(c)) {
+        switch (c.getRequiredAction()) {
             case DRAWTWO:
                 numberOfCardsToDraw += 2;
                 break;
@@ -456,7 +456,7 @@ public class Game {
             Card cardTopped = this.deck.deal(1).remove(0);
 
             //guarantees that no action card is topped as first card
-            while (isActionCard(cardTopped)) {
+            while (cardTopped.isActionCard()) {
                 List<Card> tmp = new ArrayList<>();
                 tmp.add(cardTopped);
                 deck.addCards(tmp);
@@ -483,19 +483,6 @@ public class Game {
             gameStarted = true;
 
             session.send(new Setup(this));
-        }
-    }
-
-    public boolean isActionCard(Card c) {
-        switch (c.getSymbol()) {
-            case PLUSTWO:
-            case PLUSFOUR:
-            case SKIP:
-            case REVERSE:
-            case WISH:
-                return true;
-            default:
-                return false;
         }
     }
 

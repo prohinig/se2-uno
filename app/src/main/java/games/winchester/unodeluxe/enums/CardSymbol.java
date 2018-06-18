@@ -19,5 +19,30 @@ public enum CardSymbol {
     SKIP,
     PLUSTWO,
     WISH,
-    PLUSFOUR
+    PLUSFOUR;
+
+    public Action getAction(){
+
+        switch(this){
+            case PLUSTWO:   return Action.DRAWTWO;
+            case REVERSE:   return Action.REVERSE;
+            case SKIP:      return Action.SKIP;
+            case WISH:      return Action.WISH;
+            case PLUSFOUR:  return Action.DRAWFOUR;
+            default:        return Action.NONE;
+        }
+    }
+
+    public boolean isActionSymbol(){
+        switch(this){
+            case PLUSFOUR:
+            case REVERSE:
+            case SKIP:
+            case WISH:
+            case PLUSTWO:
+                return true;
+            default:
+                return false;
+        }
+    }
 }
