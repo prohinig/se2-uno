@@ -2,6 +2,7 @@ package games.winchester.unodeluxe.messages;
 
 import at.laubi.network.messages.Message;
 import games.winchester.unodeluxe.enums.CardColor;
+import games.winchester.unodeluxe.enums.Direction;
 import games.winchester.unodeluxe.models.Card;
 
 /**
@@ -13,7 +14,7 @@ public class Turn implements Message {
 
     private Card cardPlayed;
     private CardColor activeColor;
-    private boolean reverse;
+    private Direction direction = Direction.NORMAL;
     private int cardsToDraw;
 
     public Turn(){
@@ -22,7 +23,6 @@ public class Turn implements Message {
         this.cardPlayed = null;
 
         this.activeColor = null;
-        this.reverse = false;
         this.cardsToDraw = 0;
     }
 
@@ -42,8 +42,8 @@ public class Turn implements Message {
         return activeColor;
     }
 
-    public boolean isReverse() {
-        return reverse;
+    public Direction getDirection(){
+        return direction;
     }
 
     public void setCardsDrawn(int cardsDrawn) {
@@ -62,8 +62,8 @@ public class Turn implements Message {
         this.activeColor = activeColor;
     }
 
-    public void setReverse(boolean reverse) {
-        this.reverse = reverse;
+    public void setDirection(Direction direction){
+        this.direction = direction;
     }
 
     public void setCardsToDraw(int count) {

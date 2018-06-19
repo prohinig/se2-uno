@@ -1,6 +1,5 @@
 package games.winchester.unodeluxe.utils;
 
-import games.winchester.unodeluxe.enums.Action;
 import games.winchester.unodeluxe.enums.CardColor;
 import games.winchester.unodeluxe.enums.CardSymbol;
 import games.winchester.unodeluxe.models.Card;
@@ -48,23 +47,4 @@ public class GameLogic {
 
         return false;
     }
-
-    // checks if a card has an action
-    public static Action actionRequired(Card c) {
-        switch (c.getSymbol()) {
-            case PLUSTWO:
-                return Action.DRAWTWO;
-            case REVERSE:
-                return Action.REVERSE;
-            case SKIP:
-                return Action.SKIP;
-            case WISH:
-                return Action.WISH;
-            case PLUSFOUR:
-                return Action.DRAWFOUR;
-            default:
-                return Action.NONE;
-        }
-    }
-
 }

@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import java.io.Serializable;
 import java.util.Objects;
 
+import games.winchester.unodeluxe.enums.Action;
 import games.winchester.unodeluxe.enums.CardColor;
 import games.winchester.unodeluxe.enums.CardSymbol;
 
@@ -13,16 +14,14 @@ import games.winchester.unodeluxe.enums.CardSymbol;
  */
 
 public class Card implements Serializable, Comparable<Card>{
-    private CardColor color;
-    private CardSymbol symbol;
+    private final CardColor color;
+    private final CardSymbol symbol;
     private String graphic;
-
 
     public Card(CardColor color, CardSymbol symbol) {
         this.color = color;
         this.symbol = symbol;
         initGraphic(color, symbol);
-
     }
 
     public CardColor getColor() {
@@ -109,6 +108,14 @@ public class Card implements Serializable, Comparable<Card>{
         }
 
         this.graphic = graphicName;
+    }
+
+    public Action getRequiredAction(){
+        return symbol.getAction();
+    }
+
+    public boolean isActionCard(){
+        return symbol.isActionSymbol();
     }
 
     @Override

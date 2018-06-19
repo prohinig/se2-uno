@@ -9,6 +9,7 @@ import at.laubi.network.session.HostSession;
 import at.laubi.network.session.Session;
 import games.winchester.unodeluxe.activities.GameActivity;
 import games.winchester.unodeluxe.enums.CardColor;
+import games.winchester.unodeluxe.enums.Direction;
 import games.winchester.unodeluxe.messages.Accusation;
 import games.winchester.unodeluxe.messages.AccusationResult;
 import games.winchester.unodeluxe.messages.Cheat;
@@ -26,7 +27,7 @@ public class Game {
     // checks if game has been started
     private boolean gameStarted;
     // checks direction -> false: (index++) true: (index--)
-    private boolean reverse;
+    private Direction direction = Direction.NORMAL;
     // color that is active does not always match topcard
     private CardColor activeColor;
     // players in the game, each player is one device
@@ -50,7 +51,6 @@ public class Game {
     private boolean ignoreNextTurn;
 
     public Game(GameActivity activity) {
-        this.reverse = false;
         this.activity = activity;
         this.gameStarted = false;
         this.numberOfCardsToDraw = 0;
@@ -63,7 +63,6 @@ public class Game {
     public Game(GameActivity activity, Player admin) {
         this.deck = new Deck();
         this.stack = new Stack();
-        this.reverse = false;
         this.players = new ArrayList<>();
         this.self = admin;
         this.activity = activity;
@@ -182,7 +181,7 @@ public class Game {
                         self.setAccuseable(true);
                         self.getHand().removeCard(c);
                         activity.notificationCheated();
-                        if (session instanceof ClientSession) {
+                        if (isClientGame()) {
                             sendCheat(c);
                         }
                         return true;
@@ -216,7 +215,7 @@ public class Game {
 
     public void accusePlayer(String playerName) {
         if (null != session) {
-            if (session instanceof HostSession) {
+            if (isHostGame()) {
                 handleAccusation(new Accusation(self.getName(), playerName));
             } else {
                 Accusation accusation = new Accusation(self.getName(), playerName);
@@ -277,7 +276,7 @@ public class Game {
         Card cardPlayed = null;
         if (m instanceof Turn) {
             // we received a turn a player made
-            if (session instanceof HostSession) {
+            if (isHostGame()) {
                 // we are host so notify the others
                 notifyPlayers((Turn) m);
             }
@@ -290,7 +289,8 @@ public class Game {
                 setActiveColorInternal(receivedTurn.getActiveColor());
             }
 
-            reverse = receivedTurn.isReverse();
+            direction = receivedTurn.getDirection();
+
             numberOfCardsToDraw = receivedTurn.getCardsToDraw();
 
             // remove all cards the player drew from my deck
@@ -338,7 +338,7 @@ public class Game {
             Name nameMessage = (Name) m;
             this.name = nameMessage.getName();
         } else if (m instanceof Cheat) {
-            if (session instanceof HostSession) {
+            if (isHostGame()) {
                 Player cheater = getPlayerByName(((Cheat) m).getCheater());
                 if (cheater != null) {
                     cheater.setCheated(true);
@@ -349,7 +349,7 @@ public class Game {
             }
 
         } else if (m instanceof Accusation) {
-            if (session instanceof HostSession) {
+            if (isHostGame()) {
                 handleAccusation((Accusation) m);
             }
         } else if (m instanceof AccusationResult) {
@@ -396,7 +396,7 @@ public class Game {
     }
 
     private void handleActionPlayed(Card c) {
-        switch (GameLogic.actionRequired(c)) {
+        switch (c.getRequiredAction()) {
             case DRAWTWO:
                 numberOfCardsToDraw += 2;
                 break;
@@ -413,10 +413,10 @@ public class Game {
                 //if a reverse card is played in a 2-Player-Game it acts like a Skip-Card
                 //therefore skipping the reverse action and going to Skip action.
                 if (players.size() > 2) {
-                    reverse = !reverse;
-                    break;
+                    direction = direction.reverseDirection();
+                }else {
+                    setNextPlayer();
                 }
-                setNextPlayer();
                 break;
             case SKIP:
                 setNextPlayer();
@@ -456,7 +456,7 @@ public class Game {
             Card cardTopped = this.deck.deal(1).remove(0);
 
             //guarantees that no action card is topped as first card
-            while (isActionCard(cardTopped)) {
+            while (cardTopped.isActionCard()) {
                 List<Card> tmp = new ArrayList<>();
                 tmp.add(cardTopped);
                 deck.addCards(tmp);
@@ -486,19 +486,6 @@ public class Game {
         }
     }
 
-    public boolean isActionCard(Card c) {
-        switch (c.getSymbol()) {
-            case PLUSTWO:
-            case PLUSFOUR:
-            case SKIP:
-            case REVERSE:
-            case WISH:
-                return true;
-            default:
-                return false;
-        }
-    }
-
     public void stackToDeck() {
         Card toppedCard = stack.getTopCard();
         stack.getCards().remove(toppedCard);
@@ -517,15 +504,23 @@ public class Game {
 
     }
 
+    private boolean isHostGame(){
+        return session instanceof HostSession;
+    }
+
+    private boolean isClientGame(){
+        return !isHostGame();
+    }
+
     private void sendTurn() {
         if (null != session) {
             turn.setActivePlayer(setNextPlayer());
             turn.setCardPlayed(stack.getTopCard());
             turn.setActiveColor(activeColor);
-            turn.setReverse(reverse);
+            turn.setDirection(direction);
             turn.setCardsToDraw(numberOfCardsToDraw);
             session.send(turn);
-            if (session instanceof ClientSession) {
+            if (isClientGame()) {
                 ignoreNextTurn = true;
             }
         }
@@ -570,22 +565,13 @@ public class Game {
         return stack;
     }
 
-    private boolean isReverse() {
-        return reverse;
-    }
 
     public List<Player> getPlayers() {
         return players;
     }
 
     private int setNextPlayer() {
-        int current = activePlayer;
-        if (isReverse()) {
-            activePlayer = (current + players.size() - 1) % players.size();
-        } else {
-            activePlayer = (current + 1) % players.size();
-        }
-        return activePlayer;
+        return activePlayer = direction.getNextPlayerPos(activePlayer, players.size());
     }
 
     public Session getSession() {
