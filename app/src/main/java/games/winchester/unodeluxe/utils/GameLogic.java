@@ -1,6 +1,5 @@
 package games.winchester.unodeluxe.utils;
 
-import games.winchester.unodeluxe.enums.Action;
 import games.winchester.unodeluxe.enums.CardColor;
 import games.winchester.unodeluxe.enums.CardSymbol;
 import games.winchester.unodeluxe.models.Card;
