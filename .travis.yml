@@ -29,6 +29,7 @@ before_script:
 
 script:
     - ./gradlew test
+    - ./gradlew jacocoTestReport
     - sonar-scanner
 
 addons:
