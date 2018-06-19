@@ -571,7 +571,7 @@ public class Game {
     }
 
     private int setNextPlayer() {
-        return direction.getNextPlayerPos(activePlayer, players.size());
+        return activePlayer = direction.getNextPlayerPos(activePlayer, players.size());
     }
 
     public Session getSession() {
