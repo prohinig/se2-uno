@@ -1,6 +1,7 @@
 package games.winchester.unodeluxe.models;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import at.laubi.network.messages.Message;
@@ -69,6 +70,7 @@ public class Game {
         this.gameStarted = false;
         this.numberOfCardsToDraw = 0;
         this.turn = new Turn();
+        this.turn.setPlayerName(self.getName());
         // read player name from configuration
         this.players.add(self);
         this.colorWishPending = false;
@@ -293,13 +295,38 @@ public class Game {
 
             numberOfCardsToDraw = receivedTurn.getCardsToDraw();
 
+            Hand lastPlayersHand = null;
             // remove all cards the player drew from my deck
             if (0 < receivedTurn.getCardsDrawn() && !ignoreNextTurn) {
-                deck.deal(receivedTurn.getCardsDrawn());
+                List<Card> cards = deck.deal(receivedTurn.getCardsDrawn());
+
+                for(Player p : players) {
+                    if(p.getName().equals(receivedTurn.getPlayerName())) {
+                        lastPlayersHand = p.getHand();
+                        lastPlayersHand.addCards(cards);
+                    }
+                }
             }
 
-            if (null != receivedTurn.getCardPlayed() && !ignoreNextTurn) {
-                this.layCard(receivedTurn.getCardPlayed());
+            Card receivedTurnCardPlayed = receivedTurn.getCardPlayed();
+            if (null != receivedTurnCardPlayed && !ignoreNextTurn) {
+                this.layCard(receivedTurnCardPlayed);
+                for(Player p : players) {
+                    if(p.getName().equals(receivedTurn.getPlayerName())) {
+                        lastPlayersHand = p.getHand();
+                        Iterator<Card> it = lastPlayersHand.getCards().iterator();
+                        while(it.hasNext()){
+                            Card c = it.next();
+                            if(c.getSymbol().equals(receivedTurnCardPlayed.getSymbol()) && c.getColor().equals(receivedTurnCardPlayed.getColor())){
+                                it.remove();
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(null != lastPlayersHand) {
+                activity.updateCardCount(receivedTurn.getPlayerName(), lastPlayersHand.getCards().size());
             }
 
             ignoreNextTurn = false;
@@ -327,11 +354,13 @@ public class Game {
             }
             int indexOfMe = players.indexOf(self);
             ArrayList<String> opponents = new ArrayList<>();
+            ArrayList<Integer> cardAmounts = new ArrayList<>();
             for (int i = 1; i < players.size(); i++) {
                 opponents.add(players.get((indexOfMe + i) % players.size()).getName());
+                cardAmounts.add(players.get((indexOfMe + i) % players.size()).getHand().getSize());
             }
 
-            activity.renderOpponents(opponents);
+            activity.renderOpponents(opponents, cardAmounts);
             activity.addToHand(self.getHand().getCards());
 
         } else if (m instanceof Name) {
@@ -359,6 +388,7 @@ public class Game {
         // if its my turn enable clicks
         if (myTurn()) {
             turn = new Turn();
+            turn.setPlayerName(self.getName());
             turn.setCardsDrawn(0);
             activity.notificationYourTurn();
         }
@@ -474,11 +504,16 @@ public class Game {
             }
 
             ArrayList<String> opponents = new ArrayList<>();
+            ArrayList<Integer> cardAmounts = new ArrayList<>();
+
             for (int i = 1; i < players.size(); i++) {
                 opponents.add(players.get(i).getName());
+                cardAmounts.add(players.get(i).getHand().getSize());
+
             }
 
-            activity.renderOpponents(opponents);
+            activity.renderOpponents(opponents, cardAmounts);
+
             activePlayer = 1;
             gameStarted = true;
 
@@ -528,6 +563,7 @@ public class Game {
         // we reset turn here to avoid sending same info twice
         // when same player is having turn twice
         turn = new Turn();
+        turn.setPlayerName(self.getName());
     }
 
     private void sendCheat(Card c) {
