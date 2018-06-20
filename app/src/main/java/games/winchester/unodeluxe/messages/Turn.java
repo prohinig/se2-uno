@@ -16,11 +16,13 @@ public class Turn implements Message {
     private CardColor activeColor;
     private Direction direction = Direction.NORMAL;
     private int cardsToDraw;
+    private String playerName;
 
     public Turn(){
         this.cardsDrawn = 0;
         this.activePlayer = 0;
         this.cardPlayed = null;
+        this.playerName = null;
 
         this.activeColor = null;
         this.cardsToDraw = 0;
@@ -72,5 +74,13 @@ public class Turn implements Message {
 
     public int getCardsToDraw() {
         return this.cardsToDraw;
+    }
+
+    public String getPlayerName() {
+        return playerName;
+    }
+
+    public void setPlayerName(String playerName) {
+        this.playerName = playerName;
     }
 }

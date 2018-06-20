@@ -62,14 +62,14 @@ public class GameActivity extends AppCompatActivity {
     @BindView(R.id.ipText)
     TextView ip;
 
-    @BindView(R.id.player2)
-    ImageView opponentOne;
+    @BindView(R.id.player2layout)
+    FrameLayout opponentOne;
 
-    @BindView(R.id.player3)
-    ImageView opponentTwo;
+    @BindView(R.id.player3layout)
+    FrameLayout opponentTwo;
 
-    @BindView(R.id.player4)
-    ImageView opponentThree;
+    @BindView(R.id.player4layout)
+    FrameLayout opponentThree;
 
     private Game game;
     private Network network;
@@ -210,17 +210,40 @@ public class GameActivity extends AppCompatActivity {
         }
     }
 
-    public void renderOpponents(List<String> opponents){
+    public void updateCardCount(String playerName, Integer count) {
+        TextView v = null;
+
+        if(null != opponentOne.getTag() && opponentOne.getTag().toString().equals(playerName)){
+            v = opponentOne.findViewById(R.id.player2count);
+        } else if(null != opponentTwo.getTag() && opponentTwo.getTag().toString().equals(playerName)){
+            v = opponentTwo.findViewById(R.id.player3count);
+        } else if(null != opponentThree.getTag() && opponentThree.getTag().toString().equals(playerName)){
+            v = opponentThree.findViewById(R.id.player4count);
+        }
+
+        if(v != null) {
+            v.setText(count.toString());
+        }
+    }
+
+    public void renderOpponents(List<String> opponents, List<Integer> cardAmounts){
         int noOpponents = opponents.size();
         ArrayList<View> views = new ArrayList<>();
         if(noOpponents == 1) {
             opponentTwo.setTag(opponents.get(0));
             views.add(opponentTwo);
+            TextView v = opponentTwo.findViewById(R.id.player3count);
+            v.setText(cardAmounts.get(0).toString());
         } else if(noOpponents == 2) {
             opponentOne.setTag(opponents.get(0));
             opponentThree.setTag(opponents.get(1));
             views.add(opponentOne);
             views.add(opponentThree);
+            TextView v = opponentOne.findViewById(R.id.player2count);
+            v.setText(cardAmounts.get(0).toString());
+            v = opponentThree.findViewById(R.id.player4count);
+            v.setText(cardAmounts.get(1).toString());
+
         } else if(noOpponents == 3) {
             opponentOne.setTag(opponents.get(0));
             opponentTwo.setTag(opponents.get(1));
@@ -228,6 +251,12 @@ public class GameActivity extends AppCompatActivity {
             views.add(opponentOne);
             views.add(opponentTwo);
             views.add(opponentThree);
+            TextView v = opponentOne.findViewById(R.id.player2count);
+            v.setText(cardAmounts.get(0).toString());
+            v = opponentTwo.findViewById(R.id.player3count);
+            v.setText(cardAmounts.get(1).toString());
+            v = opponentThree.findViewById(R.id.player4count);
+            v.setText(cardAmounts.get(2).toString());
         }
 
         for(View w : views) {
