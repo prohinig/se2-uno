@@ -9,8 +9,8 @@
         <item>Grün</item>
         <item>Rot</item>
     </string-array>
-    
-    
+
+
     <string name="Button01">Start</string>
     <string name="Button02">Start</string>
     <string name="Button03">Start</string>
@@ -70,4 +70,5 @@
     <string name="wrongly_accused_accuser">%s hat NICHT geschummelt. Du erhälst daher sofort 2 Strafkarten.</string>
     <string name="wrongly_accused_accused">%s hat dich fälschlicherweise des Schummelns bezichtigt und hat daher sofort 2 Strafkarten erhalten.</string>
     <string name="no_cheating">Das Schummeln ist nicht erlaubt.</string>
+    <string name="shuffle">Der Stack wurde in das Deck gemischt.</string>
 </resources>

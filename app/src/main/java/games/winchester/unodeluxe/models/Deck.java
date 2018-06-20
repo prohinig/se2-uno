@@ -17,6 +17,10 @@ public class Deck extends CardCollection {
         this.initialize();
     }
 
+    public Deck(List<Card> cards) {
+        this.cards = cards;
+    }
+
     private void initialize() {
         this.cards = new ArrayList<>();
         // add all cards

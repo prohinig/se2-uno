@@ -18,7 +18,7 @@ public class Turn implements Message {
     private int cardsToDraw;
     private String playerName;
 
-    public Turn(){
+    public Turn() {
         this.cardsDrawn = 0;
         this.activePlayer = 0;
         this.cardPlayed = null;
@@ -44,7 +44,7 @@ public class Turn implements Message {
         return activeColor;
     }
 
-    public Direction getDirection(){
+    public Direction getDirection() {
         return direction;
     }
 
@@ -64,7 +64,7 @@ public class Turn implements Message {
         this.activeColor = activeColor;
     }
 
-    public void setDirection(Direction direction){
+    public void setDirection(Direction direction) {
         this.direction = direction;
     }
 

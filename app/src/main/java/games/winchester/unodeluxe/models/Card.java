@@ -13,7 +13,7 @@ import games.winchester.unodeluxe.enums.CardSymbol;
  * Created by christianprohinig on 10.04.18.
  */
 
-public class Card implements Serializable, Comparable<Card>{
+public class Card implements Serializable, Comparable<Card> {
     private final CardColor color;
     private final CardSymbol symbol;
     private String graphic;
@@ -110,20 +110,20 @@ public class Card implements Serializable, Comparable<Card>{
         this.graphic = graphicName;
     }
 
-    public Action getRequiredAction(){
+    public Action getRequiredAction() {
         return symbol.getAction();
     }
 
-    public boolean isActionCard(){
+    public boolean isActionCard() {
         return symbol.isActionSymbol();
     }
 
     @Override
     public int compareTo(@NonNull Card o) {
-        if(this == o) return 0;
+        if (this == o) return 0;
 
         int resultColor = color.compareTo(o.color);
-        if(resultColor != 0) return resultColor;
+        if (resultColor != 0) return resultColor;
 
         return symbol.compareTo(o.symbol);
     }
