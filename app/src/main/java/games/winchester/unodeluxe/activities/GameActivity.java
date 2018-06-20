@@ -205,36 +205,40 @@ public class GameActivity extends AppCompatActivity {
         stackLayout.addView(stackLay);
 
         // prevent stack from looking shit
-        if(stackLayout.getChildCount() > 5) {
+        if (stackLayout.getChildCount() > 5) {
             stackLayout.removeViews(0, 2);
         }
+    }
+
+    public void resetStackView() {
+        stackLayout.removeViews(0, stackLayout.getChildCount() - 1);
     }
 
     public void updateCardCount(String playerName, Integer count) {
         TextView v = null;
 
-        if(null != opponentOne.getTag() && opponentOne.getTag().toString().equals(playerName)){
+        if (null != opponentOne.getTag() && opponentOne.getTag().toString().equals(playerName)) {
             v = opponentOne.findViewById(R.id.player2count);
-        } else if(null != opponentTwo.getTag() && opponentTwo.getTag().toString().equals(playerName)){
+        } else if (null != opponentTwo.getTag() && opponentTwo.getTag().toString().equals(playerName)) {
             v = opponentTwo.findViewById(R.id.player3count);
-        } else if(null != opponentThree.getTag() && opponentThree.getTag().toString().equals(playerName)){
+        } else if (null != opponentThree.getTag() && opponentThree.getTag().toString().equals(playerName)) {
             v = opponentThree.findViewById(R.id.player4count);
         }
 
-        if(v != null) {
+        if (v != null) {
             v.setText(count.toString());
         }
     }
 
-    public void renderOpponents(List<String> opponents, List<Integer> cardAmounts){
+    public void renderOpponents(List<String> opponents, List<Integer> cardAmounts) {
         int noOpponents = opponents.size();
         ArrayList<View> views = new ArrayList<>();
-        if(noOpponents == 1) {
+        if (noOpponents == 1) {
             opponentTwo.setTag(opponents.get(0));
             views.add(opponentTwo);
             TextView v = opponentTwo.findViewById(R.id.player3count);
             v.setText(cardAmounts.get(0).toString());
-        } else if(noOpponents == 2) {
+        } else if (noOpponents == 2) {
             opponentOne.setTag(opponents.get(0));
             opponentThree.setTag(opponents.get(1));
             views.add(opponentOne);
@@ -244,7 +248,7 @@ public class GameActivity extends AppCompatActivity {
             v = opponentThree.findViewById(R.id.player4count);
             v.setText(cardAmounts.get(1).toString());
 
-        } else if(noOpponents == 3) {
+        } else if (noOpponents == 3) {
             opponentOne.setTag(opponents.get(0));
             opponentTwo.setTag(opponents.get(1));
             opponentThree.setTag(opponents.get(2));
@@ -259,7 +263,7 @@ public class GameActivity extends AppCompatActivity {
             v.setText(cardAmounts.get(2).toString());
         }
 
-        for(View w : views) {
+        for (View w : views) {
             w.setVisibility(View.VISIBLE);
             w.setClickable(true);
             w.setOnClickListener(v -> game.opponentClicked(v.getTag()));
@@ -267,17 +271,16 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
-
-    public void updateColor(CardColor newC){
+    public void updateColor(CardColor newC) {
         CardColor oldC = bgColor;
         TransitionDrawable transition = (TransitionDrawable) gameLayout.getBackground();
         TransitionDrawable transitionRb = (TransitionDrawable) transition.findDrawableByLayerId(R.id.fader_rb);
         TransitionDrawable transitionGy = (TransitionDrawable) transition.findDrawableByLayerId(R.id.fader_gy);
 
-        if(oldC != newC && newC != CardColor.BLACK){
-            switch(newC) {
+        if (oldC != newC && newC != CardColor.BLACK) {
+            switch (newC) {
                 case RED:
-                    if(oldC == CardColor.BLUE) {
+                    if (oldC == CardColor.BLUE) {
                         transitionRb.reverseTransition(700);
                     } else {
                         transitionRb.resetTransition();
@@ -285,7 +288,7 @@ public class GameActivity extends AppCompatActivity {
                     }
                     break;
                 case BLUE:
-                    if(oldC == CardColor.RED) {
+                    if (oldC == CardColor.RED) {
                         transitionRb.startTransition(700);
                     } else {
                         transitionRb.startTransition(0);
@@ -293,7 +296,7 @@ public class GameActivity extends AppCompatActivity {
                     }
                     break;
                 case GREEN:
-                    if(oldC == CardColor.YELLOW) {
+                    if (oldC == CardColor.YELLOW) {
                         transitionGy.reverseTransition(700);
                     } else {
                         transitionGy.resetTransition();
@@ -336,9 +339,9 @@ public class GameActivity extends AppCompatActivity {
                         float deltaY = Math.abs(newTouchValue - oldTouchValue);
                         if (deltaY > MIN_DISTANCE) {
                             // user swiped a card down
-                            if(newTouchValue > oldTouchValue) {
-                                if(v.getTag() == null) return false;
-                                if(game.cheat((Card) v.getTag())) {
+                            if (newTouchValue > oldTouchValue) {
+                                if (v.getTag() == null) return false;
+                                if (game.cheat((Card) v.getTag())) {
                                     handLayout.removeView(v);
                                 }
                                 return true;
@@ -480,6 +483,10 @@ public class GameActivity extends AppCompatActivity {
 
     public void notificationNoCheating() {
         this.toastUiThread(getString(R.string.no_cheating), LENGTH_SHORT);
+    }
+
+    public void notificationShuffle() {
+        this.toastUiThread(getString(R.string.shuffle), LENGTH_SHORT);
     }
 
     public void vibrate() {

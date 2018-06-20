@@ -16,6 +16,7 @@ import games.winchester.unodeluxe.messages.AccusationResult;
 import games.winchester.unodeluxe.messages.Cheat;
 import games.winchester.unodeluxe.messages.Name;
 import games.winchester.unodeluxe.messages.Setup;
+import games.winchester.unodeluxe.messages.Shuffle;
 import games.winchester.unodeluxe.messages.Turn;
 import games.winchester.unodeluxe.utils.GameLogic;
 
@@ -98,6 +99,11 @@ public class Game {
             if (!isGameStarted()) {
                 startGame();
             } else {
+                // if deck card count is low, shuffle stack into deck
+                if (session instanceof HostSession) {
+                    shuffleNeeded();
+                }
+
                 if (numberOfCardsToDraw != 0) {
                     handCards(1, null);
                     turn.setCardsDrawn(turn.getCardsDrawn() + 1);
@@ -111,13 +117,6 @@ public class Game {
                     if (!GameLogic.hasPlayableCard(self.getHand(), getActiveColor(), getTopOfStackCard())) {
                         List<Card> tmp = handCards(1, null);
                         turn.setCardsDrawn(turn.getCardsDrawn() + 1);
-
-                        // if deck is empty, get cards from stack and put them to deck and shuffle
-                        if (deck.getSize() == 0) {
-                            stackToDeck();
-                            deck.shuffle();
-                            activity.notificationDeckShuffled();
-                        }
 
                         if (!GameLogic.isPlayableCard(tmp.get(0), self.getHand(), getTopOfStackCard(), getActiveColor())) {
                             sendTurn();
@@ -300,8 +299,8 @@ public class Game {
             if (0 < receivedTurn.getCardsDrawn() && !ignoreNextTurn) {
                 List<Card> cards = deck.deal(receivedTurn.getCardsDrawn());
 
-                for(Player p : players) {
-                    if(p.getName().equals(receivedTurn.getPlayerName())) {
+                for (Player p : players) {
+                    if (p.getName().equals(receivedTurn.getPlayerName())) {
                         lastPlayersHand = p.getHand();
                         lastPlayersHand.addCards(cards);
                     }
@@ -311,13 +310,13 @@ public class Game {
             Card receivedTurnCardPlayed = receivedTurn.getCardPlayed();
             if (null != receivedTurnCardPlayed && !ignoreNextTurn) {
                 this.layCard(receivedTurnCardPlayed);
-                for(Player p : players) {
-                    if(p.getName().equals(receivedTurn.getPlayerName())) {
+                for (Player p : players) {
+                    if (p.getName().equals(receivedTurn.getPlayerName())) {
                         lastPlayersHand = p.getHand();
                         Iterator<Card> it = lastPlayersHand.getCards().iterator();
-                        while(it.hasNext()){
+                        while (it.hasNext()) {
                             Card c = it.next();
-                            if(c.getSymbol().equals(receivedTurnCardPlayed.getSymbol()) && c.getColor().equals(receivedTurnCardPlayed.getColor())){
+                            if (c.getSymbol().equals(receivedTurnCardPlayed.getSymbol()) && c.getColor().equals(receivedTurnCardPlayed.getColor())) {
                                 it.remove();
                             }
                         }
@@ -325,7 +324,7 @@ public class Game {
                 }
             }
 
-            if(null != lastPlayersHand) {
+            if (null != lastPlayersHand) {
                 activity.updateCardCount(receivedTurn.getPlayerName(), lastPlayersHand.getCards().size());
             }
 
@@ -383,6 +382,15 @@ public class Game {
             }
         } else if (m instanceof AccusationResult) {
             handleAccusationResult((AccusationResult) m);
+        } else if (m instanceof Shuffle) {
+            this.deck = ((Shuffle) m).getDeck();
+            this.stack.getCards();
+            updateStackView();
+        }
+
+        if (session instanceof HostSession) {
+            // if deck card count is low, shuffle stack into deck
+            shuffleNeeded();
         }
 
         // if its my turn enable clicks
@@ -444,7 +452,7 @@ public class Game {
                 //therefore skipping the reverse action and going to Skip action.
                 if (players.size() > 2) {
                     direction = direction.reverseDirection();
-                }else {
+                } else {
                     setNextPlayer();
                 }
                 break;
@@ -521,12 +529,25 @@ public class Game {
         }
     }
 
+    public void shuffleNeeded() {
+        if (deck.getSize() < 5 + numberOfCardsToDraw) {
+            stackToDeck();
+            session.send(new Shuffle(this.deck));
+        }
+    }
+
     public void stackToDeck() {
-        Card toppedCard = stack.getTopCard();
-        stack.getCards().remove(toppedCard);
-        deck.addCards(stack.getCards());
-        stack.getCards().removeAll(stack.getCards());
-        stack.playCard(toppedCard);
+        List<Card> temp = new ArrayList<>();
+        temp.addAll(this.deck.deal(this.deck.getSize()));
+        temp.addAll(stack.getCards());
+        this.deck = new Deck(temp);
+        this.deck.shuffle();
+        updateStackView();
+    }
+
+    public void updateStackView() {
+        activity.resetStackView();
+        activity.notificationShuffle();
     }
 
     public void setActiveColor(CardColor color) {
@@ -539,11 +560,11 @@ public class Game {
 
     }
 
-    private boolean isHostGame(){
+    private boolean isHostGame() {
         return session instanceof HostSession;
     }
 
-    private boolean isClientGame(){
+    private boolean isClientGame() {
         return !isHostGame();
     }
 
