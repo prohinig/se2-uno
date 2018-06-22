@@ -18,7 +18,7 @@ public class CardGraphicResolver {
         this.context = context;
     }
 
-    public Drawable resolve(Card card){
+    public Drawable resolveDrawable(Card card){
         Drawable drawable = cache.get(card);
 
         if(drawable == null) {
@@ -29,21 +29,23 @@ public class CardGraphicResolver {
         return drawable;
     }
 
-    private Drawable findDrawable(Card card) {
+    public int resolveResourceId(Card card){
         final String resourceName = this.getResourceNameForCard(card);
 
-        final int resourceIdentifier = context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
-
-        return context.getResources().getDrawable(resourceIdentifier);
+        return context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
     }
 
-    private String getResourceNameForCard(Card card){
+    private Drawable findDrawable(Card card) {
+        return context.getResources().getDrawable(resolveResourceId(card));
+    }
+
+    public static String getResourceNameForCard(Card card){
         String name = getNameForColor(card.getColor()) + getNameForSymbol(card.getSymbol());
 
         return name.isEmpty() ? "back" : name;
     }
     
-    private String getNameForColor(CardColor color){
+    private static String getNameForColor(CardColor color){
         switch(color) {
             case RED: return "r";
             case YELLOW: return "y";
@@ -53,7 +55,7 @@ public class CardGraphicResolver {
         }
     }
 
-    private String getNameForSymbol(CardSymbol symbol){
+    private static String getNameForSymbol(CardSymbol symbol){
         switch(symbol) {
             case ZERO: return "0";
             case ONE: return "1";

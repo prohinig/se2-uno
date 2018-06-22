@@ -194,7 +194,7 @@ public class GameActivity extends AppCompatActivity {
         LayoutInflater inflater = getLayoutInflater();
         View stackLay = inflater.inflate(R.layout.stack, gameLayout, false);
         ImageView cardImageView = stackLay.findViewById(R.id.stackView);
-        cardImageView.setImageDrawable(graphicResolver.resolve(card));
+        cardImageView.setImageDrawable(graphicResolver.resolveDrawable(card));
         Random rand = new Random();
         float randomNum = rand.nextInt(361);
         cardImageView.setRotation(randomNum);
@@ -321,7 +321,7 @@ public class GameActivity extends AppCompatActivity {
         for (Card c : cards) {
             ImageView cardView = new ImageView(GameActivity.this);
             cardView.setPadding(0, 0, 0, 0);
-            cardView.setImageDrawable(graphicResolver.resolve(c));
+            cardView.setImageDrawable(graphicResolver.resolveDrawable(c));
             cardView.setClickable(true);
             cardView.setTag(c);
 
