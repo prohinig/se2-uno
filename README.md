@@ -51,6 +51,9 @@ Its written completely non-blocking, so a easy usability is given.
 * [Travis](https://travis.com) - build service
 * [Gradle](https://gradle.org) - package manager
 
+## Versioning
+We used __git__ for versioning, and __Github__ for pull requests, reviews, hooks etc. 
+
 ## Authors
 * __Hobisch Manuel__
   * Logic implementation
@@ -65,4 +68,5 @@ Its written completely non-blocking, so a easy usability is given.
   * Component integration
   * Interface design
 
-## License
+## Acknowledgment
+Thank you [stackoverflow](https://stackoverflow.com), for answering many questions :)
