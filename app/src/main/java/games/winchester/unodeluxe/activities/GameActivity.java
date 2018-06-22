@@ -41,6 +41,7 @@ import games.winchester.unodeluxe.dialog.ColorWishDialog;
 import games.winchester.unodeluxe.models.Game;
 import games.winchester.unodeluxe.models.Player;
 import games.winchester.unodeluxe.models.ShakeDetector;
+import games.winchester.unodeluxe.utils.CardGraphicResolver;
 import games.winchester.unodeluxe.utils.NetworkUtils;
 
 import static android.widget.Toast.LENGTH_SHORT;
@@ -86,6 +87,8 @@ public class GameActivity extends AppCompatActivity {
     private float oldTouchValue = 0f;
     private float newTouchValue = 0f;
     private static final float MIN_DISTANCE = 50f;
+
+    private final CardGraphicResolver graphicResolver = new CardGraphicResolver(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,22 +189,16 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-    public static Drawable getImageDrawable(Context c, String imageName) {
-        final int resourceIdentifier = c.getResources().getIdentifier(imageName, "drawable", c.getPackageName());
-
-        return c.getResources().getDrawable(resourceIdentifier);
-    }
-
     // used to keep the stack UI up to date with the backend model
     // used to keep the stack UI up to date with the backend model
-    public void updateTopCard(String graphic) {
+    public void updateTopCard(Card card) {
         LayoutInflater inflater = getLayoutInflater();
         View stackLay = inflater.inflate(R.layout.stack, gameLayout, false);
-        ImageView card = stackLay.findViewById(R.id.stackView);
-        card.setImageDrawable(getImageDrawable(this, graphic));
+        ImageView cardImageView = stackLay.findViewById(R.id.stackView);
+        cardImageView.setImageDrawable(graphicResolver.resolve(card));
         Random rand = new Random();
         float randomNum = rand.nextInt(361);
-        card.setRotation(randomNum);
+        cardImageView.setRotation(randomNum);
         stackLayout.addView(stackLay);
 
         // prevent stack from looking shit
@@ -325,7 +322,7 @@ public class GameActivity extends AppCompatActivity {
         for (Card c : cards) {
             ImageView cardView = new ImageView(GameActivity.this);
             cardView.setPadding(0, 0, 0, 0);
-            cardView.setImageDrawable(getImageDrawable(this, c.getGraphic()));
+            cardView.setImageDrawable(graphicResolver.resolve(c));
             cardView.setClickable(true);
             cardView.setTag(c);
 

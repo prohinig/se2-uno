@@ -353,7 +353,7 @@ public class Game {
 
             cardPlayed = stack.getTopCard();
 
-            activity.updateTopCard(cardPlayed.getGraphic());
+            activity.updateTopCard(cardPlayed);
             for (Player p : players) {
                 if (p.getName().equals(this.name)) {
                     self = p;
@@ -533,7 +533,7 @@ public class Game {
 
     private void layCard(Card c) {
         this.stack.playCard(c);
-        this.activity.updateTopCard(c.getGraphic());
+        this.activity.updateTopCard(c);
     }
 
     private List<Card> handCards(@SuppressWarnings("SameParameterValue") int amount, String p) {
