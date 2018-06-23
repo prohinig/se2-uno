@@ -29,6 +29,6 @@ public class CardGraphicResolverTest {
         assertEquals("rs", CardGraphicResolver.getResourceNameForCard(new Card(CardColor.RED, CardSymbol.SKIP)));
         assertEquals("rr", CardGraphicResolver.getResourceNameForCard(new Card(CardColor.RED, CardSymbol.REVERSE)));
         assertEquals("0", CardGraphicResolver.getResourceNameForCard(new Card(CardColor.BLACK, CardSymbol.ZERO)));
+        assertEquals("shake", CardGraphicResolver.getResourceNameForCard(new Card(CardColor.BLACK, CardSymbol.SHAKE)));
     }
-
 }
