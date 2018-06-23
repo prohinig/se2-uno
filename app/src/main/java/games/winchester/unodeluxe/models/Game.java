@@ -103,40 +103,44 @@ public class Game {
     }
 
     public void deckClicked() {
-        if (myTurn()) {
-            if (!isGameStarted()) {
-                startGame();
-            } else {
-                // if deck card count is low, shuffle stack into deck
-                if (session instanceof HostSession) {
-                    shuffleNeeded();
-                }
+        if(!myTurn()){
+            activity.notificationNotYourTurn();
+            return;
+        }
 
-                if (numberOfCardsToDraw != 0) {
-                    handCards(1, name);
-                    turn.setCardsDrawn(turn.getCardsDrawn() + 1);
-                    decrementNumberOfCardsToDraw();
+        if (!isGameStarted()) {
+            startGame();
+            return;
+        }
 
-                    // after drawing number of cards to draw the turn ends
-                    if (numberOfCardsToDraw == 0) {
-                        sendTurn();
-                    }
-                } else {
-                    if (!GameLogic.hasPlayableCard(self.getHand(), getActiveColor(), getTopOfStackCard())) {
-                        List<Card> tmp = handCards(1, name);
-                        turn.setCardsDrawn(turn.getCardsDrawn() + 1);
+        // if deck card count is low, shuffle stack into deck
+        if (session instanceof HostSession) {
+            shuffleNeeded();
+        }
 
-                        if (!GameLogic.isPlayableCard(tmp.get(0), self.getHand(), getTopOfStackCard(), getActiveColor())) {
-                            sendTurn();
-                        }
-                    } else {
-                        activity.notificationHasPlayableCard();
-                    }
-                }
+        if (numberOfCardsToDraw != 0) {
+            handCards(1, name);
+            turn.setCardsDrawn(turn.getCardsDrawn() + 1);
+            decrementNumberOfCardsToDraw();
+
+            // after drawing number of cards to draw the turn ends
+            if (numberOfCardsToDraw == 0) {
+                sendTurn();
             }
         } else {
-            activity.notificationNotYourTurn();
+            if (!GameLogic.hasPlayableCard(self.getHand(), getActiveColor(), getTopOfStackCard())) {
+                List<Card> tmp = handCards(1, name);
+                turn.setCardsDrawn(turn.getCardsDrawn() + 1);
+
+                if (!GameLogic.isPlayableCard(tmp.get(0), self.getHand(), getTopOfStackCard(), getActiveColor())) {
+                    sendTurn();
+                }
+            } else {
+                activity.notificationHasPlayableCard();
+            }
         }
+
+
 
     }
 
