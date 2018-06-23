@@ -22,38 +22,37 @@ public class SwipeListener implements View.OnTouchListener {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        if(v.getTag() == null) return false;
+
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                oldTouchValue = event.getY();
-                break;
+                handleActionDown(event);
+                return false;
 
             case MotionEvent.ACTION_UP:
-                float newTouchValue = event.getY();
-                float deltaY = Math.abs(newTouchValue - oldTouchValue);
-                float MIN_DISTANCE = 50f;
+                handleActionUp(v, event);
+                return true;
 
-                if (deltaY > MIN_DISTANCE) {
-                    // user swiped a card down
-                    if (newTouchValue > oldTouchValue) {
-                        if (v.getTag() == null) return false;
-                        if (game.cheat((Card) v.getTag())) {
-                            handLayout.removeView(v);
-                        }
-                        return true;
-                    }
-                } else if (deltaY <= MIN_DISTANCE) {
-                    // user clicked a card
-                    if (v.getTag() == null) return false;
-                    if (game.cardClicked((Card) v.getTag())) {
-                        handLayout.removeView(v);
-                        return true;
-                    }
-                }
-                break;
             default:
-                break;
+                return false;
         }
+    }
 
-        return false;
+    private void handleActionDown(MotionEvent event){
+        oldTouchValue = event.getY();
+    }
+
+    private void handleActionUp(View v, MotionEvent event){
+        float newTouchValue = event.getY();
+        float deltaY = Math.abs(newTouchValue - oldTouchValue);
+        float minDistance = 50f;
+
+        if (deltaY > minDistance) { // user swiped a card down
+            if (newTouchValue > oldTouchValue && game.cheat((Card) v.getTag())) {
+                handLayout.removeView(v);
+            }
+        } else if (game.cardClicked((Card) v.getTag())) { // user clicked a card
+            handLayout.removeView(v);
+        }
     }
 }
