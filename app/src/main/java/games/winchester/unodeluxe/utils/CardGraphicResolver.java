@@ -30,7 +30,7 @@ public class CardGraphicResolver {
     }
 
     public int resolveResourceId(Card card){
-        final String resourceName = this.getResourceNameForCard(card);
+        final String resourceName = getResourceNameForCard(card);
 
         return context.getResources().getIdentifier(resourceName, "drawable", context.getPackageName());
     }

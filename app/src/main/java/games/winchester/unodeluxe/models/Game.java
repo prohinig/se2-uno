@@ -279,113 +279,131 @@ public class Game {
         this.session = s;
     }
 
+    private void handleTurnMessage(Turn receivedTurn){
+        // we received a turn a player made
+        if (isHostGame()) {
+            // we are host so notify the others
+            notifyPlayers(receivedTurn);
+        }
+
+        activePlayer = receivedTurn.getActivePlayer();
+
+        // card might not change
+        if (null != receivedTurn.getActiveColor()) {
+            setActiveColorInternal(receivedTurn.getActiveColor());
+        }
+
+        direction = receivedTurn.getDirection();
+
+        numberOfCardsToDraw = receivedTurn.getCardsToDraw();
+
+        Hand lastPlayersHand = getPlayerByName(receivedTurn.getPlayerName()).getHand();
+        // remove all cards the player drew from my deck
+        if (0 < receivedTurn.getCardsDrawn() && !ignoreNextTurn) {
+            handCards(receivedTurn.getCardsDrawn(), receivedTurn.getPlayerName());
+        }
+
+        Card receivedTurnCardPlayed = receivedTurn.getCardPlayed();
+        if (!ignoreNextTurn && null != receivedTurnCardPlayed) {
+            this.layCard(receivedTurnCardPlayed);
+            lastPlayersHand.removeCard(receivedTurnCardPlayed);
+        }
+
+        if (!ignoreNextTurn && receivedTurn.isShakeRequired()) {
+            // special handling only 2 players
+            if (2 < players.size()) {
+                startShakeLimit();
+            }
+
+            if (3 > players.size()) {
+                Shake loserShake = new Shake();
+                loserShake.setLoser(name);
+                session.send(loserShake);
+                if(isHostGame()) {
+                    handCards(4, name);
+                }
+            } else if (isHostGame()) {
+                addOriginatorShake(receivedTurn.getPlayerName());
+            }
+        }
+
+        if (!ignoreNextTurn && null != lastPlayersHand) {
+            activity.updateCardCount(receivedTurn.getPlayerName(), lastPlayersHand.getCards().size());
+        }
+
+        ignoreNextTurn = false;
+    }
+
+    private void handleSetupMessage(Setup setup){
+        deck = setup.getDeck();
+        players = setup.getPlayers();
+        setActiveColorInternal(setup.getActiveColor());
+        stack = setup.getStack();
+        activePlayer = setup.getActivePlayer();
+        advancedRules = setup.isAdvancedRules();
+        cheatingAllowed = setup.isCheatingAllowed();
+        includeCustomCards = setup.isIncludeCustomCards();
+        gameStarted = true;
+
+        Card cardPlayed = stack.getTopCard();
+
+        activity.updateTopCard(cardPlayed);
+        for (Player p : players) {
+            if (p.getName().equals(this.name)) {
+                self = p;
+                break;
+            }
+        }
+        int indexOfMe = players.indexOf(self);
+        ArrayList<String> opponents = new ArrayList<>();
+        ArrayList<Integer> cardAmounts = new ArrayList<>();
+        for (int i = 1; i < players.size(); i++) {
+            opponents.add(players.get((indexOfMe + i) % players.size()).getName());
+            cardAmounts.add(players.get((indexOfMe + i) % players.size()).getHand().getSize());
+        }
+
+        activity.renderOpponents(opponents, cardAmounts);
+        activity.addToHand(self.getHand().getCards());
+    }
+
+    private void handleCheatMessage(Cheat cheat){
+        if (isHostGame()) {
+            session.send(cheat);
+        }
+        // wasnt me
+        if (!name.equals(cheat.getCheater())) {
+            Player cheater = getPlayerByName(cheat.getCheater());
+
+            if (cheater != null) {
+                cheater.setCheated(true);
+                cheater.setAccuseable(true);
+                cheater.getHand().getCards().remove(cheat.getDissapearedCard());
+                activity.updateCardCount(cheater.getName(), cheater.getHand().getCards().size());
+            }
+        }
+    }
+
+    private void handleShakeMessage(Shake shake){
+        if (null != shake.getLoser()) {
+            if(isHostGame()) {
+                session.send(shake);
+            }
+            handCards(4, shake.getLoser());
+        } else if (isHostGame()) {
+            shakeReceived(shake);
+        }
+    }
+
     public void messageReceived(Message m) {
-        Card cardPlayed = null;
         if (m instanceof Turn) {
-            // we received a turn a player made
-            if (isHostGame()) {
-                // we are host so notify the others
-                notifyPlayers((Turn) m);
-            }
-
-            Turn receivedTurn = (Turn) m;
-            activePlayer = receivedTurn.getActivePlayer();
-
-            // card might not change
-            if (null != receivedTurn.getActiveColor()) {
-                setActiveColorInternal(receivedTurn.getActiveColor());
-            }
-
-            direction = receivedTurn.getDirection();
-
-            numberOfCardsToDraw = receivedTurn.getCardsToDraw();
-
-            Hand lastPlayersHand = getPlayerByName(receivedTurn.getPlayerName()).getHand();
-            // remove all cards the player drew from my deck
-            if (0 < receivedTurn.getCardsDrawn() && !ignoreNextTurn) {
-                handCards(receivedTurn.getCardsDrawn(), receivedTurn.getPlayerName());
-            }
-
-            Card receivedTurnCardPlayed = receivedTurn.getCardPlayed();
-            if (!ignoreNextTurn && null != receivedTurnCardPlayed) {
-                this.layCard(receivedTurnCardPlayed);
-                lastPlayersHand.removeCard(receivedTurnCardPlayed);
-            }
-
-            if (!ignoreNextTurn && receivedTurn.isShakeRequired()) {
-                // special handling only 2 players
-                if (2 < players.size()) {
-                    startShakeLimit();
-                }
-
-                if (3 > players.size()) {
-                    Shake loserShake = new Shake();
-                    loserShake.setLoser(name);
-                    session.send(loserShake);
-                    if(isHostGame()) {
-                        handCards(4, name);
-                    }
-                } else if (isHostGame()) {
-                    addOriginatorShake(receivedTurn.getPlayerName());
-                }
-            }
-
-            if (!ignoreNextTurn && null != lastPlayersHand) {
-                activity.updateCardCount(receivedTurn.getPlayerName(), lastPlayersHand.getCards().size());
-            }
-
-            ignoreNextTurn = false;
+            handleTurnMessage((Turn) m);
         } else if (m instanceof Setup) {
-            Setup setup = (Setup) m;
-
-            deck = setup.getDeck();
-            players = setup.getPlayers();
-            setActiveColorInternal(setup.getActiveColor());
-            stack = setup.getStack();
-            activePlayer = setup.getActivePlayer();
-            advancedRules = setup.isAdvancedRules();
-            cheatingAllowed = setup.isCheatingAllowed();
-            includeCustomCards = setup.isIncludeCustomCards();
-            gameStarted = true;
-
-            cardPlayed = stack.getTopCard();
-
-            activity.updateTopCard(cardPlayed);
-            for (Player p : players) {
-                if (p.getName().equals(this.name)) {
-                    self = p;
-                    break;
-                }
-            }
-            int indexOfMe = players.indexOf(self);
-            ArrayList<String> opponents = new ArrayList<>();
-            ArrayList<Integer> cardAmounts = new ArrayList<>();
-            for (int i = 1; i < players.size(); i++) {
-                opponents.add(players.get((indexOfMe + i) % players.size()).getName());
-                cardAmounts.add(players.get((indexOfMe + i) % players.size()).getHand().getSize());
-            }
-
-            activity.renderOpponents(opponents, cardAmounts);
-            activity.addToHand(self.getHand().getCards());
-
+            handleSetupMessage((Setup) m);
         } else if (m instanceof Name) {
             Name nameMessage = (Name) m;
             this.name = nameMessage.getName();
         } else if (m instanceof Cheat) {
-            if (isHostGame()) {
-                session.send(m);
-            }
-            // wasnt me
-            if (!name.equals(((Cheat) m).getCheater())) {
-                Player cheater = getPlayerByName(((Cheat) m).getCheater());
-
-                if (cheater != null) {
-                    cheater.setCheated(true);
-                    cheater.setAccuseable(true);
-                    cheater.getHand().getCards().remove(((Cheat) m).getDissapearedCard());
-                    activity.updateCardCount(cheater.getName(), cheater.getHand().getCards().size());
-                }
-            }
+            handleCheatMessage((Cheat) m);
         } else if (m instanceof Accusation) {
             if (isHostGame()) {
                 handleAccusation((Accusation) m);
@@ -397,16 +415,7 @@ public class Game {
             this.stack.getCards();
             updateStackView();
         } else if (m instanceof Shake) {
-            Shake shake = (Shake) m;
-
-            if (null != shake.getLoser()) {
-                if(isHostGame()) {
-                    session.send(shake);
-                }
-                handCards(4, shake.getLoser());
-            } else if (isHostGame()) {
-                shakeReceived(shake);
-            }
+            handleShakeMessage((Shake) m);
         }
 
         if (session instanceof HostSession) {
@@ -421,7 +430,6 @@ public class Game {
             turn.setCardsDrawn(0);
             activity.notificationYourTurn();
         }
-
     }
 
     private void addOriginatorShake(String playerName) {
@@ -465,7 +473,7 @@ public class Game {
     }
 
     public void clientDisconnected() {
-
+        // We simply do not handle it
     }
 
     private void notifyPlayers(Turn turn) {
@@ -537,12 +545,15 @@ public class Game {
         List<Card> cards = this.deck.deal(amount);
         p = p == null ? name : p;
         Player player = getPlayerByName(p);
-        player.getHand().addCards(cards);
 
-        if (player.equals(self)) {
-            updateHand(cards);
-        } else {
-            activity.updateCardCount(player.getName(), player.getHand().getSize());
+        if(player != null) {
+            player.getHand().addCards(cards);
+
+            if (player.equals(self)) {
+                updateHand(cards);
+            } else {
+                activity.updateCardCount(player.getName(), player.getHand().getSize());
+            }
         }
 
         return cards;
