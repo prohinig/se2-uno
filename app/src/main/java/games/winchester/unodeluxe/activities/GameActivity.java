@@ -273,45 +273,46 @@ public class GameActivity extends AppCompatActivity {
         TransitionDrawable transitionRb = (TransitionDrawable) transition.findDrawableByLayerId(R.id.fader_rb);
         TransitionDrawable transitionGy = (TransitionDrawable) transition.findDrawableByLayerId(R.id.fader_gy);
 
-        if (oldC != newC && newC != CardColor.BLACK) {
-            switch (newC) {
-                case RED:
-                    if (oldC == CardColor.BLUE) {
-                        transitionRb.reverseTransition(700);
-                    } else {
-                        transitionRb.resetTransition();
-                        transition.reverseTransition(700);
-                    }
-                    break;
-                case BLUE:
-                    if (oldC == CardColor.RED) {
-                        transitionRb.startTransition(700);
-                    } else {
-                        transitionRb.startTransition(0);
-                        transition.reverseTransition(700);
-                    }
-                    break;
-                case GREEN:
-                    if (oldC == CardColor.YELLOW) {
-                        transitionGy.reverseTransition(700);
-                    } else {
-                        transitionGy.resetTransition();
-                        transition.startTransition(700);
-                    }
-                    break;
-                case YELLOW:
-                    if (oldC == CardColor.GREEN) {
-                        transitionGy.startTransition(700);
-                    } else {
-                        transitionGy.startTransition(0);
-                        transition.startTransition(700);
-                    }
-                    break;
-                default:
-                    break;
-            }
-            bgColor = newC;
+        if (oldC == newC || newC == CardColor.BLACK) return;
+
+        switch (newC) {
+            case RED:
+                if (oldC == CardColor.BLUE) {
+                    transitionRb.reverseTransition(700);
+                } else {
+                    transitionRb.resetTransition();
+                    transition.reverseTransition(700);
+                }
+                break;
+            case BLUE:
+                if (oldC == CardColor.RED) {
+                    transitionRb.startTransition(700);
+                } else {
+                    transitionRb.startTransition(0);
+                    transition.reverseTransition(700);
+                }
+                break;
+            case GREEN:
+                if (oldC == CardColor.YELLOW) {
+                    transitionGy.reverseTransition(700);
+                } else {
+                    transitionGy.resetTransition();
+                    transition.startTransition(700);
+                }
+                break;
+            case YELLOW:
+                if (oldC == CardColor.GREEN) {
+                    transitionGy.startTransition(700);
+                } else {
+                    transitionGy.startTransition(0);
+                    transition.startTransition(700);
+                }
+                break;
+            default:
+                break;
         }
+        
+        bgColor = newC;
     }
 
     // used to keep the hand UI up to date with the backend model
