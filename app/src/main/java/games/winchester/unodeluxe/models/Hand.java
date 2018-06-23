@@ -5,18 +5,18 @@ import java.util.List;
 
 public class Hand extends CardCollection {
     public Hand(){
-        this.cards = new ArrayList<>();
+        cards = new ArrayList<>();
     }
 
     public List<Card> getCards() {
-        return this.cards;
+        return cards;
     }
 
-    public void addCards(List<Card> cards){
-        this.cards.addAll(cards);
+    public void addCards(List<Card> additionalCards){
+        cards.addAll(additionalCards);
     }
 
     public void removeCard(Card card){
-        this.cards.remove(card);
+        cards.remove(card);
     }
 }
