@@ -25,42 +25,39 @@ public class Deck extends CardCollection {
         this.cards = new ArrayList<>();
         // add all cards
         for (CardColor color : CardColor.values()) {
-            switch (color) {
-                case BLACK:
-                    for (CardSymbol symbol : CardSymbol.values()) {
-                        switch (symbol) {
-                            case PLUSFOUR:
-                            case WISH:
-                                // there are 4 of each black ones
+            if (color == CardColor.BLACK) {
+                for (CardSymbol symbol : CardSymbol.values()) {
+                    switch (symbol) {
+                        case PLUSFOUR:
+                        case WISH:
+                            // there are 4 of each black ones
+                            this.addCard(color, symbol, 4);
+                            break;
+                        case SHAKE:
+                            if (customCards) {
                                 this.addCard(color, symbol, 4);
-                                break;
-                            case SHAKE:
-                                if(customCards){
-                                    this.addCard(color, symbol, 4);
-                                }
-                                break;
-                            default:
-                                break;
-                        }
+                            }
+                            break;
+                        default:
+                            break;
                     }
-                    break;
-                default:
-                    for (CardSymbol symbol : CardSymbol.values()) {
-                        switch (symbol) {
-                            case PLUSFOUR:
-                            case WISH:
-                            case SHAKE:
-                                break;
-                            case ZERO:
-                                this.addCard(color, symbol, 1);
-                                break;
-                            default:
-                                // there are 2 of each coloured ones
-                                this.addCard(color, symbol, 2);
-                                break;
-                        }
+                }
+            } else {
+                for (CardSymbol symbol : CardSymbol.values()) {
+                    switch (symbol) {
+                        case PLUSFOUR:
+                        case WISH:
+                        case SHAKE:
+                            break;
+                        case ZERO:
+                            this.addCard(color, symbol, 1);
+                            break;
+                        default:
+                            // there are 2 of each coloured ones
+                            this.addCard(color, symbol, 2);
+                            break;
                     }
-                    break;
+                }
             }
         }
 

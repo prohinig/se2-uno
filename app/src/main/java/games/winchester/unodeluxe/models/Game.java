@@ -214,8 +214,7 @@ public class Game {
     public void opponentClicked(Object playerName) {
         if (cheatingAllowed) {
             if (myTurn()) {
-                String name = playerName.toString();
-                activity.showAccusePlayerDialog(name);
+                activity.showAccusePlayerDialog(playerName.toString());
             } else {
                 activity.notificationNotAllowedToAccuse();
             }
@@ -327,7 +326,6 @@ public class Game {
                         handCards(4, name);
                     }
                 } else if (isHostGame()) {
-                    // 0 will always be lowest value;
                     addOriginatorShake(receivedTurn.getPlayerName());
                 }
             }
@@ -698,7 +696,9 @@ public class Game {
     }
 
     private int setNextPlayer() {
-        return activePlayer = direction.getNextPlayerPos(activePlayer, players.size());
+        activePlayer = direction.getNextPlayerPos(activePlayer, players.size());
+
+        return activePlayer;
     }
 
     public Session getSession() {
@@ -728,17 +728,13 @@ public class Game {
 
     public void startShakeLimit() {
         shakeRequired = true;
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                    if(shakeRequired) {
-                        deviceShakeRecognised();
-                    }
-                } catch (InterruptedException e) {
-                    Log.d("Game", e.getMessage(), e);
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000);
+                if(shakeRequired) {
+                    deviceShakeRecognised();
                 }
-            }
+            } catch (InterruptedException ignore) { }
         }).start();
     }
 
