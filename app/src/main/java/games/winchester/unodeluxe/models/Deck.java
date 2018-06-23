@@ -4,40 +4,23 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import games.winchester.unodeluxe.enums.CardColor;
-import games.winchester.unodeluxe.enums.CardSymbol;
-
 /**
  * Created by christianprohinig on 10.04.18.
  */
 
 public class Deck extends CardCollection {
-    public Deck() { }
-
-
-    public Deck(List<Card> cards) {
-        this.cards = cards;
-    }
-
-    // add a card to the deck
-    // private because should only be called from constructor
-    private void addCard(CardColor color, CardSymbol symbol, int amount) {
-        int added = 0;
-        while (added < amount) {
-            // make sure to have different instances of card even though its same symbol/color
-            Card card = new Card(color, symbol);
-            this.cards.add(card);
-            added++;
-        }
+    Deck(List<Card> deckCards) {
+        cards = new ArrayList<>(deckCards);
+        shuffle();
     }
 
     public void addCards(List<Card> cs) {
-        this.cards.addAll(cs);
+        cards.addAll(cs);
     }
 
     // shuffle the cards
     public void shuffle() {
-        Collections.shuffle(this.cards);
+        Collections.shuffle(cards);
     }
 
     // deal function used for dealing but also to draw cards
@@ -50,7 +33,7 @@ public class Deck extends CardCollection {
         while (amountDealt < amount) {
             //List.remove returns the removed elemet
             // we take cards from top of the deck until we have the wished amount
-            dealtCards.add(this.cards.remove(0));
+            dealtCards.add(cards.remove(0));
             amountDealt++;
         }
 

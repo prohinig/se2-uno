@@ -29,19 +29,11 @@ public class Decks {
 
 
     public static Deck getStandardDeck(){
-        return getDeck(STANDARD_DECK);
+        return new Deck(STANDARD_DECK);
     }
 
     public static Deck getCustomDeck() {
-        return getDeck(CUSTOM_DECK);
-    }
-
-    private static Deck getDeck(List<Card> cards){
-        Deck deck = new Deck();
-        deck.addCards(cards);
-        deck.shuffle();
-
-        return deck;
+        return new Deck(CUSTOM_DECK);
     }
 
     private static List<Card> generate(CardColor color, CardSymbol symbol, int times){
