@@ -73,7 +73,7 @@ public class Game {
         this.cheatingAllowed = activity.getPreferences().isCheatingAllowed();
         this.includeCustomCards = activity.getPreferences().customCardsAllowed();
 
-        this.deck = new Deck(includeCustomCards);
+        this.deck = includeCustomCards ? Decks.getCustomDeck() : Decks.getStandardDeck();
         this.stack = new Stack();
         this.players = new ArrayList<>();
         this.self = admin;

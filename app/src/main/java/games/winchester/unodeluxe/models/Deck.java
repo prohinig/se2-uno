@@ -12,57 +12,11 @@ import games.winchester.unodeluxe.enums.CardSymbol;
  */
 
 public class Deck extends CardCollection {
+    public Deck() { }
 
-    public Deck(boolean customCards) {
-        this.initialize(customCards);
-    }
 
     public Deck(List<Card> cards) {
         this.cards = cards;
-    }
-
-    private void initialize(boolean customCards) {
-        this.cards = new ArrayList<>();
-        // add all cards
-        for (CardColor color : CardColor.values()) {
-            if (color == CardColor.BLACK) {
-                for (CardSymbol symbol : CardSymbol.values()) {
-                    switch (symbol) {
-                        case PLUSFOUR:
-                        case WISH:
-                            // there are 4 of each black ones
-                            this.addCard(color, symbol, 4);
-                            break;
-                        case SHAKE:
-                            if (customCards) {
-                                this.addCard(color, symbol, 4);
-                            }
-                            break;
-                        default:
-                            break;
-                    }
-                }
-            } else {
-                for (CardSymbol symbol : CardSymbol.values()) {
-                    switch (symbol) {
-                        case PLUSFOUR:
-                        case WISH:
-                        case SHAKE:
-                            break;
-                        case ZERO:
-                            this.addCard(color, symbol, 1);
-                            break;
-                        default:
-                            // there are 2 of each coloured ones
-                            this.addCard(color, symbol, 2);
-                            break;
-                    }
-                }
-            }
-        }
-
-        // shuffle the cards because they are sorted
-        this.shuffle();
     }
 
     // add a card to the deck
