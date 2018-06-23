@@ -17,12 +17,14 @@ public class Turn implements Message {
     private Direction direction = Direction.NORMAL;
     private int cardsToDraw;
     private String playerName;
+    private boolean shakeRequired;
 
     public Turn() {
         this.cardsDrawn = 0;
         this.activePlayer = 0;
         this.cardPlayed = null;
         this.playerName = null;
+        this.shakeRequired = false;
 
         this.activeColor = null;
         this.cardsToDraw = 0;
@@ -82,5 +84,13 @@ public class Turn implements Message {
 
     public void setPlayerName(String playerName) {
         this.playerName = playerName;
+    }
+
+    public boolean isShakeRequired() {
+        return shakeRequired;
+    }
+
+    public void setShakeRequired(boolean shakeRequired) {
+        this.shakeRequired = shakeRequired;
     }
 }

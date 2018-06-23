@@ -101,6 +101,11 @@ public class Card implements Serializable, Comparable<Card> {
                 break;
             case WISH:
                 graphicName += "wild";
+                break;
+            case SHAKE:
+                graphicName += "shake";
+                break;
+
         }
 
         if (graphicName.length() < 1) {

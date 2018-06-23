@@ -500,7 +500,7 @@ public class GameActivity extends AppCompatActivity {
 
 
     public void handleShakeEvent() {
-        //TODO: for shake action card
+        game.deviceShakeRecognised();
     }
 
 

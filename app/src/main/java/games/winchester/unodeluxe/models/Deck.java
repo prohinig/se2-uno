@@ -13,15 +13,15 @@ import games.winchester.unodeluxe.enums.CardSymbol;
 
 public class Deck extends CardCollection {
 
-    public Deck() {
-        this.initialize();
+    public Deck(boolean customCards) {
+        this.initialize(customCards);
     }
 
     public Deck(List<Card> cards) {
         this.cards = cards;
     }
 
-    private void initialize() {
+    private void initialize(boolean customCards) {
         this.cards = new ArrayList<>();
         // add all cards
         for (CardColor color : CardColor.values()) {
@@ -34,6 +34,11 @@ public class Deck extends CardCollection {
                                 // there are 4 of each black ones
                                 this.addCard(color, symbol, 4);
                                 break;
+                            case SHAKE:
+                                if(customCards){
+                                    this.addCard(color, symbol, 4);
+                                }
+                                break;
                             default:
                                 break;
                         }
@@ -44,6 +49,7 @@ public class Deck extends CardCollection {
                         switch (symbol) {
                             case PLUSFOUR:
                             case WISH:
+                            case SHAKE:
                                 break;
                             case ZERO:
                                 this.addCard(color, symbol, 1);
