@@ -19,7 +19,8 @@ public enum CardSymbol {
     SKIP,
     PLUSTWO,
     WISH,
-    PLUSFOUR;
+    PLUSFOUR,
+    SHAKE;
 
     public Action getAction(){
 
@@ -29,6 +30,7 @@ public enum CardSymbol {
             case SKIP:      return Action.SKIP;
             case WISH:      return Action.WISH;
             case PLUSFOUR:  return Action.DRAWFOUR;
+            case SHAKE:     return Action.SHAKE;
             default:        return Action.NONE;
         }
     }
@@ -40,6 +42,7 @@ public enum CardSymbol {
             case SKIP:
             case WISH:
             case PLUSTWO:
+            case SHAKE:
                 return true;
             default:
                 return false;

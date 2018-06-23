@@ -6,5 +6,6 @@ public enum Action {
     REVERSE,
     DRAWTWO,
     DRAWFOUR,
-    WISH
+    WISH,
+    SHAKE
 }
