@@ -1,8 +1,8 @@
 package games.winchester.unodeluxe.models;
 
+import android.util.Log;
+
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 
 import at.laubi.network.messages.Message;
@@ -241,7 +241,6 @@ public class Game {
             if (accusedPlayer.isAccuseable()) {
                 accusedPlayer.setAccuseable(false);
             }
-            // TODO: keep Host up to date regarding cards of all players
             handleAccusationResult(ar);
             session.send(ar);
         }
@@ -468,7 +467,7 @@ public class Game {
     }
 
     public void clientDisconnected() {
-        //TODO: client disconnected
+
     }
 
     private void notifyPlayers(Turn turn) {
@@ -737,7 +736,7 @@ public class Game {
                         deviceShakeRecognised();
                     }
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    Log.d("Game", e.getMessage(), e);
                 }
             }
         }).start();

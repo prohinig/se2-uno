@@ -362,10 +362,6 @@ public class GameActivity extends AppCompatActivity {
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(125, 195);
             int marginLeft = handLayout.getChildCount() == 0 ? 0 : -30;
 
-            // TODO for bigger displays check density and render accordingly
-            // LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(188, 293);
-            // int marginLeft = handLayout.getChildCount() == 0 ? 0 : -60;
-
             layoutParams.setMargins(marginLeft, 0, 0, 0);
 
             cardView.setLayoutParams(layoutParams);
