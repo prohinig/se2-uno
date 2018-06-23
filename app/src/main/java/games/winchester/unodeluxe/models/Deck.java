@@ -1,5 +1,6 @@
 package games.winchester.unodeluxe.models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,7 +9,9 @@ import java.util.List;
  * Created by christianprohinig on 10.04.18.
  */
 
-public class Deck extends CardCollection {
+public class Deck implements Serializable {
+    private final List<Card> cards;
+
     Deck(List<Card> deckCards) {
         cards = new ArrayList<>(deckCards);
         shuffle();
@@ -38,6 +41,10 @@ public class Deck extends CardCollection {
         }
 
         return dealtCards;
+    }
+
+    public int cardsLeft() {
+        return cards.size();
     }
 
 }

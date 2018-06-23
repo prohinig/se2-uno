@@ -1,12 +1,11 @@
 package games.winchester.unodeluxe.models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Hand extends CardCollection {
-    public Hand(){
-        cards = new ArrayList<>();
-    }
+public class Hand implements Serializable {
+    private final List<Card> cards = new ArrayList<>();
 
     public List<Card> getCards() {
         return cards;
@@ -18,5 +17,9 @@ public class Hand extends CardCollection {
 
     public void removeCard(Card card){
         cards.remove(card);
+    }
+
+    public int cardsLeft(){
+        return cards.size();
     }
 }

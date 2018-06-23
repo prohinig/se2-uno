@@ -189,7 +189,7 @@ public class Game {
                     if (numberOfCardsToDraw != 0) {
                         activity.notificationDrawCardsFirst(numberOfCardsToDraw);
                         return false;
-                    } else if (self.getHand().getSize() > 2) {
+                    } else if (self.getHand().cardsLeft() > 2) {
                         self.setCheated(true);
                         self.setAccuseable(true);
                         self.getHand().removeCard(c);
@@ -365,7 +365,7 @@ public class Game {
         ArrayList<Integer> cardAmounts = new ArrayList<>();
         for (int i = 1; i < players.size(); i++) {
             opponents.add(players.get((indexOfMe + i) % players.size()).getName());
-            cardAmounts.add(players.get((indexOfMe + i) % players.size()).getHand().getSize());
+            cardAmounts.add(players.get((indexOfMe + i) % players.size()).getHand().cardsLeft());
         }
 
         activity.renderOpponents(opponents, cardAmounts);
@@ -558,7 +558,7 @@ public class Game {
             if (player.equals(self)) {
                 updateHand(cards);
             } else {
-                activity.updateCardCount(player.getName(), player.getHand().getSize());
+                activity.updateCardCount(player.getName(), player.getHand().cardsLeft());
             }
         }
 
@@ -602,7 +602,7 @@ public class Game {
 
             for (int i = 1; i < players.size(); i++) {
                 opponents.add(players.get(i).getName());
-                cardAmounts.add(players.get(i).getHand().getSize());
+                cardAmounts.add(players.get(i).getHand().cardsLeft());
 
             }
 
@@ -616,7 +616,7 @@ public class Game {
     }
 
     private void shuffleNeeded() {
-        if (deck.getSize() < 5 + numberOfCardsToDraw) {
+        if (deck.cardsLeft() < 5 + numberOfCardsToDraw) {
             stackToDeck();
             session.send(new Shuffle(this.deck));
         }
@@ -624,7 +624,7 @@ public class Game {
 
     private void stackToDeck() {
         List<Card> temp = new ArrayList<>();
-        temp.addAll(this.deck.deal(this.deck.getSize()));
+        temp.addAll(this.deck.deal(this.deck.cardsLeft()));
         temp.addAll(stack.getCards());
         this.deck = new Deck(temp);
         this.deck.shuffle();
