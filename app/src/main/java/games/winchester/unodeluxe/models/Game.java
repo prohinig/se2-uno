@@ -1,7 +1,5 @@
 package games.winchester.unodeluxe.models;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -232,7 +230,7 @@ public class Game {
         }
     }
 
-    public void handleAccusation(Accusation accusation) {
+    private void handleAccusation(Accusation accusation) {
         Player accusedPlayer = getPlayerByName(accusation.getAccused());
         if (accusedPlayer != null) {
             AccusationResult ar = new AccusationResult(accusation.getAccuser(), accusedPlayer.getName(), accusedPlayer.isAccuseable());
@@ -245,7 +243,7 @@ public class Game {
         }
     }
 
-    public void handleAccusationResult(AccusationResult accusationResult) {
+    private void handleAccusationResult(AccusationResult accusationResult) {
         Player accusedPlayer = getPlayerByName(accusationResult.getAccused());
         Player accuser = getPlayerByName(accusationResult.getAccuser());
         if (accusedPlayer != null && accuser != null) {
@@ -297,7 +295,11 @@ public class Game {
 
         numberOfCardsToDraw = receivedTurn.getCardsToDraw();
 
-        Hand lastPlayersHand = getPlayerByName(receivedTurn.getPlayerName()).getHand();
+        Player p = getPlayerByName(receivedTurn.getPlayerName());
+        if(p == null) return;
+
+
+        Hand lastPlayersHand = p.getHand();
         // remove all cards the player drew from my deck
         if (0 < receivedTurn.getCardsDrawn() && !ignoreNextTurn) {
             handCards(receivedTurn.getCardsDrawn(), receivedTurn.getPlayerName());
@@ -609,14 +611,14 @@ public class Game {
         }
     }
 
-    public void shuffleNeeded() {
+    private void shuffleNeeded() {
         if (deck.getSize() < 5 + numberOfCardsToDraw) {
             stackToDeck();
             session.send(new Shuffle(this.deck));
         }
     }
 
-    public void stackToDeck() {
+    private void stackToDeck() {
         List<Card> temp = new ArrayList<>();
         temp.addAll(this.deck.deal(this.deck.getSize()));
         temp.addAll(stack.getCards());
@@ -625,7 +627,7 @@ public class Game {
         updateStackView();
     }
 
-    public void updateStackView() {
+    private void updateStackView() {
         activity.resetStackView();
         activity.notificationShuffle();
     }
@@ -737,7 +739,7 @@ public class Game {
         return includeCustomCards;
     }
 
-    public void startShakeLimit() {
+    private void startShakeLimit() {
         shakeRequired = true;
         new Thread(() -> {
             try {
