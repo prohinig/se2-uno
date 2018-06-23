@@ -14,6 +14,8 @@ public class Decks {
     private static final List<Card> STANDARD_DECK;
     private static final List<Card> CUSTOM_DECK;
 
+    private Decks() {}
+
     static {
         List<Card> cards = new ArrayList<>(112);
 

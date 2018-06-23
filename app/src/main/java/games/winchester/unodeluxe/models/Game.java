@@ -146,22 +146,23 @@ public class Game {
 
     // handles a whole turn
     private boolean handleTurn(Card c, Player p) {
+
         if (numberOfCardsToDraw != 0) {
-            if (advancedRules && turn.getCardsDrawn() == 0) {
-                if (c.getSymbol() == getStack().getTopCard().getSymbol()) {
-                    playCard(c, p);
-                    if (!colorWishPending) {
-                        sendTurn();
-                    }
-                    return true;
-                } else {
-                    activity.notificationNumberOfCardsToDraw(numberOfCardsToDraw);
-                    return false;
-                }
-            } else {
+            if(!advancedRules || turn.getCardsDrawn() != 0) {
                 activity.notificationNumberOfCardsToDraw(numberOfCardsToDraw);
                 return false;
             }
+
+            if(c.getSymbol() != getStack().getTopCard().getSymbol()) {
+                activity.notificationNumberOfCardsToDraw(numberOfCardsToDraw);
+                return false;
+            }
+
+            playCard(c, p);
+            if (!colorWishPending) {
+                sendTurn();
+            }
+            return true;
         }
 
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
@@ -176,7 +177,6 @@ public class Game {
             activity.notificationCardNotPlayable();
             return false;
         }
-
     }
 
     public boolean cheat(Card c) {
@@ -751,7 +751,9 @@ public class Game {
                 if(shakeRequired) {
                     deviceShakeRecognised();
                 }
-            } catch (InterruptedException ignore) { }
+            } catch (InterruptedException ignore) {
+                Thread.currentThread().interrupt();
+            }
         }).start();
     }
 

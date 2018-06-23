@@ -1,5 +1,6 @@
 package games.winchester.unodeluxe.models;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -7,11 +8,12 @@ import java.util.List;
  * Created by christianprohinig on 10.04.18.
  */
 
-public class Stack extends CardCollection {
+public class Stack implements Serializable {
 
+    private List<Card> cards;
     private Card topCard;
 
-    public Stack() {
+    Stack() {
         cards = new LinkedList<>();
     }
 
