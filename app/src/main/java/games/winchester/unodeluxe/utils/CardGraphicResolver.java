@@ -72,6 +72,7 @@ public class CardGraphicResolver {
             case SKIP: return "s";
             case REVERSE: return "r";
             case WISH: return "wild";
+            case SHAKE: return "shake";
             default: return "";
         }
     }
