@@ -1,7 +1,6 @@
 package games.winchester.unodeluxe.models;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * Represents a single player
@@ -12,33 +11,28 @@ public class Player implements Serializable{
      * The players name
      */
     private String name;
+
     /**
      * Current hand of the player
      */
-    private Hand hand;
+    private final Hand hand = new Hand();
+
     /**
      * Shows if player has cheated
      */
-    private boolean cheated;
+    private boolean hasCheated = false;
+
     /**
      * States if player is accuseable for cheating
      */
-    private boolean accuseable;
-    /**
-     * number of penalty cards this player has to draw
-     */
-    private int penaltyCards;
+    private boolean isAccusable = false;
 
     /**
      * Create a new player
-     * @param name The players name
+     * @param playerName The players name
      */
-    public Player(String name){
-        this.name = name;
-        this.hand = new Hand();
-        this.cheated = false;
-        this.accuseable = false;
-        this.penaltyCards = 0;
+    public Player(String playerName) {
+        name = playerName;
     }
 
     /**
@@ -46,15 +40,7 @@ public class Player implements Serializable{
      * @return The players current Hand
      */
     public Hand getHand (){
-        return this.hand;
-    }
-
-    /**
-     * Add cards to the players hand
-     * @param cards Cards to add to the hand
-     */
-    public void addCards(List<Card> cards){
-        this.hand.addCards(cards);
+        return hand;
     }
 
     /**
@@ -62,7 +48,7 @@ public class Player implements Serializable{
      * @return The players name
      */
     public String getName(){
-        return this.name;
+        return name;
     }
 
     /**
@@ -70,15 +56,15 @@ public class Player implements Serializable{
      * @return true if player has cheated, otherwise false
      */
     public boolean hasCheated() {
-        return cheated;
+        return hasCheated;
     }
 
     /**
      * If player cheated, set variable to true;
-     * @param hasCheated
+     * @param cheated If the player cheated
      */
-    public void setCheated(boolean hasCheated) {
-        this.cheated = hasCheated;
+    public void setCheated(boolean cheated) {
+        hasCheated = cheated;
     }
 
     /**
@@ -86,39 +72,14 @@ public class Player implements Serializable{
      * @return if player is accuseable
      */
     public boolean isAccuseable() {
-        return accuseable;
+        return isAccusable;
     }
 
     /**
      * Set if player is accuseable
-     * @param isAccusable
+     * @param accusable If the player is accusable
      */
-    public void setAccuseable(boolean isAccusable) {
-        this.accuseable = isAccusable;
-    }
-
-    /**
-     * returns how many penalty cards this player has to draw
-     * @return number of penalty cards a player has to draw
-     */
-    public int getPenaltyCards() {
-        return penaltyCards;
-    }
-
-    /**
-     * adds number of penalty cards to this player
-     * @param penaltyCards
-     */
-    public void addPenaltyCards(int penaltyCards) {
-        this.penaltyCards += penaltyCards;
-    }
-
-    /**
-     * decrements number of penalty cards to draw by one
-     */
-    public void decrementPenaltyCards() {
-        if(this.penaltyCards > 0) {
-            this.penaltyCards--;
-        }
+    public void setAccuseable(boolean accusable) {
+        isAccusable = accusable;
     }
 }

@@ -1,42 +1,52 @@
 package games.winchester.unodeluxe.models;
 
-import java.util.ArrayList;
+import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
  * Created by christianprohinig on 10.04.18.
  */
 
-public class Stack extends CardCollection {
+public class Stack implements Serializable {
 
+    private List<Card> cards;
     private Card topCard;
 
-    public Stack() {
-        this.cards = new ArrayList<>();
+    Stack() {
+        cards = new LinkedList<>();
     }
 
-    // returns true if successfully playd
-    public boolean playCard(Card card) {
-        this.cards.add(card);
-        this.topCard = card;
-        return true;
+    /**
+     * Add card to top
+     * @param card The new top card
+     */
+    public void playCard(Card card) {
+        cards.add(card);
+        topCard = card;
     }
 
+    /**
+     * Get the current top card
+     * @return The current top card
+     */
     public Card getTopCard() {
-        return this.topCard;
+        return topCard;
     }
 
-    // to be called when shuffling stack back into deck
-    // removes all but the top card from stack
+    /**
+     * to be called when shuffling stack back into deck
+     * removes all but the top card from stack
+     *
+     * @return All cards without the top card
+     */
     public List<Card> getCards() {
+        cards.remove(topCard);
 
-        // we do not return the topcard as it has to remain on stack
-        this.cards.remove(this.topCard);
+        List<Card> stackCards = new LinkedList<>(cards);
 
-        List<Card> stackCards = new ArrayList<>(this.cards);
-
-        this.cards.clear();
-        this.cards.add(topCard);
+        cards.clear();
+        cards.add(topCard);
 
         return stackCards;
     }
