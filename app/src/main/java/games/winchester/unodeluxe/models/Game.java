@@ -1,9 +1,8 @@
 package games.winchester.unodeluxe.models;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
+
 
 import at.laubi.network.messages.Message;
 import at.laubi.network.session.ClientSession;
@@ -17,10 +16,11 @@ import games.winchester.unodeluxe.messages.AccusationResult;
 import games.winchester.unodeluxe.messages.Cheat;
 import games.winchester.unodeluxe.messages.Name;
 import games.winchester.unodeluxe.messages.Setup;
-import games.winchester.unodeluxe.messages.Shake;
 import games.winchester.unodeluxe.messages.Shuffle;
 import games.winchester.unodeluxe.messages.Turn;
 import games.winchester.unodeluxe.utils.GameLogic;
+import games.winchester.unodeluxe.messages.Shake;
+
 
 public class Game {
 
@@ -58,6 +58,8 @@ public class Game {
     private boolean ignoreNextTurn;
 
     private boolean shakeRequired = false;
+
+
 
     public Game(GameActivity activity) {
         this.activity = activity;
@@ -476,6 +478,9 @@ public class Game {
         session.send(turn);
     }
 
+
+
+
     // check if card can be played and return result
     private void playCard(Card c, Player p) {
         p.getHand().removeCard(c);
@@ -488,6 +493,19 @@ public class Game {
             turn.setActivePlayer(99);
             activity.notificationGameWon();
         }
+
+
+        int numberOfCards = p.getHand().getCards().size();
+        if(numberOfCards == 1) {
+            activity.SpeechRecognition(p);
+
+        }
+    }
+
+    public void TaketwoCards(Player p){
+
+         handCards(2, p.getName());
+        activity.updateCardCount(p.getName(), p.getHand().getCards().size());
     }
 
     private void wishAColor() {
