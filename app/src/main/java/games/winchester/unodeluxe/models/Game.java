@@ -499,6 +499,26 @@ public class Game {
             turn.setActivePlayer(99);
             activity.notificationGameWon();
         }
+
+        if (p.getHand().getCards().size() == 1) {
+            activity.speechRecognition(p);
+
+        }
+    }
+
+
+    public void unoAccepted() {
+        if (!colorWishPending) {
+            sendTurn();
+        }
+    }
+
+    public void unoNotAccepted(Player p) {
+        handCards(2, p.getName());
+        turn.setCardsDrawn(turn.getCardsDrawn() + 2);
+        if (!colorWishPending) {
+            sendTurn();
+        }
     }
 
     private void wishAColor() {
