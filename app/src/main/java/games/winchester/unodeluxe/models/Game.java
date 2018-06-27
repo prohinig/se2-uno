@@ -146,7 +146,6 @@ public class Game {
 
     // handles a whole turn
     private boolean handleTurn(Card c, Player p) {
-
         if (numberOfCardsToDraw != 0) {
             if(!advancedRules || turn.getCardsDrawn() != 0) {
                 activity.notificationNumberOfCardsToDraw(numberOfCardsToDraw);
@@ -159,7 +158,7 @@ public class Game {
             }
 
             playCard(c, p);
-            if (!colorWishPending) {
+            if (!colorWishPending && p.getHand().getCards().size() != 1) {
                 sendTurn();
             }
             return true;
@@ -168,7 +167,7 @@ public class Game {
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
             playCard(c, p);
 
-            if (!colorWishPending) {
+            if (!colorWishPending && p.getHand().getCards().size() != 1) {
                 sendTurn();
             }
 
@@ -483,7 +482,7 @@ public class Game {
     }
 
     private void notifyPlayers(Turn turn) {
-//      we receive a turn from one player and send it to all
+        // we receive a turn from one player and send it to all
         session.send(turn);
     }
 
@@ -498,6 +497,25 @@ public class Game {
         if (p.getHand().getCards().isEmpty()) {
             turn.setActivePlayer(99);
             activity.notificationGameWon();
+        }
+
+        if (p.getHand().getCards().size() == 1) {
+            activity.speechRecognition(p);
+
+        }
+    }
+
+    public void unoAccepted() {
+        if (!colorWishPending) {
+            sendTurn();
+        }
+    }
+
+    public void unoNotAccepted(Player p) {
+        handCards(2, p.getName());
+        turn.setCardsDrawn(turn.getCardsDrawn() + 2);
+        if (!colorWishPending) {
+            sendTurn();
         }
     }
 
