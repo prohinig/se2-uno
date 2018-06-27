@@ -44,8 +44,6 @@ import games.winchester.unodeluxe.models.ShakeDetector;
 import games.winchester.unodeluxe.utils.CardGraphicResolver;
 import games.winchester.unodeluxe.utils.NetworkUtils;
 
-import java.util.Locale;
-
 import android.content.ActivityNotFoundException;
 import android.speech.RecognizerIntent;
 

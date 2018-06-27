@@ -320,7 +320,7 @@ public class Game {
                         handCards(4, name);
                     }
                 } else if (isHostGame()) {
-                    // 0 will always be lowest value;
+                    // 0 will always be lowest value
                     addOriginatorShake(receivedTurn.getPlayerName());
                 }
         Card receivedTurnCardPlayed = receivedTurn.getCardPlayed();
@@ -788,16 +788,14 @@ public class Game {
 
     private void startShakeLimit() {
         shakeRequired = true;
-        new Thread(new Runnable() {
-            public void run() {
-                try {
-                    Thread.sleep(2000);
-                    if (shakeRequired) {
-                        deviceShakeRecognised();
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
+        new Thread(() -> {
+            try {
+                Thread.sleep(2000);
+                if (shakeRequired) {
+                    deviceShakeRecognised();
                 }
+            } catch (InterruptedException ignore) {
+                Thread.currentThread().interrupt();
             }
         }).start();
     }
