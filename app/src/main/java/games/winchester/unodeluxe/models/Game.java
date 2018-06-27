@@ -797,14 +797,7 @@ public class Game {
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-        new Thread(() -> {
-            try {
-                Thread.sleep(2000);
-                if(shakeRequired) {
-                    deviceShakeRecognised();
                 }
-            } catch (InterruptedException ignore) {
-                Thread.currentThread().interrupt();
             }
         }).start();
     }
