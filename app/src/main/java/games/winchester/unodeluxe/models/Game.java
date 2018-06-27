@@ -3,6 +3,7 @@ package games.winchester.unodeluxe.models;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import at.laubi.network.messages.Message;
 import at.laubi.network.session.ClientSession;
 import at.laubi.network.session.HostSession;
@@ -15,10 +16,11 @@ import games.winchester.unodeluxe.messages.AccusationResult;
 import games.winchester.unodeluxe.messages.Cheat;
 import games.winchester.unodeluxe.messages.Name;
 import games.winchester.unodeluxe.messages.Setup;
-import games.winchester.unodeluxe.messages.Shake;
 import games.winchester.unodeluxe.messages.Shuffle;
 import games.winchester.unodeluxe.messages.Turn;
 import games.winchester.unodeluxe.utils.GameLogic;
+import games.winchester.unodeluxe.messages.Shake;
+
 
 public class Game {
 
@@ -56,6 +58,7 @@ public class Game {
     private boolean ignoreNextTurn;
 
     private boolean shakeRequired = false;
+
 
     public Game(GameActivity activity) {
         this.activity = activity;
@@ -168,7 +171,7 @@ public class Game {
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
             playCard(c, p);
 
-            if (!colorWishPending) {
+            if (!colorWishPending && p.getHand().getCards().size() != 1) {
                 sendTurn();
             }
 
@@ -309,6 +312,17 @@ public class Game {
             handCards(receivedTurn.getCardsDrawn(), receivedTurn.getPlayerName());
         }
 
+                if (3 > players.size()) {
+                    Shake loserShake = new Shake();
+                    loserShake.setLoser(name);
+                    session.send(loserShake);
+                    if (isHostGame()) {
+                        handCards(4, name);
+                    }
+                } else if (isHostGame()) {
+                    // 0 will always be lowest value
+                    addOriginatorShake(receivedTurn.getPlayerName());
+                }
         Card receivedTurnCardPlayed = receivedTurn.getCardPlayed();
         if (!ignoreNextTurn && null != receivedTurnCardPlayed) {
             this.layCard(receivedTurnCardPlayed);
@@ -421,6 +435,16 @@ public class Game {
             this.stack.getCards();
             updateStackView();
         } else if (m instanceof Shake) {
+            Shake shake = (Shake) m;
+
+            if (null != shake.getLoser()) {
+                if (isHostGame()) {
+                    session.send(shake);
+                }
+                handCards(4, shake.getLoser());
+            } else if (isHostGame()) {
+                shakeReceived(shake);
+            }
             handleShakeMessage((Shake) m);
         }
 
@@ -483,9 +507,10 @@ public class Game {
     }
 
     private void notifyPlayers(Turn turn) {
-//      we receive a turn from one player and send it to all
+        // we receive a turn from one player and send it to all
         session.send(turn);
     }
+
 
     // check if card can be played and return result
     private void playCard(Card c, Player p) {
@@ -498,6 +523,24 @@ public class Game {
         if (p.getHand().getCards().isEmpty()) {
             turn.setActivePlayer(99);
             activity.notificationGameWon();
+        }
+
+        if (p.getHand().getCards().size() == 1) {
+            activity.speechRecognition(p);
+        }
+    }
+
+    public void unoAccepted() {
+        if (!colorWishPending) {
+            sendTurn();
+        }
+    }
+
+    public void unoNotAccepted(Player p) {
+        handCards(2, p.getName());
+        turn.setCardsDrawn(turn.getCardsDrawn() + 2);
+        if (!colorWishPending) {
+            sendTurn();
         }
     }
 
@@ -532,7 +575,7 @@ public class Game {
                 break;
             case SHAKE:
                 turn.setShakeRequired(true);
-                if(isHostGame() && 2 < players.size()){
+                if (isHostGame() && 2 < players.size()) {
                     addOriginatorShake(name);
                 }
                 wishAColor();
@@ -748,7 +791,7 @@ public class Game {
         new Thread(() -> {
             try {
                 Thread.sleep(2000);
-                if(shakeRequired) {
+                if (shakeRequired) {
                     deviceShakeRecognised();
                 }
             } catch (InterruptedException ignore) {
