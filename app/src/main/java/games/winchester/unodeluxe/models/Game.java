@@ -60,7 +60,6 @@ public class Game {
     private boolean shakeRequired = false;
 
 
-
     public Game(GameActivity activity) {
         this.activity = activity;
         this.gameStarted = false;
@@ -167,7 +166,7 @@ public class Game {
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
             playCard(c, p);
 
-            if (!colorWishPending) {
+            if (!colorWishPending && p.getHand().getCards().size() != 1) {
                 sendTurn();
             }
 
@@ -326,7 +325,7 @@ public class Game {
                     Shake loserShake = new Shake();
                     loserShake.setLoser(name);
                     session.send(loserShake);
-                    if(isHostGame()) {
+                    if (isHostGame()) {
                         handCards(4, name);
                     }
                 } else if (isHostGame()) {
@@ -405,7 +404,7 @@ public class Game {
             Shake shake = (Shake) m;
 
             if (null != shake.getLoser()) {
-                if(isHostGame()) {
+                if (isHostGame()) {
                     session.send(shake);
                 }
                 handCards(4, shake.getLoser());
@@ -479,8 +478,6 @@ public class Game {
     }
 
 
-
-
     // check if card can be played and return result
     private void playCard(Card c, Player p) {
         p.getHand().removeCard(c);
@@ -494,18 +491,23 @@ public class Game {
             activity.notificationGameWon();
         }
 
-
-        int numberOfCards = p.getHand().getCards().size();
-        if(numberOfCards == 1) {
-            activity.SpeechRecognition(p);
-
+        if (p.getHand().getCards().size() == 1) {
+            activity.speechRecognition(p);
         }
     }
 
-    public void TaketwoCards(Player p){
+    public void unoAccepted() {
+        if (!colorWishPending) {
+            sendTurn();
+        }
+    }
 
-         handCards(2, p.getName());
-        activity.updateCardCount(p.getName(), p.getHand().getCards().size());
+    public void unoNotAccepted(Player p) {
+        handCards(2, p.getName());
+        turn.setCardsDrawn(turn.getCardsDrawn() + 2);
+        if (!colorWishPending) {
+            sendTurn();
+        }
     }
 
     private void wishAColor() {
@@ -539,7 +541,7 @@ public class Game {
                 break;
             case SHAKE:
                 turn.setShakeRequired(true);
-                if(isHostGame() && 2 < players.size()){
+                if (isHostGame() && 2 < players.size()) {
                     addOriginatorShake(name);
                 }
                 wishAColor();
@@ -751,7 +753,7 @@ public class Game {
             public void run() {
                 try {
                     Thread.sleep(2000);
-                    if(shakeRequired) {
+                    if (shakeRequired) {
                         deviceShakeRecognised();
                     }
                 } catch (InterruptedException e) {

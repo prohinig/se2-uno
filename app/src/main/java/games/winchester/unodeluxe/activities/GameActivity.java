@@ -44,9 +44,9 @@ import games.winchester.unodeluxe.models.ShakeDetector;
 import games.winchester.unodeluxe.utils.NetworkUtils;
 
 import java.util.Locale;
+
 import android.content.ActivityNotFoundException;
 import android.speech.RecognizerIntent;
-
 
 
 import static android.widget.Toast.LENGTH_SHORT;
@@ -93,10 +93,10 @@ public class GameActivity extends AppCompatActivity {
     private float newTouchValue = 0f;
     private static final float MIN_DISTANCE = 50f;
 
-    private final int REQ_CODE_SPEECH_INPUT = 100;
+    private static final int REQ_CODE_SPEECH_INPUT = 100;
 
     ArrayList<String> result;
-    ArrayList<String> allowedList = new ArrayList<String>();
+    ArrayList<String> allowedList = new ArrayList<>();
     Player p;
 
     @Override
@@ -571,7 +571,7 @@ public class GameActivity extends AppCompatActivity {
     }
 
 
-    private void addElements(){
+    private void addElements() {
         allowedList.add("UNO");
         allowedList.add("UN");
         allowedList.add("U");
@@ -583,25 +583,19 @@ public class GameActivity extends AppCompatActivity {
         allowedList.add("U");
     }
 
-
-
-
-    public void SpeechRecognition(Player p) {
+    public void speechRecognition(Player p) {
         Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
         intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault());
-        intent.putExtra(RecognizerIntent.EXTRA_PROMPT,
-                getString(R.string.say_something) );
-        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS,300);
-        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS,100);
-        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS,1000);
+        intent.putExtra(RecognizerIntent.EXTRA_PROMPT, getString(R.string.say_something));
+        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_POSSIBLY_COMPLETE_SILENCE_LENGTH_MILLIS, 300);
+        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 100);
+        intent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_MINIMUM_LENGTH_MILLIS, 1000);
 
-        this.p=p;
+        this.p = p;
         try {
             startActivityForResult(intent, REQ_CODE_SPEECH_INPUT);
-
-            } catch (ActivityNotFoundException a) {
+        } catch (ActivityNotFoundException a) {
             Toast.makeText(getApplicationContext(),
                     getString(R.string.speech_not_supported),
                     Toast.LENGTH_SHORT).show();
@@ -611,19 +605,19 @@ public class GameActivity extends AppCompatActivity {
 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==REQ_CODE_SPEECH_INPUT){
+        if (requestCode == REQ_CODE_SPEECH_INPUT) {
             if (resultCode == RESULT_OK && null != data) {
                 result = data
                         .getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);
                 Toast.makeText(this, result.get(0), Toast.LENGTH_SHORT).show();
                 if (!allowedList.contains(result.get(0))) {
-                    game.TaketwoCards(p);
+                    game.unoNotAccepted(p);
+                } else {
+                    game.unoAccepted();
                 }
-        }else {
-
-                game.TaketwoCards(p);}
-
-             }
-
+            } else {
+                game.unoNotAccepted(p);
+            }
         }
+    }
 }
