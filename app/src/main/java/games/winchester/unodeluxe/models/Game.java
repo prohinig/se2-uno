@@ -493,6 +493,7 @@ public class Game {
 
         if (p.getHand().getCards().size() == 1) {
             activity.speechRecognition(p);
+            
         }
     }
 
