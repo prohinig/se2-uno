@@ -507,7 +507,7 @@ public class Game {
     }
 
     private void notifyPlayers(Turn turn) {
-//      we receive a turn from one player and send it to all
+        // we receive a turn from one player and send it to all
         session.send(turn);
     }
 
