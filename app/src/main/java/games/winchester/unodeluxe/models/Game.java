@@ -3,6 +3,7 @@ package games.winchester.unodeluxe.models;
 import java.util.ArrayList;
 import java.util.List;
 
+
 import at.laubi.network.messages.Message;
 import at.laubi.network.session.ClientSession;
 import at.laubi.network.session.HostSession;
@@ -15,10 +16,11 @@ import games.winchester.unodeluxe.messages.AccusationResult;
 import games.winchester.unodeluxe.messages.Cheat;
 import games.winchester.unodeluxe.messages.Name;
 import games.winchester.unodeluxe.messages.Setup;
-import games.winchester.unodeluxe.messages.Shake;
 import games.winchester.unodeluxe.messages.Shuffle;
 import games.winchester.unodeluxe.messages.Turn;
 import games.winchester.unodeluxe.utils.GameLogic;
+import games.winchester.unodeluxe.messages.Shake;
+
 
 public class Game {
 
@@ -56,6 +58,7 @@ public class Game {
     private boolean ignoreNextTurn;
 
     private boolean shakeRequired = false;
+
 
     public Game(GameActivity activity) {
         this.activity = activity;
@@ -168,7 +171,7 @@ public class Game {
         if (GameLogic.isPlayableCard(c, p.getHand(), getTopOfStackCard(), activeColor)) {
             playCard(c, p);
 
-            if (!colorWishPending) {
+            if (!colorWishPending && p.getHand().getCards().size() != 1) {
                 sendTurn();
             }
 
@@ -487,6 +490,7 @@ public class Game {
         session.send(turn);
     }
 
+
     // check if card can be played and return result
     private void playCard(Card c, Player p) {
         p.getHand().removeCard(c);
@@ -498,6 +502,25 @@ public class Game {
         if (p.getHand().getCards().isEmpty()) {
             turn.setActivePlayer(99);
             activity.notificationGameWon();
+        }
+
+        if (p.getHand().getCards().size() == 1) {
+            activity.speechRecognition(p);
+            
+        }
+    }
+
+    public void unoAccepted() {
+        if (!colorWishPending) {
+            sendTurn();
+        }
+    }
+
+    public void unoNotAccepted(Player p) {
+        handCards(2, p.getName());
+        turn.setCardsDrawn(turn.getCardsDrawn() + 2);
+        if (!colorWishPending) {
+            sendTurn();
         }
     }
 
@@ -532,7 +555,7 @@ public class Game {
                 break;
             case SHAKE:
                 turn.setShakeRequired(true);
-                if(isHostGame() && 2 < players.size()){
+                if (isHostGame() && 2 < players.size()) {
                     addOriginatorShake(name);
                 }
                 wishAColor();

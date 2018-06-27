@@ -71,4 +71,6 @@
     <string name="wrongly_accused_accused">%s hat dich fälschlicherweise des Schummelns bezichtigt und hat daher sofort 2 Strafkarten erhalten.</string>
     <string name="no_cheating">Das Schummeln ist nicht erlaubt.</string>
     <string name="shuffle">Der Stack wurde in das Deck gemischt.</string>
+    <string name="say_something">Sag UNO!</string>
+    <string name="speech_not_supported">Sorry! Your device doesn\'t support speech input</string>
 </resources>
