@@ -13,6 +13,7 @@ public class CardSymbolTest {
         assertEquals(Action.SKIP, CardSymbol.SKIP.getAction());
         assertEquals(Action.WISH, CardSymbol.WISH.getAction());
         assertEquals(Action.DRAWFOUR, CardSymbol.PLUSFOUR.getAction());
+        assertEquals(Action.SHAKE, CardSymbol.SHAKE.getAction());
         assertEquals(Action.NONE, CardSymbol.NINE.getAction());
     }
     

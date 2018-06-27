@@ -1,22 +1,25 @@
 package games.winchester.unodeluxe.models;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Hand extends CardCollection {
-    public Hand(){
-        this.cards = new ArrayList<>();
-    }
+public class Hand implements Serializable {
+    private final List<Card> cards = new ArrayList<>();
 
     public List<Card> getCards() {
-        return this.cards;
+        return cards;
     }
 
-    public void addCards(List<Card> cards){
-        this.cards.addAll(cards);
+    public void addCards(List<Card> additionalCards){
+        cards.addAll(additionalCards);
     }
 
     public void removeCard(Card card){
-        this.cards.remove(card);
+        cards.remove(card);
+    }
+
+    public int cardsLeft(){
+        return cards.size();
     }
 }

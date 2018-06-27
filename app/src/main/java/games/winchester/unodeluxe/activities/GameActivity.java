@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -15,7 +14,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -26,6 +24,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 import at.laubi.network.Network;
@@ -34,13 +33,15 @@ import at.laubi.network.session.ClientSession;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import games.winchester.unodeluxe.R;
+import games.winchester.unodeluxe.SwipeListener;
 import games.winchester.unodeluxe.app.Preferences;
+import games.winchester.unodeluxe.dialog.ColorWishDialog;
 import games.winchester.unodeluxe.enums.CardColor;
 import games.winchester.unodeluxe.models.Card;
-import games.winchester.unodeluxe.dialog.ColorWishDialog;
 import games.winchester.unodeluxe.models.Game;
 import games.winchester.unodeluxe.models.Player;
 import games.winchester.unodeluxe.models.ShakeDetector;
+import games.winchester.unodeluxe.utils.CardGraphicResolver;
 import games.winchester.unodeluxe.utils.NetworkUtils;
 
 import java.util.Locale;
@@ -88,10 +89,7 @@ public class GameActivity extends AppCompatActivity {
 
     private CardColor bgColor = CardColor.RED;
 
-    // Needed to detect swipe event
-    private float oldTouchValue = 0f;
-    private float newTouchValue = 0f;
-    private static final float MIN_DISTANCE = 50f;
+    private final CardGraphicResolver graphicResolver = new CardGraphicResolver(this);
 
     private static final int REQ_CODE_SPEECH_INPUT = 100;
 
@@ -199,22 +197,16 @@ public class GameActivity extends AppCompatActivity {
         });
     }
 
-    public static Drawable getImageDrawable(Context c, String imageName) {
-        final int resourceIdentifier = c.getResources().getIdentifier(imageName, "drawable", c.getPackageName());
-
-        return c.getResources().getDrawable(resourceIdentifier);
-    }
-
     // used to keep the stack UI up to date with the backend model
     // used to keep the stack UI up to date with the backend model
-    public void updateTopCard(String graphic) {
+    public void updateTopCard(Card card) {
         LayoutInflater inflater = getLayoutInflater();
         View stackLay = inflater.inflate(R.layout.stack, gameLayout, false);
-        ImageView card = stackLay.findViewById(R.id.stackView);
-        card.setImageDrawable(getImageDrawable(this, graphic));
+        ImageView cardImageView = stackLay.findViewById(R.id.stackView);
+        cardImageView.setImageDrawable(graphicResolver.resolveDrawable(card));
         Random rand = new Random();
         float randomNum = rand.nextInt(361);
-        card.setRotation(randomNum);
+        cardImageView.setRotation(randomNum);
         stackLayout.addView(stackLay);
 
         // prevent stack from looking shit
@@ -227,7 +219,7 @@ public class GameActivity extends AppCompatActivity {
         stackLayout.removeViews(0, stackLayout.getChildCount() - 1);
     }
 
-    public void updateCardCount(String playerName, Integer count) {
+    public void updateCardCount(String playerName, int count) {
         TextView v = null;
 
         if (null != opponentOne.getTag() && opponentOne.getTag().toString().equals(playerName)) {
@@ -239,8 +231,12 @@ public class GameActivity extends AppCompatActivity {
         }
 
         if (v != null) {
-            v.setText(count.toString());
+            v.setText(formatNumber(count));
         }
+    }
+
+    private static String formatNumber(int number){
+        return String.format(Locale.GERMAN, "%d", number);
     }
 
     public void renderOpponents(List<String> opponents, List<Integer> cardAmounts) {
@@ -250,16 +246,16 @@ public class GameActivity extends AppCompatActivity {
             opponentTwo.setTag(opponents.get(0));
             views.add(opponentTwo);
             TextView v = opponentTwo.findViewById(R.id.player3count);
-            v.setText(cardAmounts.get(0).toString());
+            v.setText(formatNumber(cardAmounts.get(0)));
         } else if (noOpponents == 2) {
             opponentOne.setTag(opponents.get(0));
             opponentThree.setTag(opponents.get(1));
             views.add(opponentOne);
             views.add(opponentThree);
             TextView v = opponentOne.findViewById(R.id.player2count);
-            v.setText(cardAmounts.get(0).toString());
+            v.setText(formatNumber(cardAmounts.get(0)));
             v = opponentThree.findViewById(R.id.player4count);
-            v.setText(cardAmounts.get(1).toString());
+            v.setText(formatNumber(cardAmounts.get(1)));
 
         } else if (noOpponents == 3) {
             opponentOne.setTag(opponents.get(0));
@@ -269,11 +265,11 @@ public class GameActivity extends AppCompatActivity {
             views.add(opponentTwo);
             views.add(opponentThree);
             TextView v = opponentOne.findViewById(R.id.player2count);
-            v.setText(cardAmounts.get(0).toString());
+            v.setText(formatNumber(cardAmounts.get(0)));
             v = opponentTwo.findViewById(R.id.player3count);
-            v.setText(cardAmounts.get(1).toString());
+            v.setText(formatNumber(cardAmounts.get(1)));
             v = opponentThree.findViewById(R.id.player4count);
-            v.setText(cardAmounts.get(2).toString());
+            v.setText(formatNumber(cardAmounts.get(2)));
         }
 
         for (View w : views) {
@@ -290,98 +286,65 @@ public class GameActivity extends AppCompatActivity {
         TransitionDrawable transitionRb = (TransitionDrawable) transition.findDrawableByLayerId(R.id.fader_rb);
         TransitionDrawable transitionGy = (TransitionDrawable) transition.findDrawableByLayerId(R.id.fader_gy);
 
-        if (oldC != newC && newC != CardColor.BLACK) {
-            switch (newC) {
-                case RED:
-                    if (oldC == CardColor.BLUE) {
-                        transitionRb.reverseTransition(700);
-                    } else {
-                        transitionRb.resetTransition();
-                        transition.reverseTransition(700);
-                    }
-                    break;
-                case BLUE:
-                    if (oldC == CardColor.RED) {
-                        transitionRb.startTransition(700);
-                    } else {
-                        transitionRb.startTransition(0);
-                        transition.reverseTransition(700);
-                    }
-                    break;
-                case GREEN:
-                    if (oldC == CardColor.YELLOW) {
-                        transitionGy.reverseTransition(700);
-                    } else {
-                        transitionGy.resetTransition();
-                        transition.startTransition(700);
-                    }
-                    break;
-                case YELLOW:
-                    if (oldC == CardColor.GREEN) {
-                        transitionGy.startTransition(700);
-                    } else {
-                        transitionGy.startTransition(0);
-                        transition.startTransition(700);
-                    }
-                    break;
-                default:
-                    break;
-            }
-            bgColor = newC;
+        if (oldC == newC || newC == CardColor.BLACK) return;
+
+        switch (newC) {
+            case RED:
+                if (oldC == CardColor.BLUE) {
+                    transitionRb.reverseTransition(700);
+                } else {
+                    transitionRb.resetTransition();
+                    transition.reverseTransition(700);
+                }
+                break;
+            case BLUE:
+                if (oldC == CardColor.RED) {
+                    transitionRb.startTransition(700);
+                } else {
+                    transitionRb.startTransition(0);
+                    transition.reverseTransition(700);
+                }
+                break;
+            case GREEN:
+                if (oldC == CardColor.YELLOW) {
+                    transitionGy.reverseTransition(700);
+                } else {
+                    transitionGy.resetTransition();
+                    transition.startTransition(700);
+                }
+                break;
+            case YELLOW:
+                if (oldC == CardColor.GREEN) {
+                    transitionGy.startTransition(700);
+                } else {
+                    transitionGy.startTransition(0);
+                    transition.startTransition(700);
+                }
+                break;
+            default:
+                break;
         }
+        
+        bgColor = newC;
     }
 
     // used to keep the hand UI up to date with the backend model
     @SuppressLint("ClickableViewAccessibility")
     public void addToHand(List<Card> cards) {
+        // Needed to detect swipe event
+
 
         for (Card c : cards) {
             ImageView cardView = new ImageView(GameActivity.this);
             cardView.setPadding(0, 0, 0, 0);
-            cardView.setImageDrawable(getImageDrawable(this, c.getGraphic()));
+            cardView.setImageDrawable(graphicResolver.resolveDrawable(c));
             cardView.setClickable(true);
             cardView.setTag(c);
 
-            cardView.setOnTouchListener((v, event) -> {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        oldTouchValue = event.getY();
-                        break;
-                    case MotionEvent.ACTION_UP:
-                        newTouchValue = event.getY();
-                        float deltaY = Math.abs(newTouchValue - oldTouchValue);
-                        if (deltaY > MIN_DISTANCE) {
-                            // user swiped a card down
-                            if (newTouchValue > oldTouchValue) {
-                                if (v.getTag() == null) return false;
-                                if (game.cheat((Card) v.getTag())) {
-                                    handLayout.removeView(v);
-                                }
-                                return true;
-                            }
-                        } else if (deltaY <= MIN_DISTANCE) {
-                            // user clicked a card
-                            if (v.getTag() == null) return false;
-                            if (game.cardClicked((Card) v.getTag())) {
-                                handLayout.removeView(v);
-                                return true;
-                            }
-                        }
-                        break;
-                    default:
-                        break;
-                }
-
-                return false;
-            });
-
+            cardView.setOnTouchListener(new SwipeListener(game, handLayout));
 
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(125, 195);
             int marginLeft = handLayout.getChildCount() == 0 ? 0 : -30;
-
-            // TODO for bigger displays check density and render accordingly
-            // LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(188, 293);
-            // int marginLeft = handLayout.getChildCount() == 0 ? 0 : -60;
 
             layoutParams.setMargins(marginLeft, 0, 0, 0);
 
@@ -456,10 +419,6 @@ public class GameActivity extends AppCompatActivity {
 
     public void notificationNotAllowedToCheat() {
         this.toastUiThread(getString(R.string.not_allowed_to_cheat), LENGTH_SHORT);
-    }
-
-    public void notificationDeckShuffled() {
-        this.toastUiThread(getString(R.string.deck_shuffeled), LENGTH_SHORT);
     }
 
     public void notificationNotAllowedToAccuse() {
@@ -556,8 +515,6 @@ public class GameActivity extends AppCompatActivity {
             if (which == DialogInterface.BUTTON_POSITIVE) {
                 game.accusePlayer(playerName);
 
-            } else if (which == DialogInterface.BUTTON_NEGATIVE) {
-                // No button clicked: do nothing
             }
         };
 
